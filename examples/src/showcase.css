@@ -370,13 +370,10 @@ a {
 .cards {
   display: grid;
   gap: 20px;
-  grid-template-columns: repeat(auto-fit, minmax(390px, 1fr));
-}
-
-@media (max-width: 560px) {
-  .cards {
-    grid-template-columns: 1fr;
-  }
+  /* 🛑 `min()` and not a bare 390px: a fixed minimum stays 390px wide on a 390px screen, and
+     the card then overflows by its own padding — measured at 150px of horizontal scroll on a
+     phone. `min(100%, …)` lets the track collapse to the space that actually exists. */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 390px), 1fr));
 }
 
 .card {

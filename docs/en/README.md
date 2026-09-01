@@ -76,3 +76,9 @@ const { reveal } = usePanels<PanelId>()
 
 Skip it and the ids fall back to `string`, which still works — you lose the compiler catching
 `reveal('note')` when the panel is called `notes`.
+
+## Licence
+
+**MIT** — see [LICENSE](../../LICENSE). Every dependency is MIT too, so there is no copyleft
+obligation anywhere in the tree. The full accounting is in
+[THIRD-PARTY-NOTICES.md](../../THIRD-PARTY-NOTICES.md).
