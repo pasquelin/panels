@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Châssis à panneaux React : rails d'icônes, zones redimensionnables, centre libre. Headless + composants par défaut, entièrement surchargeable.",
   "type": "module",
+  "packageManager": "pnpm@11.16.0",
   "license": "MIT",
   "author": "Alban Pasquelin <alban.pasquelin@gmail.com>",
   "repository": {
