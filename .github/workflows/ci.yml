@@ -1,0 +1,38 @@
+# Anti-regression net: on every push to main or develop, and on every pull request, the same
+# barrier `pnpm validate` raises locally — llms freshness, licences, typecheck, lint, format and
+# the test suite. Anything that slips blocks the merge.
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+# A pull request that pushes another commit cancels the previous run: only the latest state is
+# worth paying for.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Validate
+        run: pnpm validate
+
+      # The published artefact must build, not merely typecheck: `vite build` also emits the
+      # types, and a broken declaration only shows up here.
+      - name: Build the package
+        run: pnpm build

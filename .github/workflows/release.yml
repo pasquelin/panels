@@ -1,0 +1,63 @@
+# Publishes to npm when a `vX.Y.Z` tag is pushed. The tag IS the release.
+#
+# Maintainer's flow:
+#   npm version minor        # bumps package.json, commits, tags vX.Y.Z
+#   git push --follow-tags   # pushes the branch and the tag → this workflow publishes
+#
+# Authentication: **npm Trusted Publishing (OIDC)** — no token, anywhere. npm exchanges the
+# GitHub OIDC token (the `id-token: write` permission below) for a short-lived publish token.
+# The trusted publisher is declared on npm's side: pasquelin/panel → release.yml.
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: read
+  id-token: write # required for `npm publish --provenance`
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: 'https://registry.npmjs.org'
+
+      # OIDC trusted publishing needs npm >= 11.5.1; Node 22 ships npm 10.
+      - name: Update npm (required for OIDC)
+        run: npm install -g npm@latest
+
+      - run: pnpm install --frozen-lockfile
+
+      # The tag must match package.json, or we would publish a version that does not match the
+      # code the tag points at.
+      - name: Check the tag matches package.json
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG="$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "$PKG" ]; then
+            echo "::error::Tag v$TAG does not match package.json $PKG"; exit 1
+          fi
+
+      # The same barrier as CI, before anything leaves for the registry.
+      - name: Validate
+        run: pnpm validate
+
+      - name: Build (ESM + CJS + types)
+        run: pnpm build
+
+      # No token: the OIDC trusted publisher declared on npm authenticates this publish.
+      - name: Publish to npm
+        run: npm publish --provenance --access public
