@@ -16,7 +16,8 @@
     "overview": "Overview",
     "examples": "Examples",
     "api": "API",
-    "languageLabel": "Language"
+    "languageLabel": "Language",
+    "source": "GitHub"
   },
   "hero": {
     "eyebrow": "React 19 · 8 kB gzipped · no dependencies",

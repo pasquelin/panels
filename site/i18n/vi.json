@@ -16,7 +16,8 @@
     "overview": "Tổng quan",
     "examples": "Ví dụ",
     "api": "API",
-    "languageLabel": "Ngôn ngữ"
+    "languageLabel": "Ngôn ngữ",
+    "source": "GitHub"
   },
   "hero": {
     "eyebrow": "React 19 · 8 kB sau nén · không phụ thuộc",

@@ -16,7 +16,8 @@
     "overview": "Ringkasan",
     "examples": "Contoh",
     "api": "API",
-    "languageLabel": "Bahasa"
+    "languageLabel": "Bahasa",
+    "source": "GitHub"
   },
   "hero": {
     "eyebrow": "React 19 · 8 kB terkompresi · tanpa dependensi",

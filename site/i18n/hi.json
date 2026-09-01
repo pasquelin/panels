@@ -16,7 +16,8 @@
     "overview": "परिचय",
     "examples": "उदाहरण",
     "api": "API",
-    "languageLabel": "भाषा"
+    "languageLabel": "भाषा",
+    "source": "GitHub"
   },
   "hero": {
     "eyebrow": "React 19 · gzip के बाद 8 kB · कोई निर्भरता नहीं",

@@ -16,7 +16,8 @@
     "overview": "개요",
     "examples": "예제",
     "api": "API",
-    "languageLabel": "언어"
+    "languageLabel": "언어",
+    "source": "GitHub"
   },
   "hero": {
     "eyebrow": "React 19 · gzip 8 kB · 의존성 없음",

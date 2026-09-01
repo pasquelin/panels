@@ -16,7 +16,8 @@
     "overview": "Genel bakış",
     "examples": "Örnekler",
     "api": "API",
-    "languageLabel": "Dil"
+    "languageLabel": "Dil",
+    "source": "GitHub"
   },
   "hero": {
     "eyebrow": "React 19 · gzip ile 8 kB · bağımlılık yok",

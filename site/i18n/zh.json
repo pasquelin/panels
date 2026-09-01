@@ -16,7 +16,8 @@
     "overview": "概览",
     "examples": "示例",
     "api": "API",
-    "languageLabel": "语言"
+    "languageLabel": "语言",
+    "source": "GitHub"
   },
   "hero": {
     "eyebrow": "React 19 · gzip 后 8 kB · 零依赖",

@@ -17,7 +17,8 @@
     "overview": "نظرة عامة",
     "examples": "أمثلة",
     "api": "الواجهة البرمجية",
-    "languageLabel": "اللغة"
+    "languageLabel": "اللغة",
+    "source": "GitHub"
   },
   "hero": {
     "eyebrow": "React 19 · ٨ ك.ب مضغوطة · بلا اعتماديات",
