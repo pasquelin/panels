@@ -95,6 +95,12 @@ follows your declarations rather than freezing an answer.
 
 Focus and the solo stash are session state and are deliberately not written down.
 
+**When it is written:** at most once every 250 ms, then when the chassis unmounts and when the
+page is hidden. A drag changes the sizes on every frame, and `localStorage` is synchronous — so
+the writes are held rather than made, and one carries the latest state. A custom `write` is
+therefore called rarely, and reading the storage right after an action may find it not written
+yet.
+
 A custom store is two functions:
 
 ```ts

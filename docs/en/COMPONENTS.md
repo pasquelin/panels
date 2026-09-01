@@ -86,6 +86,8 @@ What the chassis does for you:
 - every panel is a `<section>` named by its title
 - every handle is a `role="separator"` with `aria-orientation`, `aria-valuenow` and its bounds,
   focusable and driven by the arrow keys
+- a handle takes the main button of the primary pointer and nothing else, and keeps the gesture
+  on touch rather than letting the page scroll
 - the focus ring is visible and `prefers-reduced-motion` is respected
 
 What is yours: the contrast of your palette, and the accessible names of whatever you put inside

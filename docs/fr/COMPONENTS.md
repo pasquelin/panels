@@ -87,6 +87,8 @@ Ce que le châssis fait pour vous :
 - chaque panneau est une `<section>` nommée par son titre
 - chaque poignée est un `role="separator"` avec `aria-orientation`, `aria-valuenow` et ses bornes,
   focalisable et pilotée aux flèches
+- une poignée ne prend que le bouton principal du pointeur principal, et garde le geste au
+  toucher plutôt que de laisser la page défiler
 - l'anneau de focus est visible et `prefers-reduced-motion` est respecté
 
 Ce qui vous revient : le contraste de votre palette, et les noms accessibles de ce que vous mettez

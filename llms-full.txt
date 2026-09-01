@@ -597,6 +597,12 @@ follows your declarations rather than freezing an answer.
 
 Focus and the solo stash are session state and are deliberately not written down.
 
+**When it is written:** at most once every 250 ms, then when the chassis unmounts and when the
+page is hidden. A drag changes the sizes on every frame, and `localStorage` is synchronous — so
+the writes are held rather than made, and one carries the latest state. A custom `write` is
+therefore called rarely, and reading the storage right after an action may find it not written
+yet.
+
 A custom store is two functions:
 
 ```ts
@@ -913,6 +919,8 @@ What the chassis does for you:
 - every panel is a `<section>` named by its title
 - every handle is a `role="separator"` with `aria-orientation`, `aria-valuenow` and its bounds,
   focusable and driven by the arrow keys
+- a handle takes the main button of the primary pointer and nothing else, and keeps the gesture
+  on touch rather than letting the page scroll
 - the focus ring is visible and `prefers-reduced-motion` is respected
 
 What is yours: the contrast of your palette, and the accessible names of whatever you put inside

@@ -97,6 +97,12 @@ nommer personne, donc elle suit vos déclarations au lieu de figer une réponse.
 
 Le focus et la mise de côté d'un panneau solo sont un état de session, délibérément non écrit.
 
+**Quand ça s'écrit :** au plus une fois toutes les 250 ms, puis au démontage du châssis et quand la
+page est masquée. Un drag change les tailles à chaque frame, et `localStorage` est synchrone :
+les écritures sont retenues plutôt que faites, et une seule porte le dernier état. Un `write` sur
+mesure est donc appelé rarement, et lire le stockage juste après une action peut le trouver pas
+encore écrit.
+
 Un stockage sur mesure tient en deux fonctions :
 
 ```ts
