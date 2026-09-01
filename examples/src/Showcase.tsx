@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { IconButton, Panel, Panels, usePanels } from '@pasquelin/panels'
 import { Code } from './code'
-import { API, EXAMPLES } from './examples'
+import { API_CODE, CODE, EXAMPLE_IDS } from './examples'
 import { COPY } from './copy'
-import { LANGS, useLang } from './i18n'
+import { LANG_NAMES, LANGS, useLang, type Lang } from './i18n'
 import {
   ChatIcon,
   FilesIcon,
@@ -86,21 +86,23 @@ function SideRail() {
         </a>
       ))}
 
-      {/* At the foot of the rail, where a preference belongs rather than in the reading flow. */}
-      <div className="railnav__langs" role="group" aria-label={words.langLabel}>
-        {LANGS.map(one => (
-          <button
-            key={one}
-            type="button"
-            lang={one}
-            aria-pressed={lang === one}
-            className={`railnav__lang${lang === one ? ' railnav__lang--on' : ''}`}
-            onClick={() => setLang(one)}
-          >
-            {one.toUpperCase()}
-          </button>
-        ))}
-      </div>
+      {/* At the foot of the rail, where a preference belongs rather than in the reading flow.
+          A select rather than fifteen buttons: a column of two-letter codes is a puzzle, and a
+          native control is the one thing every platform already knows how to open. */}
+      <label className="railnav__langs">
+        <span className="sr-only">{words.langLabel}</span>
+        <select
+          className="railnav__select"
+          value={lang}
+          onChange={event => setLang(event.target.value as Lang)}
+        >
+          {LANGS.map(one => (
+            <option key={one} value={one} lang={one}>
+              {LANG_NAMES[one]}
+            </option>
+          ))}
+        </select>
+      </label>
     </nav>
   )
 }
@@ -258,25 +260,28 @@ function Examples() {
       <p className="section__lead">{words.lead}</p>
 
       <div className="cards">
-        {EXAMPLES[lang].map(example => (
-          <article key={example.id} className="card">
-            <header className="card__head">
-              <h3 className="card__title">{example.title}</h3>
-              <p className="card__what">{example.what}</p>
-            </header>
+        {EXAMPLE_IDS.map((id, index) => {
+          const example = { id, ...COPY[lang].cards[index]!, code: CODE[id] }
+          return (
+            <article key={example.id} className="card">
+              <header className="card__head">
+                <h3 className="card__title">{example.title}</h3>
+                <p className="card__what">{example.what}</p>
+              </header>
 
-            <Code source={example.code} />
+              <Code source={example.code} />
 
-            <p className="card__tip">
-              <strong>{words.tip}</strong> {example.tip}
-            </p>
+              <p className="card__tip">
+                <strong>{words.tip}</strong> {example.tip}
+              </p>
 
-            {/* The language rides along, so an example opens in the one the reader chose. */}
-            <a className="card__open" href={`./${example.id}/index.html?lang=${lang}`}>
-              {words.open(example.title)} <span aria-hidden="true">→</span>
-            </a>
-          </article>
-        ))}
+              {/* The language rides along, so an example opens in the one the reader chose. */}
+              <a className="card__open" href={`./${example.id}/index.html?lang=${lang}`}>
+                {words.open(example.title)} <span aria-hidden="true">→</span>
+              </a>
+            </article>
+          )
+        })}
       </div>
     </section>
   )
@@ -292,12 +297,12 @@ function Api() {
       <p className="section__lead">{words.lead}</p>
 
       <dl className="api">
-        {API[lang].map(entry => (
+        {COPY[lang].api5.map((entry, index) => (
           <div className="api__row" key={entry.name}>
             <dt className="api__name">{entry.name}</dt>
             <dd className="api__body">
               <p>{entry.body}</p>
-              <Code source={entry.code} />
+              <Code source={Object.values(API_CODE)[index]!} />
             </dd>
           </div>
         ))}

@@ -1,0 +1,93 @@
+import type { Copy } from './shape'
+
+export const es: Copy = {
+  nav: { overview: 'Resumen', examples: 'Ejemplos', api: 'API' },
+  hero: {
+    eyebrow: 'React 19 · 8 kB comprimido · sin dependencias',
+    title: ['El chasis', 'bajo', 'tu herramienta.'],
+    lead: 'Raíles de iconos en los bordes, zonas redimensionables alrededor de un centro que es tuyo, y una disposición que sobrevive a una recarga. Sin renderizado por debajo, repintable por encima.',
+    copy: 'Copiar',
+    copied: 'Copiado',
+    seeExamples: 'Ver los ejemplos',
+    caption:
+      'En vivo. Arrastra las separaciones entre superficies, pulsa un icono del raíl, cambia el tamaño de la ventana.',
+  },
+  demo: {
+    centre: 'Tu centro',
+    centreHint: 'una ruta · un lienzo · un mapa · pestañas de documentos',
+    panels: {
+      files: 'Archivos',
+      search: 'Buscar',
+      outline: 'Esquema',
+      notes: 'Notas',
+      console: 'Consola',
+    },
+    said: {
+      share: 'Dos paneles comparten esta mitad. El raíl alterna entre ellos.',
+      second: 'La segunda mitad de la misma columna, con su propio tirador.',
+      opens: 'Este pide abrirse más ancho que su propia columna.',
+      band: 'La banda corre bajo la columna que esté abierta.',
+    },
+  },
+  examples: {
+    title: 'Cuatro formas de empezar',
+    lead: 'Cada uno se ejecuta en tu navegador y su código completo está a la vista. Empieza por el más cercano.',
+    tip: 'Consejo.',
+    open: name => `Abrir ${name}`,
+  },
+  api: {
+    title: 'Toda la superficie',
+    lead: 'No hay mucha, y esa es la idea. Cinco cosas que saber.',
+  },
+  foot: {
+    docs: 'Documentación',
+    architecture: 'Arquitectura',
+    source: 'Código',
+    note: 'MIT · por alban.pasquelin · el chasis de esta página es la propia biblioteca',
+  },
+  langLabel: 'Idioma',
+  cards: [
+    {
+      title: 'Mínimo',
+      what: 'El chasis más pequeño que funciona. Dos columnas, una banda, un centro — y una cabecera tuya que lo gobierna.',
+      tip: 'Los paneles que comparten zona y mitad se turnan; el raíl alterna entre ellos. Dale a uno la mitad secundaria para apilarlo bajo el primero.',
+    },
+    {
+      title: 'React Router',
+      what: 'El centro es una salida de ruta. Navegar cambia el medio y nada más: las columnas mantienen su ancho y los paneles abiertos siguen abiertos.',
+      tip: 'Declara los paneles en la ruta de layout, por encima de la salida. Declarados por página, se desmontarían en cada navegación y perderían lo que contenían.',
+    },
+    {
+      title: 'Pestañas de documentos',
+      what: 'El centro lleva documentos sobre Dockview — pestañas que se arrastran y se dividen — mientras los paneles permanecen en los bordes.',
+      tip: 'Impórtalo desde el punto de entrada dockview: así su peso solo recae en los proyectos que quieren pestañas. Un panel nunca entra en el centro: un documento tiene nombre, un panel tiene icono.',
+    },
+    {
+      title: 'Repintado',
+      what: 'El mismo chasis bajo cuatro paletas. Colores, radio, ancho del raíl, altura de cabecera — todo son propiedades personalizadas.',
+      tip: 'Define el token de acento en cualquier ancestro y el chasis heredará tu marca en lugar de imponer la suya. ¿Necesitas ir más lejos? Cada pieza está exportada y se puede sustituir por separado.',
+    },
+  ],
+  api5: [
+    {
+      name: 'Declarar',
+      body: 'Un panel es un descriptor: dónde se cuelga, cómo se llama y qué dibuja.',
+    },
+    {
+      name: 'Gobernar',
+      body: 'Un único hook para cualquier cabecera, atajo o menú que deba actuar sobre los paneles.',
+    },
+    {
+      name: 'Gobernar fuera de React',
+      body: 'Crea tú el store y un socket, un menú nativo o un worker podrán abrir un panel.',
+    },
+    {
+      name: 'Repintar',
+      body: 'Cada valor es una propiedad personalizada. Define el acento y los raíles seguirán tu marca.',
+    },
+    {
+      name: 'O quedarte solo con la lógica',
+      body: 'Los componentes se apoyan en hooks que no dibujan nada. Dibuja tu propio marco sobre ellos.',
+    },
+  ],
+}

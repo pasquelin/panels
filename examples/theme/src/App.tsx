@@ -69,13 +69,7 @@ export function App() {
   const [skin, setSkin] = useState<SkinId>('brass')
 
   return (
-    <ExampleChrome
-      title={{ en: 'Repainted', fr: 'Repeint' }}
-      lead={{
-        en: 'Same chassis, four palettes. Every value is a custom property — no component is replaced.',
-        fr: 'Même châssis, quatre palettes. Chaque valeur est une propriété personnalisée — aucun composant n’est remplacé.',
-      }}
-    >
+    <ExampleChrome example="theme">
       <Panels<PanelId>
         storageKey="panels-example:theme"
         className={`skinned skinned--${skin}`}

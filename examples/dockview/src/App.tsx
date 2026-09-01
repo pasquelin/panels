@@ -116,13 +116,7 @@ function Workbench() {
 
 export function App() {
   return (
-    <ExampleChrome
-      title={{ en: 'Document tabs', fr: 'Onglets de documents' }}
-      lead={{
-        en: 'The centre carries documents on Dockview. Panels stay on the edges and never enter it.',
-        fr: 'Le centre porte des documents sur Dockview. Les panneaux restent sur les bords et n’y entrent jamais.',
-      }}
-    >
+    <ExampleChrome example="dockview">
       <Workbench />
     </ExampleChrome>
   )

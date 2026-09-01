@@ -1,0 +1,93 @@
+import type { Copy } from './shape'
+
+export const fr: Copy = {
+  nav: { overview: 'Aperçu', examples: 'Exemples', api: 'API' },
+  hero: {
+    eyebrow: 'React 19 · 8 ko compressé · aucune dépendance',
+    title: ['Le châssis', 'sous', 'votre outil.'],
+    lead: "Des rails d'icônes sur les bords, des zones redimensionnables autour d'un centre qui est le vôtre, et une disposition qui survit au rechargement. Sans rendu en dessous, repeignable au-dessus.",
+    copy: 'Copier',
+    copied: 'Copié',
+    seeExamples: 'Voir les exemples',
+    caption:
+      'En direct. Faites glisser les gouttières entre les surfaces, cliquez une icône du rail, redimensionnez la fenêtre.',
+  },
+  demo: {
+    centre: 'Votre centre',
+    centreHint: 'une route · un canvas · une carte · des onglets',
+    panels: {
+      files: 'Fichiers',
+      search: 'Recherche',
+      outline: 'Plan',
+      notes: 'Notes',
+      console: 'Console',
+    },
+    said: {
+      share: 'Deux panneaux partagent cette moitié. Le rail bascule entre eux.',
+      second: 'La seconde moitié de la même colonne, avec sa propre poignée.',
+      opens: 'Celui-ci demande à s’ouvrir plus large que sa colonne.',
+      band: 'La bande court sous la colonne qui est ouverte.',
+    },
+  },
+  examples: {
+    title: 'Quatre portes d’entrée',
+    lead: 'Chacun tourne dans votre navigateur et tout son code est à l’écran. Partez du plus proche.',
+    tip: 'Conseil.',
+    open: name => `Ouvrir ${name}`,
+  },
+  api: {
+    title: 'Toute la surface',
+    lead: 'Il n’y en a pas beaucoup, et c’est le but. Cinq choses à savoir.',
+  },
+  foot: {
+    docs: 'Documentation',
+    architecture: 'Architecture',
+    source: 'Sources',
+    note: 'MIT · par alban.pasquelin · le châssis de cette page est la bibliothèque elle-même',
+  },
+  langLabel: 'Langue',
+  cards: [
+    {
+      title: 'Minimal',
+      what: 'Le plus petit châssis qui fonctionne. Deux colonnes, une bande, un centre — et un en-tête à vous qui le pilote.',
+      tip: 'Deux panneaux qui partagent une zone et une moitié prennent leur tour ; le rail bascule entre eux. Donnez-lui la moitié secondaire pour l’empiler sous le premier.',
+    },
+    {
+      title: 'React Router',
+      what: 'Le centre est une route. Naviguer change le milieu et rien d’autre — les colonnes gardent leur largeur, les panneaux ouverts le restent.',
+      tip: 'Déclarez les panneaux dans la route de mise en page, au-dessus de la route enfant. Déclarés par page, ils seraient démontés à chaque navigation et perdraient ce qu’ils tenaient.',
+    },
+    {
+      title: 'Onglets de documents',
+      what: 'Le centre porte des documents sur Dockview — des onglets qu’on déplace et qu’on partage — pendant que les panneaux restent sur les bords.',
+      tip: 'Importez-le depuis l’entrée dockview : son poids ne pèse alors que sur les projets qui veulent des onglets. Un panneau n’entre jamais au centre — un document a un nom, un panneau a une icône.',
+    },
+    {
+      title: 'Repeint',
+      what: 'Le même châssis sous quatre palettes. Couleurs, rayon, largeur du rail, hauteur d’en-tête — tout est une propriété personnalisée.',
+      tip: 'Posez le jeton d’accent sur n’importe quel ancêtre et le châssis prend votre identité au lieu d’imposer la sienne. Besoin d’aller plus loin ? Chaque pièce est exportée et remplaçable seule.',
+    },
+  ],
+  api5: [
+    {
+      name: 'Déclarer',
+      body: 'Un panneau est un descripteur. Où il s’accroche, comment il s’appelle, ce qu’il dessine.',
+    },
+    {
+      name: 'Piloter',
+      body: 'Un seul hook pour tout en-tête, raccourci ou menu qui doit agir sur les panneaux.',
+    },
+    {
+      name: 'Piloter hors de React',
+      body: 'Construisez le store vous-même et un socket, un menu natif ou un worker ouvre un panneau.',
+    },
+    {
+      name: 'Repeindre',
+      body: 'Chaque valeur est une propriété personnalisée. Posez l’accent et les rails suivent votre identité.',
+    },
+    {
+      name: 'Ou ne prendre que la logique',
+      body: 'Les composants sont bâtis sur des hooks qui ne dessinent rien. Dessinez votre propre cadre dessus.',
+    },
+  ],
+}

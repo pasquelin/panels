@@ -591,10 +591,9 @@ a {
 /* The language pair, at the foot of the rail: a preference, not a step in the reading. */
 .railnav__langs {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
   margin-top: auto;
   margin-bottom: 20px;
+  padding-inline: 6px;
 }
 
 .railnav__lang {
@@ -622,5 +621,77 @@ a {
   .railnav__langs {
     flex-direction: row;
     margin: 0 0 0 auto;
+  }
+}
+
+/* A native select rather than fifteen buttons: a column of two-letter codes is a puzzle, and
+   every platform already knows how to open this one. */
+.railnav__select {
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 4px 6px;
+  background: var(--sunk);
+  color: var(--muted);
+  font-family: var(--body);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.railnav__select:hover {
+  color: var(--ink);
+  border-color: var(--brass);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Right-to-left. The stylesheet uses logical properties throughout, so the only things left to
+   turn are the two places that name a physical side. */
+[dir='rtl'] .railnav {
+  right: 0;
+  left: auto;
+  border-right: none;
+  border-left: 1px solid var(--line);
+}
+
+[dir='rtl'] .page {
+  padding-right: var(--rail);
+  padding-left: 28px;
+}
+
+[dir='rtl'] .railnav__label {
+  right: calc(100% + 8px);
+  left: auto;
+}
+
+[dir='rtl'] .card__tip {
+  padding-right: 14px;
+  padding-left: 0;
+  border-right: 2px solid var(--brass);
+  border-left: none;
+}
+
+/* Code is read left to right whatever the page around it does. */
+[dir='rtl'] .code,
+[dir='rtl'] .install code {
+  direction: ltr;
+  text-align: left;
+}
+
+@media (max-width: 900px) {
+  [dir='rtl'] .page {
+    padding-right: 20px;
+  }
+  [dir='rtl'] .railnav {
+    border-left: none;
   }
 }

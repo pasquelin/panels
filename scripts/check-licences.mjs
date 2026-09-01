@@ -34,7 +34,8 @@ if (own.dependencies && Object.keys(own.dependencies).length > 0) {
 
 for (const name of BUNDLED) {
   if (!notices.includes(name)) problems.push(`${name} is bundled but has no notice.`)
-  if (!own.devDependencies?.[name]) problems.push(`${name} is declared bundled but is not installed.`)
+  if (!own.devDependencies?.[name])
+    problems.push(`${name} is declared bundled but is not installed.`)
 }
 
 /** The licence a package declares, read from the installed tree. */

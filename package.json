@@ -56,7 +56,7 @@
     "format": "prettier --write \"{src,examples}/**/*.{ts,tsx,css}\"",
     "format:check": "prettier --check \"{src,examples}/**/*.{ts,tsx,css}\"",
     "dev": "vite --config examples/vite.config.ts",
-    "build:site": "vite build --config examples/vite.config.ts",
+    "build:site": "vite build --config examples/vite.config.ts && node scripts/make-locales.mjs",
     "preview:site": "vite preview --config examples/vite.config.ts",
     "llms": "node scripts/make-llms-full.mjs",
     "llms:check": "node scripts/make-llms-full.mjs --check",

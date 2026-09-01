@@ -8,13 +8,7 @@ type PanelId = 'files' | 'search' | 'chat' | 'inspector' | 'terminal'
 
 export function App() {
   return (
-    <ExampleChrome
-      title={{ en: 'Minimal', fr: 'Minimal' }}
-      lead={{
-        en: 'The smallest chassis that works, with a header of your own driving it.',
-        fr: 'Le plus petit châssis qui fonctionne, avec un en-tête à vous qui le pilote.',
-      }}
-    >
+    <ExampleChrome example="minimal">
       <Chassis />
     </ExampleChrome>
   )
