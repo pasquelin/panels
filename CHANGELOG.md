@@ -5,6 +5,33 @@ All notable changes to `@pasquelin/panels`.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] — 2026-09-01
+
+### Added
+
+- **`fillActions` on `<Panel>`.** Whether a panel's actions take the header's free width or hug
+  the close button. The chassis guessed it from "publishes actions and sits in a horizontal
+  zone", which is right for a montage bar and wrong for a band holding a list with two buttons —
+  and only the project knows which of its panels is which. Left out, the guess stands.
+
+### Fixed
+
+- **`reset()` no longer settles against an empty registry.** Called before any panel is declared
+  it settled the view EMPTY — and an entry is what stops anything reopening it, so every half
+  stayed shut for good.
+- **`<Panel>` fields reach the registry by spread**, not one by one. `fillActions` was the second
+  field in two releases to be added to the type and forgotten in the collector.
+
+### Tests
+
+- The frame's GEOMETRY is covered here at last: a zone drawing nothing takes neither room nor
+  handle, a column keeps its divider only between two open halves, an untouched half is flexed
+  rather than sized, the band runs under the opposite column and parts its own two halves.
+  🛑 These were IA Studio's, and it let them go on migrating — on the assumption that this
+  library covered them. It did not.
+- `PanelHeader` keeps what is trailing outside the box that clips: a crowded row loses its
+  actions, never its way out.
+
 ## [0.2.0] — 2026-09-01
 
 Two changes to the same idea: **what a half shows is resolved when it is drawn, not written down
@@ -148,6 +175,7 @@ First release.
 - Optional `@pasquelin/panels/dockview` entry point for document tabs.
 - No runtime dependencies.
 
+[0.3.0]: https://github.com/pasquelin/panels/releases/tag/v0.3.0
 [0.2.0]: https://github.com/pasquelin/panels/releases/tag/v0.2.0
 [0.1.1]: https://github.com/pasquelin/panels/releases/tag/v0.1.1
 [0.1.0]: https://github.com/pasquelin/panels/releases/tag/v0.1.0

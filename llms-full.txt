@@ -88,7 +88,7 @@ usual missing piece.
 `components` `theme` `className`
 
 ### `<Panel>` props
-`id` `zone` `slot?` `title` `icon?` `actions?` `opens?` `solo?`
+`id` `zone` `slot?` `title` `icon?` `actions?` `opens?` `solo?` `fillActions?`
 
 ### Hooks
 - `usePanels<Id>()` → `{ panels, reveal, close, toggle, isShown, focusedZone, reset }`
@@ -448,6 +448,15 @@ back untouched. That stash is never persisted: a column reopening by itself days
 arrangement nobody remembers making, is not a restoration.
 
 `solo` only applies to `primary`.
+
+## `fillActions`
+
+A panel in a horizontal zone gets the header's free width for its actions — right for a montage
+bar, wrong for a band holding a list with two buttons. Say which yours is:
+
+```tsx
+<Panel id="problems" zone="bottomRight" title="Problems" fillActions={false} actions={…}>
+```
 
 ## Adding and removing panels
 

@@ -94,6 +94,16 @@ restauration.
 
 `solo` ne vaut que pour `primary`.
 
+## `fillActions`
+
+Un panneau d'une zone horizontale reçoit la largeur libre de son en-tête pour ses actions — juste
+pour une barre de montage, faux pour une bande qui tient une liste et deux boutons. Dites lequel
+est le vôtre :
+
+```tsx
+<Panel id="problems" zone="bottomRight" title="Problèmes" fillActions={false} actions={…}>
+```
+
 ## Ajouter et retirer des panneaux
 
 Le registre suit votre JSX, dans l'ordre où vous le déclarez. Un panneau qui cesse d'être déclaré

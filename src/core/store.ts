@@ -499,7 +499,14 @@ export function createPanelsStore<Id extends string = string>(
         // The view in front is settled on the spot, not left for the next render: nothing
         // re-renders the provider when a button inside the chassis is what asked for the reset,
         // so the frame stayed blank — and the arrangement being escaped stayed on disk.
-        views: { [state.view]: opening(state.registry, state.defaults) },
+        //
+        // 🛑 Unless nothing is declared yet, and then it is left UNSETTLED: settled against an
+        // empty registry it would be settled EMPTY, and having an entry is what stops anything
+        // reopening it. Every half would stay shut for good.
+        views:
+          state.registry.length === 0
+            ? {}
+            : { [state.view]: opening(state.registry, state.defaults) },
         lengths: EMPTY_LENGTHS,
         focusedZone: null,
         // Left behind, a solo panel closed after a reset would give back the zone the reset

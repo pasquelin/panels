@@ -85,10 +85,12 @@ function collect<Id extends string>(children: ReactNode): Collected<Id> {
     }
 
     const props = child.props as PanelProps<Id>
-    const { id, zone, slot = 'primary', title, icon, opens, solo, actions, children: body } = props
+    // Spread rather than named one by one: every field of `PanelSpec` reaches the registry, and
+    // a field added to the type stopped being one more place to remember.
+    const { actions, children: body, slot = 'primary', ...rest } = props
 
-    specs.push({ id, zone, slot, title, icon, opens, solo })
-    content.set(id, { content: body, actions })
+    specs.push({ ...rest, slot })
+    content.set(rest.id, { content: body, actions })
   }
 
   return { specs, content, centre, loose }

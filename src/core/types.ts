@@ -87,6 +87,15 @@ export type PanelSpec<Id extends string = string> = {
   opens?: number
   /** Takes the zone WHOLE: shown, the other half draws nothing. `primary` only. */
   solo?: boolean
+  /**
+   * Lets the actions take the header's free width rather than hug the close button — for a
+   * panel whose row is wide and mostly empty, and which carries a whole bar there.
+   *
+   * Left out, the chassis gives that width to any panel in a horizontal zone that publishes
+   * actions. Which is a guess: a band holding a list with two buttons wants them at the end,
+   * and only the project knows which of its panels is which.
+   */
+  fillActions?: boolean
 }
 
 /**

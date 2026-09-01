@@ -93,6 +93,15 @@ arrangement nobody remembers making, is not a restoration.
 
 `solo` only applies to `primary`.
 
+## `fillActions`
+
+A panel in a horizontal zone gets the header's free width for its actions — right for a montage
+bar, wrong for a band holding a list with two buttons. Say which yours is:
+
+```tsx
+<Panel id="problems" zone="bottomRight" title="Problems" fillActions={false} actions={…}>
+```
+
 ## Adding and removing panels
 
 The registry follows your JSX, in the order you declare it. A panel that stops being declared

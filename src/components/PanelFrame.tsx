@@ -46,7 +46,7 @@ function PanelFrameInner<Id extends string>({
     >
       <PanelHeader
         title={panel.title}
-        fillActions={held?.actions !== undefined && isHorizontal(panel.zone)}
+        fillActions={panel.fillActions ?? (held?.actions !== undefined && isHorizontal(panel.zone))}
         trailing={
           <>
             {held?.actions !== undefined && <Separator />}
