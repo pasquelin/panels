@@ -1,0 +1,145 @@
+/* Shared by the four examples: the strip above them, and the plain furniture inside a panel. */
+
+.example {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  background: #17181a;
+  color: #dfe1e5;
+}
+
+.example__bar {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 10px 18px;
+  border-bottom: 1px solid #2b2d30;
+  font-size: 13px;
+}
+
+.example__back {
+  color: #d99a2b;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.example__back:hover {
+  text-decoration: underline;
+}
+
+.example__title {
+  margin: 0;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.example__lead {
+  margin: 0;
+  color: #91959b;
+}
+
+.example__stage {
+  flex: 1;
+  min-height: 0;
+}
+
+/* --- furniture used inside the panels of the examples --- */
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 0;
+}
+
+.row {
+  padding: 5px 14px;
+  color: var(--pnl-muted);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+}
+
+.row:hover {
+  background: var(--pnl-elevated);
+  color: var(--pnl-text);
+}
+
+.row--on {
+  color: var(--pnl-text);
+  border-left-color: var(--pnl-accent);
+}
+
+.note {
+  margin: 0;
+  padding: 14px;
+  color: var(--pnl-muted);
+  line-height: 1.5;
+}
+
+.facts {
+  margin: 0;
+  padding: 12px 14px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 14px;
+  font-size: 12px;
+}
+
+.facts dt {
+  color: var(--pnl-muted);
+}
+
+.facts dd {
+  margin: 0;
+}
+
+.centre {
+  display: grid;
+  place-content: center;
+  height: 100%;
+  padding: 32px;
+  text-align: center;
+}
+
+.centre h1 {
+  margin: 0 0 10px;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 22px;
+}
+
+.centre p {
+  margin: 0 auto;
+  max-width: 46ch;
+  color: var(--pnl-muted);
+  line-height: 1.6;
+}
+
+.row--button {
+  border: none;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+}
+
+.editor {
+  padding: 14px 16px;
+}
+
+.editor__path {
+  margin: 0 0 10px;
+  font-size: 11px;
+  color: var(--pnl-muted);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+.editor__code {
+  margin: 0;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--pnl-muted);
+  white-space: pre-wrap;
+}

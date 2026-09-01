@@ -9,7 +9,19 @@
  * brand — the library paints a frame, the project paints its identity.
  */
 
-.pnl-root {
+/*
+ * 🛑 Every default token sits inside `:where()`, which carries NO specificity.
+ *
+ * Without it the library outweighs the projects it serves: `.pnl-root:not([data-pnl-theme])`
+ * scores higher than any single class, so a consumer writing `.my-theme { --pnl-panel: … }` was
+ * overruled the moment the reader's system asked for the light palette — their palette applied
+ * in the dark and vanished in the light. At zero, ANY rule a project writes wins, whatever order
+ * the stylesheets load in.
+ *
+ * The layout below is a separate block on purpose: it is not something a project overrides by
+ * repainting, and it should keep normal specificity.
+ */
+:where(.pnl-root) {
   /* Gauges. The gutter is the resize area, so it is also the space between surfaces. */
   --pnl-rail: 48px;
   --pnl-rail-button: 36px;
@@ -32,7 +44,9 @@
   /* The accent says one thing: what is ACTIONED. Inherited from the host when it sets one. */
   --pnl-accent: #346ef2;
   --pnl-accent-text: #ffffff;
+}
 
+.pnl-root {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -49,7 +63,7 @@
 }
 
 @media (prefers-color-scheme: light) {
-  .pnl-root:not([data-pnl-theme='dark']) {
+  :where(.pnl-root:not([data-pnl-theme='dark'])) {
     /* The MIRROR of the dark theme, not its inversion: surfaces stand apart from the chassis by
        being lighter here, with the chassis as a grey gutter around white panels. Inverting the
        dark values numerically gives muddy grey on grey, which is how a light theme goes wrong. */
@@ -62,7 +76,7 @@
   }
 }
 
-.pnl-root[data-pnl-theme='light'] {
+:where(.pnl-root[data-pnl-theme='light']) {
   --pnl-chassis: #dcdde1;
   --pnl-panel: #ffffff;
   --pnl-elevated: #e4e6ea;

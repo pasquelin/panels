@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { IconButton, Panel, Panels, usePanels } from '@pasquelin/panels'
-import { ChatIcon, FilesIcon, PlusIcon, SearchIcon, TerminalIcon, TuneIcon } from './icons'
+import { ChatIcon, FilesIcon, PlusIcon, SearchIcon, TerminalIcon, TuneIcon } from '../../src/icons'
 
 /** The ids this application declares. The union is what makes `reveal('chatt')` fail to compile. */
 type PanelId = 'files' | 'search' | 'chat' | 'inspector' | 'terminal'

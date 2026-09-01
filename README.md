@@ -123,14 +123,16 @@ project's panels come from — a router, a state machine, a config — is that p
 
 ## Examples
 
+All four run at **[pasquelin.github.io/panel](https://pasquelin.github.io/panel/)**, or locally:
+
 ```bash
-pnpm dev            # minimal
+pnpm dev
 ```
 
 - `examples/minimal` — the smallest working chassis
 - `examples/router` — the centre as a React Router outlet
-- `examples/dockview` — document tabs in the centre
-- `examples/theme` — repainted end to end
+- `examples/dockview` — document tabs, on the optional Dockview entry point
+- `examples/theme` — the same chassis under four palettes
 
 ## Documentation
 

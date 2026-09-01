@@ -1,0 +1,44 @@
+/*
+ * Dockview, dressed in the chassis' own tokens.
+ *
+ * The library ships its own palette in a namespace nobody else uses (`--dv-*`), so a project
+ * that themed `@pasquelin/panels` would still get Dockview's default navy in the middle of it.
+ * Every value here is read from a `--pnl-*` token: repaint the chassis and the tabs follow.
+ */
+.pnl-dockview {
+  height: 100%;
+
+  --dv-background-color: var(--pnl-panel);
+  --dv-group-view-background-color: var(--pnl-panel);
+  --dv-tabs-and-actions-container-background-color: var(--pnl-panel);
+  --dv-tabs-container-scrollbar-color: var(--pnl-elevated);
+
+  --dv-activegroup-visiblepanel-tab-background-color: var(--pnl-elevated);
+  --dv-activegroup-hiddenpanel-tab-background-color: var(--pnl-panel);
+  --dv-inactivegroup-visiblepanel-tab-background-color: var(--pnl-panel);
+  --dv-inactivegroup-hiddenpanel-tab-background-color: var(--pnl-panel);
+
+  --dv-activegroup-visiblepanel-tab-color: var(--pnl-text);
+  --dv-activegroup-hiddenpanel-tab-color: var(--pnl-muted);
+  --dv-inactivegroup-visiblepanel-tab-color: var(--pnl-muted);
+  --dv-inactivegroup-hiddenpanel-tab-color: var(--pnl-muted);
+
+  --dv-tab-divider-color: transparent;
+  --dv-separator-border: var(--pnl-border);
+  --dv-paneview-header-border-color: var(--pnl-border);
+
+  --dv-drag-over-background-color: color-mix(in srgb, var(--pnl-accent) 25%, transparent);
+  --dv-drag-over-border-color: var(--pnl-accent);
+
+  --dv-tabs-and-actions-container-height: var(--pnl-header);
+  --dv-tab-close-icon-color: var(--pnl-muted);
+}
+
+/* The tab strip reads as part of the panel it sits on, not as a bar bolted above it. */
+.pnl-dockview .dv-tabs-and-actions-container {
+  border-bottom: 1px solid var(--pnl-border);
+}
+
+.pnl-dockview .dv-default-tab {
+  font-size: var(--pnl-font-size);
+}

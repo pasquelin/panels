@@ -22,7 +22,8 @@
     "noUncheckedIndexedAccess": true,
     "paths": {
       "@/*": ["./src/*"],
-      "@pasquelin/panels": ["./src/index.ts"]
+      "@pasquelin/panels": ["./src/index.ts"],
+      "@pasquelin/panels/dockview": ["./src/dockview/index.ts"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "examples/**/*.ts", "examples/**/*.tsx"]
