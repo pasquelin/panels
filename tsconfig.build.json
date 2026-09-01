@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // The parent sets `noEmit` because it exists to typecheck. This one exists to EMIT the
+    // declarations, and inheriting that flag made `tsc` report success while writing nothing.
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "dist",
+    // Explicit, or the layout of the emitted files is left to inference.
+    "rootDir": "src",
+    // The alias is a development convenience; a published declaration must not name it.
+    "paths": {}
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["**/*.test.ts", "**/*.test.tsx", "src/testSetup.ts"]
+}
