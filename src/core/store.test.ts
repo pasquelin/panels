@@ -233,6 +233,30 @@ describe('declare', () => {
     expect(store.getState().registry.map(spec => spec.id)).toEqual(SPECS.map(spec => spec.id))
   })
 
+  /**
+   * 🛑 A project builds this list in its render, so it arrives rebuilt whenever anything else in
+   * that component moves. Written through, every rail, zone and frame re-rendered for a list
+   * identical to the one they held — measured at five rewrites for five unrelated renders.
+   */
+  it('writes nothing when the declaration says the same thing', () => {
+    const store = made()
+    const held = store.getState().registry
+    let notified = 0
+    store.subscribe(() => (notified += 1))
+
+    store.getState().declare(SPECS.map(spec => ({ ...spec })))
+
+    expect(store.getState().registry).toBe(held)
+    expect(notified).toBe(0)
+  })
+
+  it('writes when a title changes, which is what a language change is', () => {
+    const store = made()
+    store.getState().declare(SPECS.map(spec => ({ ...spec, title: `${spec.title} (fr)` })))
+
+    expect(store.getState().registry[0]?.title).toBe('Files (fr)')
+  })
+
   it('closes nothing: a half whose last panel goes simply draws no more', () => {
     const store = made()
     store.getState().settle()

@@ -5,6 +5,16 @@ All notable changes to `@pasquelin/panels`.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2] — 2026-09-02
+
+### Fixed
+
+- **A declaration that says the same thing writes nothing.** A project builds its panel list in
+  its render, so the list arrives rebuilt whenever anything else in that component moves — and
+  `declare` wrote it through, notifying every rail, every zone and every frame for a list
+  identical to the one they already held. Measured in a real application: five rewrites for five
+  renders that had nothing to do with the panels. The specs are now compared field by field.
+
 ## [0.3.1] — 2026-09-02
 
 ### Fixed

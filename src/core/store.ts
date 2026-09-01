@@ -159,6 +159,30 @@ export function isSettled<Id extends string>(state: Arranged<Id>, view: string):
   return Object.hasOwn(state.views, view)
 }
 
+/**
+ * Whether two declarations say the same thing. Field by field, since a project rebuilds the
+ * objects as well as the list — an identity test would answer no every time.
+ */
+function sameSpecs<Id extends string>(held: PanelSpec<Id>[], next: PanelSpec<Id>[]): boolean {
+  return (
+    held.length === next.length &&
+    held.every((spec, index) => {
+      const other = next[index]
+      return (
+        other !== undefined &&
+        spec.id === other.id &&
+        spec.zone === other.zone &&
+        spec.slot === other.slot &&
+        spec.title === other.title &&
+        spec.opens === other.opens &&
+        spec.solo === other.solo &&
+        spec.fillActions === other.fillActions &&
+        spec.icon === other.icon
+      )
+    })
+  )
+}
+
 /** The panel a project declares first for that half — what an untouched half opens on. */
 function firstIn<Id extends string>(
   registry: PanelSpec<Id>[],
@@ -377,7 +401,12 @@ export function createPanelsStore<Id extends string = string>(
 
     // The arrangement is left ALONE by a panel leaving the list: the half naming it falls back
     // to what is still declared — see `resolve` — and names it again the day it comes back.
-    declare: specs => set({ registry: specs }),
+    //
+    // 🛑 Compared, not written: a project builds this list in its render, so the identity is new
+    // every time an unrelated prop moves. Written through, every rail, every zone and every
+    // frame re-rendered for a list identical to the one they already held.
+    declare: specs =>
+      set(state => (sameSpecs(state.registry, specs) ? state : { registry: specs })),
 
     // Having an entry in `views` IS the record of having been settled. No second field can then
     // disagree about which views have been opened, or fall out of step when a reset clears them.
