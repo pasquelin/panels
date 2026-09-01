@@ -62,12 +62,12 @@
     "lead": "No hay mucha, y esa es la idea. Cinco cosas que saber."
   },
   "foot": {
-    "docs": "Documentación",
+    "docs": "Docs",
     "architecture": "Arquitectura",
-    "source": "Código",
     "note": "MIT · por alban.pasquelin · el chasis de esta página es la propia biblioteca",
     "changelog": "Cambios",
-    "licence": "Licencia"
+    "licence": "Licencia",
+    "notices": "Avisos de terceros"
   },
   "cards": {
     "title0": "Mínimo",

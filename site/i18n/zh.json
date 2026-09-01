@@ -64,10 +64,10 @@
   "foot": {
     "docs": "文档",
     "architecture": "架构",
-    "source": "源码",
     "note": "MIT · 作者 alban.pasquelin · 本页的骨架就是这个库本身",
     "changelog": "更新日志",
-    "licence": "许可"
+    "licence": "许可",
+    "notices": "第三方声明"
   },
   "cards": {
     "title0": "最小示例",

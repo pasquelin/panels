@@ -62,12 +62,12 @@
     "lead": "Il n’y en a pas beaucoup, et c’est le but. Cinq choses à savoir."
   },
   "foot": {
-    "docs": "Documentation",
+    "docs": "Docs",
     "architecture": "Architecture",
-    "source": "Sources",
     "note": "MIT · par alban.pasquelin · le châssis de cette page est la bibliothèque elle-même",
     "changelog": "Journal des changements",
-    "licence": "Licence"
+    "licence": "Licence",
+    "notices": "Mentions tierces"
   },
   "cards": {
     "title0": "Minimal",

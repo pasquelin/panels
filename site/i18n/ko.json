@@ -64,10 +64,10 @@
   "foot": {
     "docs": "문서",
     "architecture": "아키텍처",
-    "source": "소스",
     "note": "MIT · alban.pasquelin 제작 · 이 페이지의 골격이 곧 이 라이브러리입니다",
     "changelog": "변경 내역",
-    "licence": "라이선스"
+    "licence": "라이선스",
+    "notices": "서드파티 고지"
   },
   "cards": {
     "title0": "최소 구성",

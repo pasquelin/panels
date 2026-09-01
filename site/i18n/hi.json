@@ -64,10 +64,10 @@
   "foot": {
     "docs": "दस्तावेज़",
     "architecture": "संरचना",
-    "source": "स्रोत",
     "note": "MIT · alban.pasquelin द्वारा · इस पेज का ढाँचा स्वयं यही लाइब्रेरी है",
     "changelog": "बदलाव सूची",
-    "licence": "लाइसेंस"
+    "licence": "लाइसेंस",
+    "notices": "तृतीय-पक्ष सूचनाएँ"
   },
   "cards": {
     "title0": "न्यूनतम",

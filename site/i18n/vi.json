@@ -64,10 +64,10 @@
   "foot": {
     "docs": "Tài liệu",
     "architecture": "Kiến trúc",
-    "source": "Mã nguồn",
     "note": "MIT · thực hiện bởi alban.pasquelin · bộ khung của trang này chính là thư viện",
     "changelog": "Nhật ký thay đổi",
-    "licence": "Giấy phép"
+    "licence": "Giấy phép",
+    "notices": "Thông báo bên thứ ba"
   },
   "cards": {
     "title0": "Tối giản",

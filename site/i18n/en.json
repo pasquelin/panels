@@ -62,12 +62,12 @@
     "lead": "There is not much of it, and that is the point. Five things to know."
   },
   "foot": {
-    "docs": "Documentation",
+    "docs": "Docs",
     "architecture": "Architecture",
-    "source": "Source",
     "note": "MIT · built by alban.pasquelin · the chassis on this page is the library itself",
     "changelog": "Changelog",
-    "licence": "Licence"
+    "licence": "Licence",
+    "notices": "Third-party notices"
   },
   "cards": {
     "title0": "Minimal",

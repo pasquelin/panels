@@ -64,10 +64,10 @@
   "foot": {
     "docs": "ドキュメント",
     "architecture": "アーキテクチャ",
-    "source": "ソース",
     "note": "MIT · 作 alban.pasquelin · このページの骨組みはライブラリそのものです",
     "changelog": "変更履歴",
-    "licence": "ライセンス"
+    "licence": "ライセンス",
+    "notices": "サードパーティ表示"
   },
   "cards": {
     "title0": "最小構成",

@@ -62,12 +62,12 @@
     "lead": "Tidak banyak, dan memang itu maksudnya. Lima hal yang perlu diketahui."
   },
   "foot": {
-    "docs": "Dokumentasi",
+    "docs": "Dokumen",
     "architecture": "Arsitektur",
-    "source": "Kode sumber",
     "note": "MIT · oleh alban.pasquelin · rangka di halaman ini adalah pustakanya sendiri",
     "changelog": "Riwayat perubahan",
-    "licence": "Lisensi"
+    "licence": "Lisensi",
+    "notices": "Pemberitahuan pihak ketiga"
   },
   "cards": {
     "title0": "Minimal",

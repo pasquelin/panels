@@ -64,10 +64,10 @@
   "foot": {
     "docs": "Belgeler",
     "architecture": "Mimari",
-    "source": "Kaynak",
     "note": "MIT · alban.pasquelin tarafından · bu sayfadaki iskelet kütüphanenin kendisidir",
     "changelog": "Değişiklikler",
-    "licence": "Lisans"
+    "licence": "Lisans",
+    "notices": "Üçüncü taraf bildirimleri"
   },
   "cards": {
     "title0": "En küçük",

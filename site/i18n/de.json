@@ -62,12 +62,12 @@
     "lead": "Es ist wenig, und genau das ist der Punkt. Fünf Dinge, die man wissen muss."
   },
   "foot": {
-    "docs": "Dokumentation",
+    "docs": "Docs",
     "architecture": "Architektur",
-    "source": "Quellcode",
     "note": "MIT · von alban.pasquelin · das Gerüst dieser Seite ist die Bibliothek selbst",
     "changelog": "Änderungen",
-    "licence": "Lizenz"
+    "licence": "Lizenz",
+    "notices": "Hinweise Dritter"
   },
   "cards": {
     "title0": "Minimal",

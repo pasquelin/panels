@@ -62,12 +62,12 @@
     "lead": "Não é muita, e é esse o ponto. Cinco coisas para saber."
   },
   "foot": {
-    "docs": "Documentação",
+    "docs": "Docs",
     "architecture": "Arquitetura",
-    "source": "Código",
     "note": "MIT · por alban.pasquelin · o chassi desta página é a própria biblioteca",
     "changelog": "Alterações",
-    "licence": "Licença"
+    "licence": "Licença",
+    "notices": "Avisos de terceiros"
   },
   "cards": {
     "title0": "Mínimo",
