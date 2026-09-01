@@ -1,2 +1,5 @@
+# esbuild fetches the binary for the machine it is installed on; refused, pnpm exits non-zero and
+# the whole pipeline stops there. Named explicitly rather than allowing every script: this list is
+# the set of packages permitted to run code at install time, and it should stay readable.
 allowBuilds:
-  esbuild: set this to true or false
+  esbuild: true
