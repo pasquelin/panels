@@ -28,6 +28,8 @@
   --pnl-rail-inset: 14px;
   --pnl-gutter: 6px;
   --pnl-header: 40px;
+  /* A tab row is not a panel header: it carries a document's name, not a tool's. */
+  --pnl-tab: 40px;
   --pnl-radius: 6px;
   --pnl-radius-sm: 4px;
   --pnl-font-size: 13px;
@@ -36,6 +38,9 @@
      reads as "panels on a frame" rather than as a web page. Repaint these two to invert it. */
   --pnl-chassis: #2b2d30;
   --pnl-panel: #191a1c;
+  /* Between the panel and the elevated state: what a tab sits on, and what it takes under the
+     pointer. Without it a hovered tab jumps straight to the pressed colour. */
+  --pnl-surface: #202124;
   --pnl-elevated: #3c3f44;
   --pnl-border: #34363a;
   --pnl-text: #dfe1e5;
@@ -69,6 +74,7 @@
        dark values numerically gives muddy grey on grey, which is how a light theme goes wrong. */
     --pnl-chassis: #dcdde1;
     --pnl-panel: #ffffff;
+    --pnl-surface: #f2f3f6;
     --pnl-elevated: #e4e6ea;
     --pnl-border: #c9cbd1;
     --pnl-text: #1f2124;
@@ -79,6 +85,7 @@
 :where(.pnl-root[data-pnl-theme='light']) {
   --pnl-chassis: #dcdde1;
   --pnl-panel: #ffffff;
+  --pnl-surface: #f2f3f6;
   --pnl-elevated: #e4e6ea;
   --pnl-border: #c9cbd1;
   --pnl-text: #1f2124;

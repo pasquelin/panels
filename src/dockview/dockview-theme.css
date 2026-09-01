@@ -1,44 +1,106 @@
 /*
- * Dockview, dressed in the chassis' own tokens.
+ * Dockview skinned with the chassis tokens.
  *
- * The library ships its own palette in a namespace nobody else uses (`--dv-*`), so a project
- * that themed `@pasquelin/panels` would still get Dockview's default navy in the middle of it.
- * Every value here is read from a `--pnl-*` token: repaint the chassis and the tabs follow.
+ * Ported from IA Studio, rule for rule: that is where this behaviour was found, measured and
+ * corrected on a running application, and re-deriving it here would only be a way of finding the
+ * same defects again. Dockview exposes its colours as CSS variables: we redirect those rather
+ * than override its selectors, which change from version to version.
  */
 .pnl-dockview {
   height: 100%;
 
   --dv-background-color: var(--pnl-panel);
   --dv-group-view-background-color: var(--pnl-panel);
-  --dv-tabs-and-actions-container-background-color: var(--pnl-panel);
-  --dv-tabs-container-scrollbar-color: var(--pnl-elevated);
 
+  --dv-tabs-and-actions-container-background-color: var(--pnl-panel);
+  --dv-tabs-container-scrollbar-color: var(--pnl-border);
+
+  /* Only the visible tab carries a background: an editor strip reads by what is lit, not by
+     counting boxes. The others sit straight on the surface. */
   --dv-activegroup-visiblepanel-tab-background-color: var(--pnl-elevated);
-  --dv-activegroup-hiddenpanel-tab-background-color: var(--pnl-panel);
-  --dv-inactivegroup-visiblepanel-tab-background-color: var(--pnl-panel);
-  --dv-inactivegroup-hiddenpanel-tab-background-color: var(--pnl-panel);
+  --dv-activegroup-hiddenpanel-tab-background-color: transparent;
+  --dv-inactivegroup-visiblepanel-tab-background-color: var(--pnl-surface);
+  --dv-inactivegroup-hiddenpanel-tab-background-color: transparent;
 
   --dv-activegroup-visiblepanel-tab-color: var(--pnl-text);
   --dv-activegroup-hiddenpanel-tab-color: var(--pnl-muted);
   --dv-inactivegroup-visiblepanel-tab-color: var(--pnl-muted);
   --dv-inactivegroup-hiddenpanel-tab-color: var(--pnl-muted);
 
-  --dv-tab-divider-color: transparent;
-  --dv-separator-border: var(--pnl-border);
+  --dv-separator-border: transparent;
   --dv-paneview-header-border-color: var(--pnl-border);
+  --dv-tab-divider-color: transparent;
 
-  --dv-drag-over-background-color: color-mix(in srgb, var(--pnl-accent) 25%, transparent);
+  --dv-drag-over-background-color: color-mix(in srgb, var(--pnl-accent) 18%, transparent);
   --dv-drag-over-border-color: var(--pnl-accent);
 
-  --dv-tabs-and-actions-container-height: var(--pnl-header);
-  --dv-tab-close-icon-color: var(--pnl-muted);
+  --dv-tabs-and-actions-container-height: var(--pnl-tab);
+  --dv-tabs-and-actions-container-font-size: 12px;
 }
 
-/* The tab strip reads as part of the panel it sits on, not as a bar bolted above it. */
-.pnl-dockview .dv-tabs-and-actions-container {
-  border-bottom: 1px solid var(--pnl-border);
+/* The strip keeps the panel's rounded corner clear: a tab starting flush against the edge
+   reads as clipped rather than as placed. */
+.pnl-dockview .dv-tabs-container {
+  padding-left: var(--pnl-gutter);
 }
 
+/* Centre tabs take the surfaces' radius: a square tab inside a rounded panel reads as a foreign
+   body. The horizontal margin is what separates them — touching tabs read as one segmented
+   control rather than as several documents. */
+.pnl-dockview .dv-tab {
+  display: flex;
+  align-items: center;
+  border-radius: var(--pnl-radius);
+  margin: 6px 2px;
+  padding: 0 4px;
+  transition: background-color 120ms ease;
+}
+
+/* THIS is the row, not `.dv-tab` above it. dockview-react mounts a custom tab inside a
+   `dv-react-part` div it builds in JS, which its stylesheet never mentions — so it stays a
+   block, and the title (`width: 100%`) and the close button stack inside it. The strip's height
+   then cut the button in half: a cross under the title instead of beside it. Measured on the
+   running application, where the button started at the tab's own bottom edge. */
+.pnl-dockview .dv-tab > .dv-react-part {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+/* The title yields, the cross never does: a long name shortens rather than pushing the button
+   out of the tab it belongs to. */
+.pnl-dockview .dv-tab .dv-default-tab {
+  min-width: 0;
+}
+
+.pnl-dockview .dv-tab:hover {
+  background-color: var(--pnl-surface);
+}
+
+/* Dockview sizes the tab content off its own line-height; without this the strip keeps the
+   height the container no longer has. */
 .pnl-dockview .dv-default-tab {
-  font-size: var(--pnl-font-size);
+  height: 100%;
+  padding: 0 4px;
+}
+
+/* The close affordance is a disc, and only under the pointer: a permanent hit area on every tab
+   competes with the tab's own name. */
+.pnl-dockview .dv-default-tab-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border-radius: 9999px;
+  background-color: transparent;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.pnl-dockview .dv-default-tab-action:hover {
+  background-color: var(--pnl-elevated);
+  color: var(--pnl-text);
 }
