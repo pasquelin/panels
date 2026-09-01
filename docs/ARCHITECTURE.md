@@ -51,16 +51,24 @@ the same constraint `<Route>` has, and it is understood.
 
 ## What is stored, and what is resolved
 
-Stored: which panel each half holds, and the sizes. Nothing else.
+Stored: which panel each half was **told** to hold, per view, and the sizes. Nothing else — and
+only a real choice: a half nobody has touched is stored open, naming nobody.
 
 Everything else is **resolved at render**:
 
-- what a zone *draws* is not what it *holds* — a `solo` panel silences the other half
+- which panel a half *draws* is not what it *holds* — the one it names if that panel is still
+  declared for that half, else the first one that is
+- what a zone *draws* is not what its halves hold either — a `solo` panel silences the other
 - the size a zone *takes* is bounded against the opposite zone and the measured room
 - whether a zone *takes room* is not whether it *draws* — the band's two halves share one height
 
 Each of those was a bug before it was a function. They are `shownIn`, `sharedSizes` and
 `zoneTakesRoom`, and each has a test that starts from the arrangement that broke it.
+
+Resolving the first one at render rather than writing it down is what makes conditional panels
+free. A panel withdrawn — behind a right, a route, a connection — leaves a half that falls back;
+declared again, it takes its half back. Written down, the choice would have been lost the first
+time the panel was hidden, and nothing would ever have restored it.
 
 ## Why the selectors are scalar
 
@@ -90,10 +98,15 @@ not something a repaint should reach.
 
 ## What was deliberately left out
 
-- **surfaces / sections** — the chassis has no notion of "which screen am I on". In React the
-  router changes the children; there is no problem to solve.
+- **surfaces / sections** — the chassis still has no notion of what a screen *is*, or of your
+  domain. What it does carry, since views, is that one application can have two screens worth
+  arranging apart: `view` names an arrangement and nothing more. The router changes the children;
+  the view says which arrangement they are drawn in.
 - **capabilities** — a panel that should not be offered is a panel you do not declare.
 - **i18n** — four strings, passed in already translated.
 - **an icon set** — `icon` takes any node.
+- **tooltips** — and everything else a design system puts on a button. The two buttons the
+  chassis draws itself are replaceable (`components`), which is what keeps `tooltip`, `shortcut`
+  and `badge` from becoming props here one after the other.
 - **floating and dragging panels between zones** — planned, and the state model already allows an
   override of the declared zone. Not in v1.

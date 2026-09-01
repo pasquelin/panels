@@ -64,8 +64,8 @@ Pour ouvrir ailleurs, nommez les moitiés vous-même :
 <Panels<PanelId> defaultOpen={{ left: { primary: 'recherche' } }}>
 ```
 
-`defaultOpen` est lu une seule fois, et jamais contre une disposition restaurée — un arrangement
-que le lecteur a fait l'emporte sur un défaut.
+`defaultOpen` est lu une seule fois par vue, et jamais contre une disposition restaurée — un
+arrangement que le lecteur a fait l'emporte sur un défaut.
 
 ## `opens`
 
@@ -96,9 +96,10 @@ restauration.
 
 ## Ajouter et retirer des panneaux
 
-Le registre suit votre JSX. Un panneau qui cesse d'être déclaré est retiré, et la moitié qu'il
-occupait est vidée — un identifiant stocké nommant un panneau qui n'existe plus laisserait sinon
-un cadre sans rien à dessiner dedans.
+Le registre suit votre JSX, dans l'ordre où vous le déclarez. Un panneau qui cesse d'être déclaré
+quitte le rail, et la moitié qu'il tenait **retombe** sur ce qui est encore déclaré pour elle :
+elle n'est pas fermée, et le choix n'est pas oublié. Déclarez-le à nouveau et la moitié lui
+revient, à la place qu'il avait.
 
 Les panneaux conditionnels fonctionnent comme vous l'attendez :
 
@@ -109,4 +110,27 @@ Les panneaux conditionnels fonctionnent comme vous l'attendez :
 ```
 
 C'est ainsi qu'on exprime ce à quoi servirait un système de capacités : un panneau qu'il ne faut
-pas offrir est un panneau qu'on ne déclare pas.
+pas offrir est un panneau qu'on ne déclare pas. Et comme un retrait ne coûte rien, un panneau peut
+aller et venir aussi souvent qu'un droit, une route ou une connexion.
+
+## Les vues
+
+Deux parties d'une même application peuvent vouloir leur propre disposition — un éditeur et un
+écran de revue, un projet et un tableau de bord. Nommez celle qui est devant, et chacune garde les
+panneaux qu'elle avait ouverts :
+
+```tsx
+<Panels<PanelId> view={enRevue ? 'review' : 'edit'}>
+```
+
+Fermer une colonne dans une vue la laisse ouverte dans l'autre, et y revenir la retrouve telle
+qu'on l'a laissée. Les **longueurs sont communes** : une colonne qui changerait de largeur en
+chemin se lirait comme une autre fenêtre.
+
+Omise, tout arrive dans une seule vue et rien de ceci ne se voit. Une vue ne coûte rien à ignorer,
+et un projet qui en gagne une seconde n'a qu'une prop à passer.
+
+La prop est **contrôlée** : elle est réconciliée à chaque rendu, donc un `setView` appelé dans son
+dos est repris au suivant. Et les vues ne sont jamais purgées — nommez la poignée d'écrans qui
+possèdent une disposition plutôt que chaque route, sans quoi `view={location.pathname}` fait
+croître une entrée stockée par URL, pour toujours.

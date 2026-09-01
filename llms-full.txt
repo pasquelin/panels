@@ -20,14 +20,23 @@
   provider its own file sits under.
 - **One store per chassis**, created not imported (`createPanelsStore`). No module singleton —
   two chassis can live in one application, and a test cannot leak into the next.
-- **What is stored is not what is shown.** Stored: which panel each half holds, and the sizes.
-  Resolved at render: what a zone draws (a `solo` panel silences the other half), the size it
-  takes (bounded against the opposite zone), whether it takes room at all (the band's two halves
-  share one height).
-- **There are no "surfaces" or sections.** An earlier design carried them; they were removed. In
-  React the router changes the children — there is nothing to solve.
+- **What is stored is not what is shown, and only a CHOICE is stored.** Stored: which panel each
+  half was told to hold, per view, and the sizes. A half nobody touched is stored open, naming
+  nobody, and a view nobody has opened is simply absent — which is what tells the chassis to
+  settle it. Resolved at render: which panel a half draws (the one named if it is still declared for
+  that half, else the first one that is), whether the zone draws at all, the size it takes
+  (bounded against the opposite zone), whether it takes room (the band's two halves share one
+  height).
+- **No tooltips, no icon set, no i18n.** The two buttons the chassis draws — the rail's and the
+  close — are REPLACED, not configured: `<Panels components={{ IconButton: Mine }}>`. That is
+  what keeps `tooltip`, `shortcut` and `badge` from landing here one after the other.
 - **A panel that should not be offered is a panel you do not declare.** That replaces what a
-  capability system would be for.
+  capability system would be for — and withdrawing one costs nothing: the half falls back, the
+  choice is remembered, and declaring the panel again gives it its place back.
+- **Views are named arrangements, and they are opt-in.** `<Panels view="review">`: each view
+  keeps the panels it had open to itself, the lengths stay shared. Left out, everything lands in
+  one view and nothing about this is visible. Not "surfaces": the library still knows nothing
+  about your domain, only that one application can have two screens worth arranging apart.
 
 ## Install and shape
 
@@ -75,8 +84,8 @@ usual missing piece.
 `PanelHeader` `IconButton` `Separator` `ResizeHandle`
 
 ### `<Panels>` props
-`store` `storageKey` `storage` `defaultOpen` `header` `footer` `railHeader` `labels` `theme`
-`className`
+`store` `storageKey` `storage` `defaultOpen` `view` `header` `footer` `railHeader` `labels`
+`components` `theme` `className`
 
 ### `<Panel>` props
 `id` `zone` `slot?` `title` `icon?` `actions?` `opens?` `solo?`
@@ -84,14 +93,17 @@ usual missing piece.
 ### Hooks
 - `usePanels<Id>()` → `{ panels, reveal, close, toggle, isShown, focusedZone, reset }`
 - `useZone<Id>(zone)` → `{ primary, secondary, draws, size, split, focused }`
-- `useArrangement` `useShownIn` `useZoneDraws` `useZoneTakesRoom` `useBandHalves`
+- `useArrangement` `useShownIn` `useShownSpecsIn` `useZoneDraws` `useZoneTakesRoom`
+  `useBandHalves`
 - `useContainerFit(ref)` `usePointerDrag()` `usePanelsState(selector)` `usePanelsActions()`
 
 ### Core
-`createPanelsStore` `shownIn` `specOf` `zoneDraws` `zoneTakesRoom` `undraggedSizeOf`
+`createPanelsStore` `shownIn` `shownSpecsIn` `openOf` `specOf` `zoneDraws` `zoneTakesRoom`
+`undraggedSizeOf`
 `fitZoneSize` `fitSplit` `sharedSizes` `sizeKeyOf` `MIN_SIZE` `MIN_CENTER` `MIN_SPLIT`
 `DEFAULT_SIZES` · `browserStorage` `memoryStorage` `readLayout` `writeLayout` `LAYOUT_VERSION`
-· `ZONES` `SLOTS` `BOTTOM_ZONES` `ZONES_BY_SIDE` `isBottom` `isHorizontal` `isLeading` `cx`
+· `ZONES` `SLOTS` `BOTTOM_ZONES` `ZONES_BY_SIDE` `DEFAULT_VIEW` `isBottom` `isHorizontal`
+`isLeading` `cx`
 
 ### Optional entry point
 `@pasquelin/panels/dockview` → `DockviewCenter`, for document tabs. Separate so its weight only
@@ -130,6 +142,14 @@ Gauges: `--pnl-rail` `--pnl-rail-button` `--pnl-rail-inset` `--pnl-gutter` `--pn
   write, so subscribing to either as an object re-renders on every frame of a drag.
 - `close(id)` closes THAT panel or nothing. `close(zone, slot)` on the store empties the half
   whatever stands in it — two panels share a half.
+- `show(id)` on a panel already on screen only FOCUSES it. A half drawing it by declaration
+  order has named nobody, and writing the name down would settle for every other view a question
+  the click never asked.
+- The `view` prop is CONTROLLED: `setView` on the store is overruled by the next render. It is
+  reconciled on every render, not on a dependency change, so the contract does not depend on
+  which other props you happened to memoise.
+- Views are never evicted. `view={location.pathname}` grows one entry per URL, for ever. Name
+  the handful of screens that own an arrangement, not every route.
 - `useZoneTakesRoom` ≠ `useZoneDraws`: the band's halves share a height, so either drawing means
   the strip takes it.
 - Two chassis in one app need two `storageKey`s, or they overwrite each other.
@@ -400,8 +420,8 @@ To open somewhere else, name the halves yourself:
 <Panels<PanelId> defaultOpen={{ left: { primary: 'search' } }}>
 ```
 
-`defaultOpen` is read once, and never against a layout that was restored — an arrangement the
-reader made outranks a default.
+`defaultOpen` is read once per view, and never against a layout that was restored — an
+arrangement the reader made outranks a default.
 
 ## `opens`
 
@@ -431,9 +451,10 @@ arrangement nobody remembers making, is not a restoration.
 
 ## Adding and removing panels
 
-The registry follows your JSX. A panel that stops being declared is unregistered, and the half it
-occupied is emptied — a stored id naming a panel that no longer exists would otherwise leave a
-frame with nothing to draw in it.
+The registry follows your JSX, in the order you declare it. A panel that stops being declared
+leaves the rail, and the half it held **falls back** to whatever is still declared for it — it is
+not closed, and the choice is not forgotten. Declare the panel again and the half is its once
+more, in the place it had.
 
 Conditional panels work as you would expect:
 
@@ -444,7 +465,29 @@ Conditional panels work as you would expect:
 ```
 
 This is how you express what a capability system would otherwise be for: a panel that should not
-be offered is a panel you do not declare.
+be offered is a panel you do not declare. And because a withdrawal costs nothing, a panel may go
+and come back as often as a right, a route or a connection does.
+
+## Views
+
+Two parts of one application may want their own arrangement — an editor and a review screen, a
+project and a dashboard. Name the one in front, and each keeps the panels it had open:
+
+```tsx
+<Panels<PanelId> view={reviewing ? 'review' : 'edit'}>
+```
+
+Closing a column in one view leaves it open in the other, and coming back finds it as it was
+left. The **lengths are shared**: a column that changed width on the way to another view would
+read as another window.
+
+Left out, everything lands in one view and nothing about this is visible. Views cost nothing to
+ignore, and a project that grows into a second one only has a prop to pass.
+
+The prop is **controlled**: it is reconciled on every render, so `setView` called behind its back
+is taken over on the next one. And views are never evicted — name the handful of screens that own
+an arrangement rather than every route, or `view={location.pathname}` grows one stored entry per
+URL, for ever.
 
 ==============================================================================
 Layout
@@ -532,7 +575,9 @@ This is what lets it be adopted a piece at a time in an application that already
 
 ## Persistence
 
-What is stored: which half holds which panel, and the sizes. That is all.
+What is stored: which half holds which panel, in each view, and the sizes. That is all — and
+only a real choice is written: a half nobody has touched is stored as open, naming nobody, so it
+follows your declarations rather than freezing an answer.
 
 ```tsx
 <Panels
@@ -654,15 +699,23 @@ window.electron?.onMenu(id => store.getState().show(id))
 ```
 
 `store.getState()` gives the same actions the hooks call: `show`, `close`, `toggle`, `focus`,
-`resize`, `resplit`, `resplitBand`, `fit`, `reset`.
+`resize`, `resplit`, `resplitBand`, `fit`, `reset` — plus `declare` and `setView`, which the
+chassis drives itself.
+
+Inside React, the `view` prop is the only way to change views: it is controlled and reconciled on
+every render, so a `setView` made behind its back is taken over on the next one. `usePanelsActions`
+therefore does not offer it — one path per question.
 
 ## `usePanelsState`
 
 Any slice, subscribed:
 
 ```tsx
-const open = usePanelsState<PanelId, OpenByZone<PanelId>>(state => state.open)
+const open = usePanelsState<PanelId, OpenByZone<PanelId>>(state => state.views[state.view])
 ```
+
+The arrangement of the view on screen — `openOf(state)` says the same thing off a state you
+already hold.
 
 Prefer scalar selectors. `lengths` and `available` are replaced wholesale on every write, so
 subscribing to either as an object wakes your component on every frame of a drag.
@@ -856,6 +909,22 @@ What the chassis does for you:
 What is yours: the contrast of your palette, and the accessible names of whatever you put inside
 the panels.
 
+## Drawing the buttons yourself
+
+The chassis draws two buttons you never reach: the rail's, and a panel header's close. Replace
+them rather than configure them — a tooltip, a shortcut hint, a badge belong to your design
+system, not to a layout library.
+
+```tsx
+<Panels components={{ IconButton: MyIconButton }}>
+```
+
+`MyIconButton` receives `IconButtonProps`: `icon`, `label`, `active`, `accented`, `acts`,
+`onClick`, plus anything else you spread. `acts` tells the close button from a rail toggle.
+
+Read **once**, like `storage`: an object written inline changes identity on every render, and
+every panel would re-render with it.
+
 ==============================================================================
 Document tabs
 ==============================================================================
@@ -1021,6 +1090,10 @@ Give them different storage keys, or they overwrite each other's layout:
 
 Each `<Panels>` makes its own store; nothing is shared between them.
 
+Two chassis is not the same question as two **views**. Two chassis are two frames on screen at
+once; two views are one frame that two parts of the application arrange differently — see
+`view` in [PANELS](PANELS.md#views), which keeps the lengths shared.
+
 ## Testing
 
 The chassis is ordinary React. Give it a storage that forgets, so one test cannot leak into the
@@ -1110,16 +1183,24 @@ the same constraint `<Route>` has, and it is understood.
 
 ## What is stored, and what is resolved
 
-Stored: which panel each half holds, and the sizes. Nothing else.
+Stored: which panel each half was **told** to hold, per view, and the sizes. Nothing else — and
+only a real choice: a half nobody has touched is stored open, naming nobody.
 
 Everything else is **resolved at render**:
 
-- what a zone *draws* is not what it *holds* — a `solo` panel silences the other half
+- which panel a half *draws* is not what it *holds* — the one it names if that panel is still
+  declared for that half, else the first one that is
+- what a zone *draws* is not what its halves hold either — a `solo` panel silences the other
 - the size a zone *takes* is bounded against the opposite zone and the measured room
 - whether a zone *takes room* is not whether it *draws* — the band's two halves share one height
 
 Each of those was a bug before it was a function. They are `shownIn`, `sharedSizes` and
 `zoneTakesRoom`, and each has a test that starts from the arrangement that broke it.
+
+Resolving the first one at render rather than writing it down is what makes conditional panels
+free. A panel withdrawn — behind a right, a route, a connection — leaves a half that falls back;
+declared again, it takes its half back. Written down, the choice would have been lost the first
+time the panel was hidden, and nothing would ever have restored it.
 
 ## Why the selectors are scalar
 
@@ -1149,11 +1230,16 @@ not something a repaint should reach.
 
 ## What was deliberately left out
 
-- **surfaces / sections** — the chassis has no notion of "which screen am I on". In React the
-  router changes the children; there is no problem to solve.
+- **surfaces / sections** — the chassis still has no notion of what a screen *is*, or of your
+  domain. What it does carry, since views, is that one application can have two screens worth
+  arranging apart: `view` names an arrangement and nothing more. The router changes the children;
+  the view says which arrangement they are drawn in.
 - **capabilities** — a panel that should not be offered is a panel you do not declare.
 - **i18n** — four strings, passed in already translated.
 - **an icon set** — `icon` takes any node.
+- **tooltips** — and everything else a design system puts on a button. The two buttons the
+  chassis draws itself are replaceable (`components`), which is what keeps `tooltip`, `shortcut`
+  and `badge` from becoming props here one after the other.
 - **floating and dragging panels between zones** — planned, and the state model already allows an
   override of the declared zone. Not in v1.
 

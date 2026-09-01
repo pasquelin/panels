@@ -5,6 +5,100 @@ All notable changes to `@pasquelin/panels`.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] — 2026-09-01
+
+Two changes to the same idea: **what a half shows is resolved when it is drawn, not written down
+once**. That is what lets a project declare its panels conditionally without losing anything, and
+what makes a second view cost one prop.
+
+### Added
+
+- **Views.** `<Panels view="review">` — a named arrangement. Each view keeps the panels it had
+  open to itself; the lengths stay shared, because a column that changed width on the way to
+  another view reads as another window. Omitted, everything lands in one view and nothing about
+  this is visible. The store gains `view`, `views` and `setView`; the prop is controlled.
+- `DEFAULT_VIEW`, the name a project that never passes one lands in.
+- **`components`**, to draw the chassis' own buttons yourself:
+  `<Panels components={{ IconButton: Mine }}>`. The rail's buttons and the close button were the
+  one part of the chassis a project could not repaint, so a tooltip — or a shortcut hint, or a
+  badge — had nowhere to go but a new prop here. Read once, like `storage`.
+- `shownSpecsIn`, `openOf` and the `Arranged` type, for a project building its own frame on the
+  headless core: `shownIn` hands back ids, and every caller was finding the panel again from them.
+
+### Removed
+
+- **`PanelsState.open` and `PanelsState.settled`.** One map, `views`, now holds every
+  arrangement including the one in front, and having an entry in it IS the record of having been
+  settled. Read the view on screen with `openOf(state)`.
+  Keeping the front view apart cost three hand-written merges and a `delete`, and the invariant
+  they upheld was tenable by nobody: a cold start straight onto a view the stored file had never
+  named took it for settled and drew **an empty chassis** — while reaching the same screen from
+  another view worked. One map makes the two paths agree by construction.
+- **`shownIn`, `zoneDraws` and `zoneTakesRoom` take `Arranged`** — `{ registry, view, views }` —
+  where they took `{ registry, open }`. Passing the whole state still works.
+- **`undraggedSizeOf(zone, spec)`** takes the leading panel rather than a registry and an id.
+- **`readLayout` and `writeLayout` carry `LayoutState`**, which is now `{ views, lengths }`. That
+  type was exported, described persistence, and had stopped being true.
+- **`setView` is no longer on `usePanelsActions`.** Inside React the `view` prop is the one path;
+  it remains on the store for a project driving the chassis from outside React.
+
+### Changed
+
+- **A withdrawn panel no longer empties its half.** It falls back to whatever is still declared
+  for that half, and the choice is remembered: declare the panel again and the half is its once
+  more. Before, hiding a panel behind a right, a route or a connection lost the arrangement for
+  good — while an unknown id read back from storage survived as a half that was neither open nor
+  closed. The two cases now answer the same way.
+- **`settle` opens a half without naming a panel.** `ZoneSlots` gains `null` as a third state —
+  the key absent is a closed half, `null` an open one that named nobody, an id a real choice.
+  Only choices are stored, so an untouched half follows your declarations instead of freezing
+  one screen's answer.
+- **`show` on a panel already drawn only focuses it**, rather than writing its name down.
+- **`register` and `unregister` are replaced by `declare(specs)`**, which posts the panels as a
+  list. The list IS the order the rail stacks them in, so a panel that goes and comes back
+  returns to its place instead of to the end.
+- **Stored layouts are at version 2**, holding one entry per view. A version 1 file is read back
+  as the default view — the upgrade costs nobody their layout.
+- **The `view` prop is reconciled on every render**, not on a dependency change. It was
+  controlled only when some unrelated prop happened to change identity, so a `defaultOpen`
+  written inline and one hoisted into a constant gave opposite contracts.
+- **The layout is written only when the arrangements or the lengths actually moved.** The store
+  notifies on every write — a focus, a measure, each `pointermove` of a drag — and each of those
+  used to re-serialise the whole file.
+
+### Fixed
+
+- **A view named after anything on `Object.prototype`** — `constructor`, `toString`, `__proto__` —
+  was taken for settled and drew an empty chassis, then the first click froze the remaining half
+  closed for good. `in` answers for the prototype chain; `Object.hasOwn` does not.
+- **A stored view named `__proto__` was lost, and took the map's prototype with it.** `JSON.parse`
+  makes it an own property, and assigning it on a plain object fires the setter — so a view named
+  `left` would have inherited an arrangement that was not its own. No global pollution, measured.
+- **`setView` and `reset` now settle on the spot.** Reachable only through a render, a view
+  arrived at from outside React — a native menu, a socket — stayed unsettled, and a `reset` asked
+  for by a button inside the chassis left the frame blank until some ancestor happened to
+  re-render. The reset was not written to disk either, so the arrangement being escaped came back
+  on reload.
+- **A project bringing its own `store` was never handed the stored layout**, and overwrote the
+  file on the first write — losing its arrangement on every launch for having built the store
+  itself.
+- **`view` no longer defaults**, so a project that never passes it keeps `setView` for itself. The
+  prop claimed the view on every render, undoing an imperative call at the next unrelated render
+  of some ancestor.
+- **Replacing a `solo` panel no longer closes the half beside it.** When the solo panel led by
+  fallback rather than by choice, showing anything in that zone rebuilt it from nothing.
+- **A zone's divider is re-clamped even when its own length was never dragged.** `resize` and
+  `resplit` write different keys, so parting a column without ever moving its edge left the
+  divider past the bottom of a shrunken column, squeezing the first half to nothing.
+- **A `defaultOpen` half written `undefined`** was drawn on the first launch and closed after a
+  reload: `JSON` drops the key the three-state semantics rests on.
+- **A band drawing nothing still reserved its height.** Two predicates in `clamps.ts` answered
+  "is this zone open?" from the stored arrangement alone, without the registry — so a half left
+  open on a panel the project no longer declares counted as drawing. The strip held 240 px under
+  an empty band, every drag of the top zone was clamped against those 240, and the focus stayed
+  on a zone that had stopped drawing. The question is now asked of `zoneTakesRoom`, which knows
+  what is declared.
+
 ## [0.1.1] — 2026-09-01
 
 Everything here is about what leaves the repository. The library itself did not change.
@@ -54,5 +148,6 @@ First release.
 - Optional `@pasquelin/panels/dockview` entry point for document tabs.
 - No runtime dependencies.
 
+[0.2.0]: https://github.com/pasquelin/panels/releases/tag/v0.2.0
 [0.1.1]: https://github.com/pasquelin/panels/releases/tag/v0.1.1
 [0.1.0]: https://github.com/pasquelin/panels/releases/tag/v0.1.0

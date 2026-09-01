@@ -11,6 +11,7 @@ export { PanelFrame, type PanelFrameProps } from './components/PanelFrame'
 export { Surface } from './components/Surface'
 export { PanelHeader, type PanelHeaderProps } from './components/PanelHeader'
 export { IconButton, type IconButtonProps } from './components/IconButton'
+export { usePanelsComponents, type PanelsComponents } from './core/components'
 export { Separator, type SeparatorProps } from './components/Separator'
 export { ResizeHandle, type ResizeHandleProps } from './components/ResizeHandle'
 export { DEFAULT_LABELS, type PanelsLabels } from './components/labels'
@@ -29,6 +30,7 @@ export {
   useArrangement,
   useBandHalves,
   useShownIn,
+  useShownSpecsIn,
   useZoneDraws,
   useZoneTakesRoom,
 } from './core/hooks/useArrangement'
@@ -38,8 +40,11 @@ export { usePointerDrag, type PointerDrag } from './core/hooks/usePointerDrag'
 
 export {
   createPanelsStore,
+  openOf,
   shownIn,
+  shownSpecsIn,
   specOf,
+  type Arranged,
   zoneDraws,
   zoneTakesRoom,
   undraggedSizeOf,
@@ -70,6 +75,7 @@ export {
 export {
   ZONES,
   SLOTS,
+  DEFAULT_VIEW,
   BOTTOM_ZONES,
   ZONES_BY_SIDE,
   type Side,

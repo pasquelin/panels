@@ -24,6 +24,12 @@ export type Slot = 'primary' | 'secondary'
 
 export const SLOTS: readonly Slot[] = ['primary', 'secondary']
 
+/**
+ * The view a project that never names one lands in. A view is a named arrangement: two parts of
+ * one application each keeping their own open panels, sharing the lengths.
+ */
+export const DEFAULT_VIEW = 'default'
+
 /** The band's two halves, in the order they are drawn. */
 export const BOTTOM_ZONES: readonly Zone[] = ['bottomLeft', 'bottomRight']
 
@@ -83,8 +89,15 @@ export type PanelSpec<Id extends string = string> = {
   solo?: boolean
 }
 
-/** Which panel each half of each zone currently shows. Absent means the half is closed. */
-export type ZoneSlots<Id extends string = string> = Partial<Record<Slot, Id>>
+/**
+ * Which panel each half of each zone currently shows. Three states, not two: the key absent is
+ * a CLOSED half, `null` an open one that has named no panel, an id the panel someone chose.
+ *
+ * That middle state is what lets a project change the panels it declares without the halves
+ * following: an unnamed half draws whatever is declared first for it, resolved at render — see
+ * `shownIn`. Stored, it also keeps the arrangement honest, since only a real choice is written.
+ */
+export type ZoneSlots<Id extends string = string> = Partial<Record<Slot, Id | null>>
 
 export type OpenByZone<Id extends string = string> = Partial<Record<Zone, ZoneSlots<Id>>>
 
@@ -104,8 +117,11 @@ export type Lengths = {
   bandSplit?: number
 }
 
-/** The layout as it is stored and restored. This is the whole of what persistence carries. */
+/**
+ * The layout as it is stored and restored. This is the whole of what persistence carries: one
+ * arrangement per view, and the lengths, which every view shares.
+ */
 export type LayoutState<Id extends string = string> = {
-  open: OpenByZone<Id>
+  views: Record<string, OpenByZone<Id>>
   lengths: Lengths
 }

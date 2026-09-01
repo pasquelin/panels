@@ -91,3 +91,19 @@ Ce que le châssis fait pour vous :
 
 Ce qui vous revient : le contraste de votre palette, et les noms accessibles de ce que vous mettez
 dans les panneaux.
+
+## Dessiner les boutons soi-même
+
+Le châssis dessine deux boutons que vous n'atteignez pas : celui du rail, et la fermeture d'un
+en-tête de panneau. Remplacez-les plutôt que de les configurer — une infobulle, un rappel de
+raccourci, une pastille appartiennent à votre design system, pas à une librairie de disposition.
+
+```tsx
+<Panels components={{ IconButton: MonIconButton }}>
+```
+
+`MonIconButton` reçoit `IconButtonProps` : `icon`, `label`, `active`, `accented`, `acts`,
+`onClick`, plus ce que vous ajoutez. `acts` distingue la fermeture d'une bascule du rail.
+
+Lu **une seule fois**, comme `storage` : un objet écrit en ligne change d'identité à chaque rendu,
+et tous les panneaux se re-rendraient avec lui.

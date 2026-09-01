@@ -98,15 +98,23 @@ window.electron?.onMenu(id => store.getState().show(id))
 ```
 
 `store.getState()` donne les mêmes actions que celles qu'appellent les hooks : `show`, `close`,
-`toggle`, `focus`, `resize`, `resplit`, `resplitBand`, `fit`, `reset`.
+`toggle`, `focus`, `resize`, `resplit`, `resplitBand`, `fit`, `reset` — plus `declare` et
+`setView`, que le châssis pilote lui-même.
+
+Dans React, la prop `view` est le seul chemin pour changer de vue : elle est contrôlée et
+réconciliée à chaque rendu, donc un `setView` fait dans son dos est repris au suivant.
+`usePanelsActions` ne l'offre donc pas — un seul chemin par question.
 
 ## `usePanelsState`
 
 N'importe quelle tranche, abonnée :
 
 ```tsx
-const open = usePanelsState<PanelId, OpenByZone<PanelId>>(state => state.open)
+const open = usePanelsState<PanelId, OpenByZone<PanelId>>(state => state.views[state.view])
 ```
+
+La disposition de la vue à l'écran — `openOf(state)` dit la même chose à partir d'un état qu'on
+tient déjà.
 
 Préférez les sélecteurs scalaires. `lengths` et `available` sont remplacés en entier à chaque
 écriture : s'abonner à l'un ou l'autre comme objet réveille votre composant à chaque image d'un

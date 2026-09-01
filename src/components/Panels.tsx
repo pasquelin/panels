@@ -1,6 +1,15 @@
-import { Children, isValidElement, useMemo, useRef, type ReactElement, type ReactNode } from 'react'
+import {
+  Children,
+  isValidElement,
+  useMemo,
+  useRef,
+  useState,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 import { cx } from '../core/cx'
 import { PanelsProvider, usePanelsStore, type PanelsProviderProps } from '../core/context'
+import { ComponentsProvider, withDefaults, type PanelsComponents } from '../core/components'
 import { useContainerFit } from '../core/hooks/useContainerFit'
 import { useBandHalves } from '../core/hooks/useArrangement'
 import { useIsomorphicLayoutEffect } from '../core/layoutEffect'
@@ -23,6 +32,11 @@ export type PanelsProps<Id extends string = string> = Omit<PanelsProviderProps<I
   railHeader?: ReactNode
   /** Words the chassis says. English by default; pass your own already translated. */
   labels?: Partial<PanelsLabels>
+  /**
+   * Pieces the project draws itself — today the `IconButton` the rail and the panel headers use.
+   * Read ONCE, like `storage`: swapping it under a live chassis would re-render every panel.
+   */
+  components?: Partial<PanelsComponents>
   /**
    * Forces the palette. Left out, the chassis follows the reader's system setting — which is
    * what a project wants until it offers a switch of its own.
@@ -91,6 +105,7 @@ export function Panels<Id extends string = string>({
   labels,
   theme,
   className,
+  components,
   children,
   ...provider
 }: PanelsProps<Id>) {
@@ -103,6 +118,7 @@ export function Panels<Id extends string = string>({
         labels={labels}
         theme={theme}
         className={className}
+        components={components}
       >
         {children}
       </Frame>
@@ -112,7 +128,7 @@ export function Panels<Id extends string = string>({
 
 type FrameProps<Id extends string> = Pick<
   PanelsProps<Id>,
-  'header' | 'footer' | 'railHeader' | 'labels' | 'theme' | 'className' | 'children'
+  'header' | 'footer' | 'railHeader' | 'labels' | 'theme' | 'className' | 'components' | 'children'
 >
 
 /**
@@ -128,6 +144,7 @@ function Frame<Id extends string>({
   labels,
   theme,
   className,
+  components,
   children,
 }: FrameProps<Id>) {
   const store = usePanelsStore<Id>()
@@ -137,6 +154,10 @@ function Frame<Id extends string>({
   const columns = useRef<HTMLDivElement>(null)
   useContainerFit(columns)
 
+  // Settled once: an object written inline changes identity on every render, and every panel
+  // would re-render with it — the memoisation that protects a drag is built on the opposite.
+  const [parts] = useState(() => withDefaults(components))
+
   const { specs, content, centre, loose } = useMemo(() => collect<Id>(children), [children])
   const words = useMemo(() => ({ ...DEFAULT_LABELS, ...labels }), [labels])
 
@@ -145,59 +166,55 @@ function Frame<Id extends string>({
   // Before the paint, and before the provider settles the arrangement: a parent's effect runs
   // after its children's, so the registry is full by the time `settle` reads it.
   useIsomorphicLayoutEffect(() => {
-    const { register, unregister } = store.getState()
-    for (const spec of specs) register(spec)
-
-    const known = new Set(specs.map(spec => spec.id))
-    for (const held of store.getState().registry) {
-      if (!known.has(held.id)) unregister(held.id)
-    }
+    store.getState().declare(specs)
   }, [store, specs])
 
   const band = useBandHalves<Id>()
 
   return (
-    <ContentProvider value={content}>
-      <div data-pnl-theme={theme} className={cx('pnl-root', className)}>
-        {header}
+    <ComponentsProvider value={parts}>
+      <ContentProvider value={content}>
+        <div data-pnl-theme={theme} className={cx('pnl-root', className)}>
+          {header}
 
-        <div className="pnl-middle">
-          <Rail side="left" header={railHeader} />
+          <div className="pnl-middle">
+            <Rail side="left" header={railHeader} />
 
-          {/* Handles occupy exactly the gutter: the space between two surfaces IS the resize
+            {/* Handles occupy exactly the gutter: the space between two surfaces IS the resize
               area, rather than decorative emptiness doubled by a handle. */}
-          <div ref={columns} className="pnl-columns">
-            <ZoneEdge<Id> zone="top" labels={words} />
+            <div ref={columns} className="pnl-columns">
+              <ZoneEdge<Id> zone="top" labels={words} />
 
-            {/* A column runs to the FOOT of the frame unless the band's half on its side is
+              {/* A column runs to the FOOT of the frame unless the band's half on its side is
                 drawing: the strip then starts where that column ends, and the opposite one
                 keeps its full height. */}
-            <div className="pnl-row">
-              {!band.left && <ZoneEdge<Id> zone="left" labels={words} />}
+              <div className="pnl-row">
+                {!band.left && <ZoneEdge<Id> zone="left" labels={words} />}
 
-              <div className="pnl-stack">
-                <div className="pnl-row">
-                  {band.left && <ZoneEdge<Id> zone="left" labels={words} />}
+                <div className="pnl-stack">
+                  <div className="pnl-row">
+                    {band.left && <ZoneEdge<Id> zone="left" labels={words} />}
 
-                  <Surface className="pnl-centre">{centre?.props.children}</Surface>
+                    <Surface className="pnl-centre">{centre?.props.children}</Surface>
 
-                  {band.right && <ZoneEdge<Id> zone="right" labels={words} />}
+                    {band.right && <ZoneEdge<Id> zone="right" labels={words} />}
+                  </div>
+
+                  <Band<Id> left={band.left} right={band.right} labels={words} />
                 </div>
 
-                <Band<Id> left={band.left} right={band.right} labels={words} />
+                {!band.right && <ZoneEdge<Id> zone="right" labels={words} />}
               </div>
-
-              {!band.right && <ZoneEdge<Id> zone="right" labels={words} />}
             </div>
+
+            <Rail side="right" />
           </div>
 
-          <Rail side="right" />
+          {footer}
+          {loose}
         </div>
-
-        {footer}
-        {loose}
-      </div>
-    </ContentProvider>
+      </ContentProvider>
+    </ComponentsProvider>
   )
 }
 

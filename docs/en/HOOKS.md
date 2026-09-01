@@ -94,15 +94,23 @@ window.electron?.onMenu(id => store.getState().show(id))
 ```
 
 `store.getState()` gives the same actions the hooks call: `show`, `close`, `toggle`, `focus`,
-`resize`, `resplit`, `resplitBand`, `fit`, `reset`.
+`resize`, `resplit`, `resplitBand`, `fit`, `reset` — plus `declare` and `setView`, which the
+chassis drives itself.
+
+Inside React, the `view` prop is the only way to change views: it is controlled and reconciled on
+every render, so a `setView` made behind its back is taken over on the next one. `usePanelsActions`
+therefore does not offer it — one path per question.
 
 ## `usePanelsState`
 
 Any slice, subscribed:
 
 ```tsx
-const open = usePanelsState<PanelId, OpenByZone<PanelId>>(state => state.open)
+const open = usePanelsState<PanelId, OpenByZone<PanelId>>(state => state.views[state.view])
 ```
+
+The arrangement of the view on screen — `openOf(state)` says the same thing off a state you
+already hold.
 
 Prefer scalar selectors. `lengths` and `available` are replaced wholesale on every write, so
 subscribing to either as an object wakes your component on every frame of a drag.

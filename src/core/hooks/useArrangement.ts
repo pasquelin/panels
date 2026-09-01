@@ -1,24 +1,26 @@
 import { useMemo } from 'react'
 import { usePanelsState } from '../context'
-import { shownIn, zoneDraws, zoneTakesRoom } from '../store'
+import { shownIn, shownSpecsIn, zoneDraws, zoneTakesRoom, type Arranged } from '../store'
 import { ZONES_BY_SIDE, type OpenByZone, type PanelSpec, type Zone } from '../types'
 
 /**
- * What every reader of `shownIn` and `zoneDraws` needs: the declared panels, and which half of
- * each zone holds which.
+ * What every reader of `shownIn` and `zoneDraws` needs: the declared panels, and the view whose
+ * arrangement they are about.
  *
- * One hook because four of them had written the same pair of selectors and rebuilt the same
- * object by hand — so the shape those two functions expect could not change without touching
- * four files.
+ * One hook because four of them had written the same selectors and rebuilt the same object by
+ * hand — so the shape those functions expect could not change without touching four files.
  */
-export function useArrangement<Id extends string = string>(): {
-  registry: PanelSpec<Id>[]
-  open: OpenByZone<Id>
-} {
+export function useArrangement<Id extends string = string>(): Arranged<Id> {
   const registry = usePanelsState<Id, PanelSpec<Id>[]>(state => state.registry)
-  const open = usePanelsState<Id, OpenByZone<Id>>(state => state.open)
+  const view = usePanelsState<Id, string>(state => state.view)
+  // The view in front alone: subscribed to the whole map, every zone would wake on a write to
+  // an arrangement that is not even on screen.
+  const open = usePanelsState<Id, OpenByZone<Id> | undefined>(state => state.views[state.view])
 
-  return useMemo(() => ({ registry, open }), [registry, open])
+  return useMemo(
+    () => ({ registry, view, views: open === undefined ? {} : { [view]: open } }),
+    [registry, view, open],
+  )
 }
 
 /** What a zone's two halves actually draw — a `solo` panel silences the other. */
@@ -27,6 +29,14 @@ export function useShownIn<Id extends string = string>(
 ): { primary?: Id; secondary?: Id } {
   const arrangement = useArrangement<Id>()
   return useMemo(() => shownIn(arrangement, zone), [arrangement, zone])
+}
+
+/** The same answer as specs, for a caller that needs more of the panel than its name. */
+export function useShownSpecsIn<Id extends string = string>(
+  zone: Zone,
+): { primary?: PanelSpec<Id>; secondary?: PanelSpec<Id> } {
+  const arrangement = useArrangement<Id>()
+  return useMemo(() => shownSpecsIn(arrangement, zone), [arrangement, zone])
 }
 
 /** Whether a zone draws at all. An empty one takes neither room nor handle. */

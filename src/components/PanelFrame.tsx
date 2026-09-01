@@ -6,7 +6,7 @@ import { usePanelContent } from './content'
 import { PanelHeader } from './PanelHeader'
 import { Separator } from './Separator'
 import { Surface } from './Surface'
-import { IconButton } from './IconButton'
+import { usePanelsComponents } from '../core/components'
 
 export type PanelFrameProps<Id extends string> = {
   panel: PanelSpec<Id>
@@ -30,6 +30,7 @@ function PanelFrameInner<Id extends string>({
   onFocus,
 }: PanelFrameProps<Id>) {
   const { close } = usePanelsActions<Id>()
+  const { IconButton } = usePanelsComponents()
   const held = usePanelContent(panel.id)
 
   return (

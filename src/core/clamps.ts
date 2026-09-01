@@ -1,4 +1,4 @@
-import { isBottom, isHorizontal, ZONES, type Lengths, type OpenByZone, type Zone } from './types'
+import { isBottom, isHorizontal, ZONES, type Lengths, type Zone } from './types'
 
 /** Smallest a zone may be dragged to before it is worth closing instead. */
 export const MIN_SIZE = 140
@@ -59,30 +59,24 @@ export function fitSplit(size: number, available: number): number {
   return clamp(Math.round(size), MIN_SPLIT, ceiling)
 }
 
-/** True once either half holds something: an empty zone takes no room at all. */
-export function isZoneOpen(open: OpenByZone, zone: Zone): boolean {
-  const slots = open[zone]
-  return slots !== undefined && (slots.primary !== undefined || slots.secondary !== undefined)
-}
-
-/** The band takes its height as soon as EITHER half holds something: the strip is one strip. */
-export function isBandOpen(open: OpenByZone): boolean {
-  return isZoneOpen(open, 'bottomLeft') || isZoneOpen(open, 'bottomRight')
-}
-
 /**
  * The room a zone currently takes, or zero when it draws nothing. Read while clamping the
  * opposite zone: under-report it and the other side may be dragged over room this one is
  * already drawing in, squeezing the centre past its floor.
+ *
+ * 🛑 `takesRoom` is asked rather than read off `open`, and that is not a style: whether a half
+ * draws depends on the REGISTRY too — one holding a panel the project no longer declares draws
+ * whatever is still declared for it, or nothing. This module has no registry, and the two
+ * predicates it used to carry answered `true` for a half that drew nothing at all: a band
+ * reserving 240 px under an empty strip, and every drag of `top` clamped against those 240.
  */
 export function sizeOf(
   lengths: Lengths,
-  open: OpenByZone,
   zone: Zone,
+  takesRoom: (zone: Zone) => boolean,
   undragged: (zone: Zone) => number,
 ): number {
-  const drawn = isBottom(zone) ? isBandOpen(open) : isZoneOpen(open, zone)
-  if (!drawn) return 0
+  if (!takesRoom(zone)) return 0
 
   return lengths.sizes[sizeKeyOf(zone)] ?? undragged(zone)
 }
@@ -94,9 +88,9 @@ export function sizeOf(
  */
 export function fitted(
   lengths: Lengths,
-  open: OpenByZone,
   width: number,
   height: number,
+  takesRoom: (zone: Zone) => boolean,
   undragged: (zone: Zone) => number,
 ): Lengths {
   const sizes = { ...lengths.sizes }
@@ -104,13 +98,18 @@ export function fitted(
 
   for (const zone of ZONES) {
     const stored = sizes[zone]
-    if (stored === undefined) continue
-
-    const available = isHorizontal(zone) ? height : width
-    sizes[zone] = fitZoneSize(stored, available, sizeOf(lengths, open, OPPOSITE[zone], undragged))
+    if (stored !== undefined) {
+      const available = isHorizontal(zone) ? height : width
+      const facing = sizeOf(lengths, OPPOSITE[zone], takesRoom, undragged)
+      sizes[zone] = fitZoneSize(stored, available, facing)
+    }
 
     // The divider lives inside the zone, along its other axis: left unclamped it ends up past
     // the bottom of a shrunken column, with no way to drag it back.
+    //
+    // 🛑 Clamped even when the zone's own length was never dragged: `resize` and `resplit` write
+    // different keys, so parting a column in two without ever moving its edge left a divider at
+    // 500 inside a column of 300 — and the first half squeezed to nothing.
     const divider = splits[zone]
     if (divider === undefined) continue
     splits[zone] = fitSplit(divider, isHorizontal(zone) ? width : height)

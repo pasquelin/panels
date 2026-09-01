@@ -88,6 +88,10 @@ Give them different storage keys, or they overwrite each other's layout:
 
 Each `<Panels>` makes its own store; nothing is shared between them.
 
+Two chassis is not the same question as two **views**. Two chassis are two frames on screen at
+once; two views are one frame that two parts of the application arrange differently — see
+`view` in [PANELS](PANELS.md#views), which keeps the lengths shared.
+
 ## Testing
 
 The chassis is ordinary React. Give it a storage that forgets, so one test cannot leak into the

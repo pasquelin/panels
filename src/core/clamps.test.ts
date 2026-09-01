@@ -9,7 +9,7 @@ import {
   sharedSizes,
   sizeKeyOf,
 } from './clamps'
-import type { Lengths, OpenByZone } from './types'
+import type { Lengths, Zone } from './types'
 
 describe('fitZoneSize', () => {
   it('keeps a size that fits', () => {
@@ -56,12 +56,13 @@ describe('sizeKeyOf', () => {
 })
 
 describe('fitted', () => {
-  const open: OpenByZone = { left: { primary: 'a' }, right: { primary: 'b' } }
+  // The left and right columns draw; nothing else does.
+  const takesRoom = (zone: Zone) => zone === 'left' || zone === 'right'
   const undragged = () => 260
 
   it('re-clamps stored sizes to a narrower container', () => {
     const lengths: Lengths = { sizes: { left: 900, right: 900 }, splits: {} }
-    const next = fitted(lengths, open, 1000, 800, undragged)
+    const next = fitted(lengths, 1000, 800, takesRoom, undragged)
 
     // Neither may take the room the other already draws in, nor the centre's floor.
     expect(next.sizes.left).toBeLessThan(900)
@@ -70,20 +71,27 @@ describe('fitted', () => {
 
   it('leaves a layout that already fits alone', () => {
     const lengths: Lengths = { sizes: { left: 300 }, splits: {} }
-    expect(fitted(lengths, open, 1600, 900, undragged).sizes.left).toBe(300)
+    expect(fitted(lengths, 1600, 900, takesRoom, undragged).sizes.left).toBe(300)
   })
 
   it('drops no key it was not given', () => {
     const lengths: Lengths = { sizes: {}, splits: {} }
-    const next = fitted(lengths, open, 1600, 900, undragged)
+    const next = fitted(lengths, 1600, 900, takesRoom, undragged)
 
     expect(next.sizes).toEqual({})
     expect(next.bandSplit).toBeUndefined()
   })
 
+  it('clamps a divider inside a zone whose own length was never dragged', () => {
+    // 🛑 `resize` and `resplit` write different keys: parting a column without ever moving its
+    // edge left the divider unclamped, and the first half squeezed to nothing.
+    const lengths: Lengths = { sizes: {}, splits: { left: 500 }, bandSplit: undefined }
+    expect(fitted(lengths, 400, 300, takesRoom, undragged).splits.left).toBe(200)
+  })
+
   it('clamps the band divider against the width, not against a zone', () => {
     const lengths: Lengths = { sizes: {}, splits: {}, bandSplit: 5000 }
-    expect(fitted(lengths, open, 1000, 800, undragged).bandSplit).toBe(900)
+    expect(fitted(lengths, 1000, 800, takesRoom, undragged).bandSplit).toBe(900)
   })
 })
 
