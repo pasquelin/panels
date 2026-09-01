@@ -1,0 +1,345 @@
+/*
+ * The chassis' own stylesheet — self-contained, no framework required.
+ *
+ * Every value a project may want to change is a custom property on `.pnl-root`, so overriding
+ * one is a single declaration and never a fight with specificity. Nothing here is `!important`.
+ *
+ * Colours are expressed so the accent is INHERITED where the host defines one: set
+ * `--pnl-accent` on any ancestor and the rails follow it. The defaults are neutral greys, not a
+ * brand — the library paints a frame, the project paints its identity.
+ */
+
+.pnl-root {
+  /* Gauges. The gutter is the resize area, so it is also the space between surfaces. */
+  --pnl-rail: 48px;
+  --pnl-rail-button: 36px;
+  --pnl-rail-inset: 14px;
+  --pnl-gutter: 6px;
+  --pnl-header: 40px;
+  --pnl-radius: 6px;
+  --pnl-radius-sm: 4px;
+  --pnl-font-size: 13px;
+
+  /* Surfaces. Panels are DARKER than the chassis they sit on, which is the inversion that
+     reads as "panels on a frame" rather than as a web page. Repaint these two to invert it. */
+  --pnl-chassis: #2b2d30;
+  --pnl-panel: #191a1c;
+  --pnl-elevated: #3c3f44;
+  --pnl-border: #34363a;
+  --pnl-text: #dfe1e5;
+  --pnl-muted: #91959b;
+
+  /* The accent says one thing: what is ACTIONED. Inherited from the host when it sets one. */
+  --pnl-accent: #346ef2;
+  --pnl-accent-text: #ffffff;
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--pnl-chassis);
+  color: var(--pnl-text);
+  font-size: var(--pnl-font-size);
+}
+
+.pnl-root *,
+.pnl-root *::before,
+.pnl-root *::after {
+  box-sizing: border-box;
+}
+
+@media (prefers-color-scheme: light) {
+  .pnl-root:not([data-pnl-theme='dark']) {
+    /* The MIRROR of the dark theme, not its inversion: surfaces stand apart from the chassis by
+       being lighter here, with the chassis as a grey gutter around white panels. Inverting the
+       dark values numerically gives muddy grey on grey, which is how a light theme goes wrong. */
+    --pnl-chassis: #dcdde1;
+    --pnl-panel: #ffffff;
+    --pnl-elevated: #e4e6ea;
+    --pnl-border: #c9cbd1;
+    --pnl-text: #1f2124;
+    --pnl-muted: #5c6066;
+  }
+}
+
+.pnl-root[data-pnl-theme='light'] {
+  --pnl-chassis: #dcdde1;
+  --pnl-panel: #ffffff;
+  --pnl-elevated: #e4e6ea;
+  --pnl-border: #c9cbd1;
+  --pnl-text: #1f2124;
+  --pnl-muted: #5c6066;
+}
+
+/* ---- frame ---- */
+
+.pnl-middle {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.pnl-columns {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding-block: var(--pnl-gutter);
+}
+
+.pnl-row {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.pnl-stack {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.pnl-centre {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---- rails ---- */
+
+.pnl-rail {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  width: var(--pnl-rail);
+  padding-block: var(--pnl-gutter);
+}
+
+.pnl-rail__group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.pnl-rail__button {
+  width: var(--pnl-rail-button);
+  height: var(--pnl-rail-button);
+  border-radius: var(--pnl-radius);
+}
+
+/* ---- zones ---- */
+
+.pnl-zone {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+}
+
+.pnl-zone--col {
+  flex-direction: column;
+}
+
+.pnl-zone--row {
+  flex-direction: row;
+}
+
+.pnl-band {
+  display: flex;
+  min-height: 0;
+}
+
+.pnl-band__half {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pnl-band__half--even {
+  flex: 1;
+}
+
+.pnl-band__half--rest {
+  flex: 1;
+}
+
+/* ---- surface ---- */
+
+.pnl-surface {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: var(--pnl-radius);
+  background: var(--pnl-panel);
+}
+
+.pnl-surface--fill {
+  flex: 1 1 0;
+}
+
+/* A half given a length must still give ground when the zone is shorter than the two halves
+   ask for, or it overflows the column. */
+.pnl-surface--give {
+  flex-shrink: 1;
+}
+
+.pnl-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* ---- header ---- */
+
+.pnl-header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  height: var(--pnl-header);
+  padding-inline: 12px 6px;
+}
+
+.pnl-header__title {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pnl-header__title--fixed {
+  flex-shrink: 0;
+}
+
+.pnl-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  overflow: hidden;
+  margin-left: auto;
+}
+
+.pnl-header__actions--fill {
+  flex: 1;
+  margin-left: 0;
+}
+
+.pnl-header__trailing {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+}
+
+/* ---- buttons ---- */
+
+.pnl-icon-button {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--pnl-radius-sm);
+  background: transparent;
+  color: var(--pnl-muted);
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.pnl-icon-button:hover:not(:disabled) {
+  background: var(--pnl-elevated);
+  color: var(--pnl-text);
+}
+
+.pnl-icon-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pnl-icon-button--active {
+  background: var(--pnl-elevated);
+  color: var(--pnl-text);
+}
+
+.pnl-icon-button--accented,
+.pnl-icon-button--accented:hover:not(:disabled) {
+  background: var(--pnl-accent);
+  color: var(--pnl-accent-text);
+}
+
+.pnl-icon-button--header {
+  width: 24px;
+  height: 24px;
+}
+
+.pnl-icon-button__glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---- separators ---- */
+
+.pnl-separator {
+  display: block;
+  flex-shrink: 0;
+  background: var(--pnl-border);
+}
+
+.pnl-separator--vertical {
+  width: 1px;
+  height: 16px;
+  margin-inline: 4px;
+}
+
+.pnl-separator--horizontal {
+  width: 80%;
+  height: 1px;
+  margin-block: 4px;
+}
+
+/* ---- resize handles ---- */
+
+/*
+ * The handle occupies exactly the gutter: the space between two surfaces IS the resize area,
+ * rather than decorative emptiness doubled by a strip nobody can see.
+ */
+.pnl-handle {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+}
+
+.pnl-handle--col {
+  width: var(--pnl-gutter);
+  height: 100%;
+  cursor: col-resize;
+}
+
+.pnl-handle--row {
+  width: 100%;
+  height: var(--pnl-gutter);
+  cursor: row-resize;
+}
+
+/* Invisible until it is reached by a keyboard: a permanent line would draw a grid over an
+   interface whose whole point is that the panels float on the chassis. */
+.pnl-handle:focus-visible {
+  background: var(--pnl-accent);
+  outline: none;
+}

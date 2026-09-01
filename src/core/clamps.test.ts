@@ -1,0 +1,79 @@
+import { describe, expect, it } from 'vitest'
+import { fitSplit, fitted, fitZoneSize, MIN_SIZE, MIN_SPLIT, sizeKeyOf } from './clamps'
+import type { Lengths, OpenByZone } from './types'
+
+describe('fitZoneSize', () => {
+  it('keeps a size that fits', () => {
+    expect(fitZoneSize(300, 1600, 260)).toBe(300)
+  })
+
+  it('never goes under the floor', () => {
+    expect(fitZoneSize(10, 1600, 0)).toBe(MIN_SIZE)
+  })
+
+  it('leaves the centre its room, counting the opposite zone', () => {
+    // 1000 wide, 300 already taken opposite, 240 owed to the centre: 460 is all that is left.
+    expect(fitZoneSize(900, 1000, 300)).toBe(460)
+  })
+
+  it('falls back to the floor rather than a negative ceiling on a tiny container', () => {
+    // The centre alone asks for more than the container has: the zone keeps its floor rather
+    // than being clamped to something below zero.
+    expect(fitZoneSize(400, 200, 0)).toBe(MIN_SIZE)
+  })
+
+  it('rounds, because a drag reports fractions', () => {
+    expect(fitZoneSize(300.6, 1600, 0)).toBe(301)
+  })
+})
+
+describe('fitSplit', () => {
+  it('keeps both halves above the floor', () => {
+    expect(fitSplit(50, 600)).toBe(MIN_SPLIT)
+    expect(fitSplit(590, 600)).toBe(500)
+  })
+})
+
+describe('sizeKeyOf', () => {
+  it('gives the band one height for its two halves', () => {
+    expect(sizeKeyOf('bottomLeft')).toBe(sizeKeyOf('bottomRight'))
+  })
+
+  it('leaves the other zones their own', () => {
+    expect(sizeKeyOf('left')).toBe('left')
+    expect(sizeKeyOf('right')).toBe('right')
+    expect(sizeKeyOf('top')).toBe('top')
+  })
+})
+
+describe('fitted', () => {
+  const open: OpenByZone = { left: { primary: 'a' }, right: { primary: 'b' } }
+  const undragged = () => 260
+
+  it('re-clamps stored sizes to a narrower container', () => {
+    const lengths: Lengths = { sizes: { left: 900, right: 900 }, splits: {} }
+    const next = fitted(lengths, open, 1000, 800, undragged)
+
+    // Neither may take the room the other already draws in, nor the centre's floor.
+    expect(next.sizes.left).toBeLessThan(900)
+    expect(next.sizes.right).toBeLessThan(900)
+  })
+
+  it('leaves a layout that already fits alone', () => {
+    const lengths: Lengths = { sizes: { left: 300 }, splits: {} }
+    expect(fitted(lengths, open, 1600, 900, undragged).sizes.left).toBe(300)
+  })
+
+  it('drops no key it was not given', () => {
+    const lengths: Lengths = { sizes: {}, splits: {} }
+    const next = fitted(lengths, open, 1600, 900, undragged)
+
+    expect(next.sizes).toEqual({})
+    expect(next.bandSplit).toBeUndefined()
+  })
+
+  it('clamps the band divider against the width, not against a zone', () => {
+    const lengths: Lengths = { sizes: {}, splits: {}, bandSplit: 5000 }
+    expect(fitted(lengths, open, 1000, 800, undragged).bandSplit).toBe(900)
+  })
+})
