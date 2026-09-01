@@ -1,4 +1,4 @@
-import { createStore, type StoreApi } from 'zustand/vanilla'
+import { createStore } from 'zustand/vanilla'
 import {
   DEFAULT_SIZES,
   fitSplit,
@@ -64,7 +64,23 @@ export type PanelsState<Id extends string = string> = {
   reset: () => void
 }
 
-export type PanelsStore<Id extends string = string> = StoreApi<PanelsState<Id>>
+/**
+ * The store, as consumers see it.
+ *
+ * 🛑 Declared here rather than re-exported from zustand. zustand is BUNDLED into `dist/`, so a
+ * consumer has no such package installed — a declaration naming `zustand/vanilla` failed their
+ * typecheck with TS2307, on a package that advertises no dependencies. Four methods is the whole
+ * surface, and writing them out is what "the consumer never sees zustand" actually means.
+ */
+export type PanelsStore<Id extends string = string> = {
+  getState: () => PanelsState<Id>
+  getInitialState: () => PanelsState<Id>
+  setState: (
+    partial: Partial<PanelsState<Id>> | ((state: PanelsState<Id>) => Partial<PanelsState<Id>>),
+    replace?: false,
+  ) => void
+  subscribe: (listener: (state: PanelsState<Id>, previous: PanelsState<Id>) => void) => () => void
+}
 
 /** The panel a project declares first for that half — what an untouched half opens on. */
 function firstIn<Id extends string>(

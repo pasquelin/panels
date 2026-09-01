@@ -18,6 +18,7 @@ export default defineConfig(({ command }) => ({
   // between the two means every change needs a build before it can be seen.
   resolve: {
     alias: {
+      '@pasquelin/panels/styles.css': resolve(here, '../src/styles/panels.css'),
       '@pasquelin/panels/dockview': resolve(here, '../src/dockview/index.ts'),
       '@pasquelin/panels': resolve(here, '../src/index.ts'),
     },

@@ -1,5 +1,3 @@
-import './styles/panels.css'
-
 /* The chassis */
 export { Panels, type PanelsProps } from './components/Panels'
 export { Panel, type PanelProps } from './components/Panel'

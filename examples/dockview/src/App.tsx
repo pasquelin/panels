@@ -1,6 +1,10 @@
 import { useCallback, useState } from 'react'
 import { IconButton, Panel, Panels, usePanels } from '@pasquelin/panels'
 import { DockviewCenter, type DockviewApi } from '@pasquelin/panels/dockview'
+// Dockview's own stylesheet, which the library deliberately does not bundle: it belongs to
+// Dockview, the consumer installs that package, and pulling it in would make every project pay
+// 134 kB for tabs it may never use. Without this line the tabs stack vertically, unstyled.
+import 'dockview-react/dist/styles/dockview.css'
 import { DocIcon, FilesIcon, PlusIcon, TerminalIcon, TuneIcon } from '../../src/icons'
 import { ExampleChrome } from '../../src/ExampleChrome'
 

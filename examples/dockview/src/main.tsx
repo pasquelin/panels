@@ -1,5 +1,8 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+// The chassis' stylesheet, imported the way a consumer imports it — the library no longer pulls
+// it in from `index.ts`, so that its declaration stays free of a path only the build knows.
+import '@pasquelin/panels/styles.css'
 import { App } from './App'
 
 const root = document.getElementById('root')

@@ -20,6 +20,13 @@ export default defineConfig({
         index: resolve(import.meta.dirname, 'src/index.ts'),
         // Its own entry so its weight only lands on projects that import it.
         dockview: resolve(import.meta.dirname, 'src/dockview/index.ts'),
+        // The stylesheet has an entry of its own, and is NOT imported by `index.ts`.
+        //
+        // 🛑 Imported there, `tsc` carried `import './styles/panels.css'` into the declaration,
+        // where that path does not exist — a consumer typechecking without `skipLibCheck` got
+        // TS2882 on a package that had just installed cleanly. The consumer imports
+        // `@pasquelin/panels/styles.css`, which is what the documentation already said.
+        styles: resolve(import.meta.dirname, 'src/styles.ts'),
       },
       formats: ['es', 'cjs'],
       fileName: (format, name) => `${name}.${format === 'es' ? 'js' : 'cjs'}`,
