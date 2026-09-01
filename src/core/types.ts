@@ -37,6 +37,22 @@ export function isHorizontal(zone: Zone): boolean {
   return zone === 'top' || isBottom(zone)
 }
 
+/** Which edge a zone hangs from. The band's two halves take the side their name gives. */
+export type Side = 'left' | 'right'
+
+/**
+ * The zones each rail carries, in the order it stacks them: the column's own at the top, its
+ * half of the bottom band at the foot.
+ *
+ * Stated here rather than inside the rail, because the frame lays itself out on the same
+ * knowledge — which column runs to the foot, which half of the band sits under it. Written in
+ * both places, the two could disagree about who is on the left with nothing to catch it.
+ */
+export const ZONES_BY_SIDE: Record<Side, { column: Zone[]; band: Zone }> = {
+  left: { column: ['left', 'top'], band: 'bottomLeft' },
+  right: { column: ['right'], band: 'bottomRight' },
+}
+
 /**
  * Zones whose panel sits before its resize handle. The opposite zones grow backwards, which
  * is also why their drag direction is inverted.

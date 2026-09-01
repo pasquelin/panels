@@ -3,7 +3,7 @@ import { usePanelsState } from '../context'
 import { specOf, undraggedSizeOf } from '../store'
 import { OPPOSITE, sharedSizes, sizeKeyOf } from '../clamps'
 import { isHorizontal, type PanelSpec, type Slot, type Zone } from '../types'
-import { useArrangement, useShownIn } from './useArrangement'
+import { useArrangement, useShownIn, useZoneTakesRoom } from './useArrangement'
 
 export type ZoneView<Id extends string> = {
   /** What each half actually DRAWS — not what it holds: a `solo` panel silences the other. */
@@ -54,6 +54,9 @@ export function useZone<Id extends string = string>(zone: Zone): ZoneView<Id> {
   const arrangement = useArrangement<Id>()
   const shown = useShownIn<Id>(zone)
   const facing = useShownIn<Id>(OPPOSITE[zone])
+  // What the OPPOSITE zone takes off the shared axis, which for the band is the whole strip:
+  // asked per half, `top` believed nothing faced it whenever the other half was the open one.
+  const facingTakesRoom = useZoneTakesRoom<Id>(OPPOSITE[zone])
 
   const stored = usePanelsState<Id, number | undefined>(
     state => state.lengths.sizes[sizeKeyOf(zone)],
@@ -74,13 +77,12 @@ export function useZone<Id extends string = string>(zone: Zone): ZoneView<Id> {
     const draws = primary !== undefined || secondary !== undefined
 
     const wanted = wantedSize(registry, shown.primary, stored, zone, draws)
-    const facingDraws = facing.primary !== undefined || facing.secondary !== undefined
     const wantedFacing = wantedSize(
       registry,
       facing.primary,
       storedFacing,
       OPPOSITE[zone],
-      facingDraws,
+      facingTakesRoom,
     )
 
     return {
@@ -93,7 +95,18 @@ export function useZone<Id extends string = string>(zone: Zone): ZoneView<Id> {
       split,
       focused,
     }
-  }, [arrangement, shown, facing, stored, storedFacing, room, split, focused, zone])
+  }, [
+    arrangement,
+    shown,
+    facing,
+    facingTakesRoom,
+    stored,
+    storedFacing,
+    room,
+    split,
+    focused,
+    zone,
+  ])
 }
 
 /** The panels a rail draws for that zone, cut the way the zone itself is cut. */

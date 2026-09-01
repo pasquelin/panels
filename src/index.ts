@@ -8,7 +8,7 @@ export { Center, type CenterProps } from './components/Center'
 /* The pieces, for a project that replaces one or builds its own frame on the hooks */
 export { Rail, RailZone, type RailProps } from './components/Rail'
 export { ZoneEdge, type ZoneEdgeProps } from './components/ZoneEdge'
-export { Band, useBandHalves, type BandProps } from './components/Band'
+export { Band, type BandProps } from './components/Band'
 export { PanelFrame, type PanelFrameProps } from './components/PanelFrame'
 export { Surface } from './components/Surface'
 export { PanelHeader, type PanelHeaderProps } from './components/PanelHeader'
@@ -27,7 +27,13 @@ export {
   type PanelsProviderProps,
 } from './core/context'
 export { usePanels, type PanelsApi } from './core/hooks/usePanels'
-export { useArrangement, useShownIn, useZoneDraws } from './core/hooks/useArrangement'
+export {
+  useArrangement,
+  useBandHalves,
+  useShownIn,
+  useZoneDraws,
+  useZoneTakesRoom,
+} from './core/hooks/useArrangement'
 export { useZone, useZonePanels, type ZoneView } from './core/hooks/useZone'
 export { useContainerFit } from './core/hooks/useContainerFit'
 export { usePointerDrag, type PointerDrag } from './core/hooks/usePointerDrag'
@@ -37,6 +43,7 @@ export {
   shownIn,
   specOf,
   zoneDraws,
+  zoneTakesRoom,
   undraggedSizeOf,
   type PanelsState,
   type PanelsStore,
@@ -65,6 +72,8 @@ export {
   ZONES,
   SLOTS,
   BOTTOM_ZONES,
+  ZONES_BY_SIDE,
+  type Side,
   isBottom,
   isHorizontal,
   isLeading,

@@ -1,5 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { createPanelsStore, shownIn, undraggedSizeOf, type PanelsStore } from './store'
+import {
+  createPanelsStore,
+  shownIn,
+  undraggedSizeOf,
+  zoneDraws,
+  zoneTakesRoom,
+  type PanelsStore,
+} from './store'
 import { DEFAULT_SIZES } from './clamps'
 import type { PanelSpec } from './types'
 
@@ -206,5 +213,39 @@ describe('reset', () => {
     expect(store.getState().open).toEqual({})
     expect(store.getState().lengths.sizes).toEqual({})
     expect(store.getState().registry).toHaveLength(SPECS.length)
+  })
+})
+
+describe('zoneTakesRoom', () => {
+  it('answers like `zoneDraws` for the zones that own their axis', () => {
+    const store = made()
+    store.getState().settle()
+    const state = store.getState()
+
+    for (const zone of ['left', 'right', 'top'] as const) {
+      expect(zoneTakesRoom(state, zone)).toBe(zoneDraws(state, zone))
+    }
+  })
+
+  it('counts the band as ONE strip: either half drawing takes the height', () => {
+    // 🛑 The defect this exists for. The band's two halves share one height, so `top` — whose
+    // opposite is `bottomRight` — was told nothing faced it whenever the OTHER half was the one
+    // open, and could then be dragged over the height the strip was already drawing in.
+    const store = createPanelsStore<Id>({
+      initial: { open: { bottomLeft: { primary: 'terminal' } } },
+    })
+    for (const spec of SPECS) store.getState().register(spec)
+    const state = store.getState()
+
+    expect(zoneDraws(state, 'bottomRight')).toBe(false)
+    expect(zoneTakesRoom(state, 'bottomRight')).toBe(true)
+    expect(zoneTakesRoom(state, 'bottomLeft')).toBe(true)
+  })
+
+  it('takes no room when the whole strip is closed', () => {
+    const store = createPanelsStore<Id>({ initial: { open: {} } })
+    for (const spec of SPECS) store.getState().register(spec)
+
+    expect(zoneTakesRoom(store.getState(), 'bottomRight')).toBe(false)
   })
 })

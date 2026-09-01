@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { usePanelsState } from '../context'
-import { shownIn, zoneDraws } from '../store'
-import type { OpenByZone, PanelSpec, Zone } from '../types'
+import { shownIn, zoneDraws, zoneTakesRoom } from '../store'
+import { ZONES_BY_SIDE, type OpenByZone, type PanelSpec, type Zone } from '../types'
 
 /**
  * What every reader of `shownIn` and `zoneDraws` needs: the declared panels, and which half of
@@ -33,4 +33,27 @@ export function useShownIn<Id extends string = string>(
 export function useZoneDraws<Id extends string = string>(zone: Zone): boolean {
   const arrangement = useArrangement<Id>()
   return useMemo(() => zoneDraws(arrangement, zone), [arrangement, zone])
+}
+
+/**
+ * Whether a zone takes room off the axis it shares with its opposite — the band counting as one
+ * strip. See `zoneTakesRoom`: this is not the same question as whether it draws.
+ */
+export function useZoneTakesRoom<Id extends string = string>(zone: Zone): boolean {
+  const arrangement = useArrangement<Id>()
+  return useMemo(() => zoneTakesRoom(arrangement, zone), [arrangement, zone])
+}
+
+/**
+ * Whether each half of the band draws anything — what the frame asks before it arranges itself:
+ * a column runs to the FOOT unless the band's half on its side is drawing.
+ *
+ * Headless, so it lives here rather than beside `<Band>`: a project replacing the band must be
+ * able to ask this without importing from a component file.
+ */
+export function useBandHalves<Id extends string = string>(): { left: boolean; right: boolean } {
+  return {
+    left: useZoneDraws<Id>(ZONES_BY_SIDE.left.band),
+    right: useZoneDraws<Id>(ZONES_BY_SIDE.right.band),
+  }
 }

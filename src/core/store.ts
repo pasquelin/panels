@@ -10,6 +10,8 @@ import {
   sizeOf,
 } from './clamps'
 import {
+  BOTTOM_ZONES,
+  isBottom,
   SLOTS,
   ZONES,
   type Lengths,
@@ -98,6 +100,23 @@ export function shownIn<Id extends string>(
   if (primary !== undefined && specOf(state.registry, primary)?.solo === true) return { primary }
 
   return { primary, secondary: slots?.secondary }
+}
+
+/**
+ * Whether the zone takes room off the axis it shares with its opposite.
+ *
+ * 🛑 NOT the same question as `zoneDraws`, and the band is the whole difference: its two halves
+ * share ONE height, so either of them drawing means the strip is taking that height. Asked per
+ * half, the top zone was told nothing faced it whenever `bottomRight` happened to be the closed
+ * one — and it could then be dragged over the height `bottomLeft` was already drawing in.
+ */
+export function zoneTakesRoom<Id extends string>(
+  state: Pick<PanelsState<Id>, 'registry' | 'open'>,
+  zone: Zone,
+): boolean {
+  if (!isBottom(zone)) return zoneDraws(state, zone)
+
+  return BOTTOM_ZONES.some(half => zoneDraws(state, half))
 }
 
 /** Whether the zone draws at all — an empty one takes neither room nor handle. */

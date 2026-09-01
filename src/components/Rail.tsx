@@ -3,18 +3,13 @@ import { cx } from '../core/cx'
 import { usePanelsActions, usePanelsState } from '../core/context'
 import { useShownIn } from '../core/hooks/useArrangement'
 import { useZonePanels } from '../core/hooks/useZone'
-import type { Zone } from '../core/types'
+import { ZONES_BY_SIDE, type Side, type Zone } from '../core/types'
 import { IconButton } from './IconButton'
 import { Separator } from './Separator'
 
-const ZONES_BY_SIDE: Record<'left' | 'right', { top: Zone[]; bottom: Zone[] }> = {
-  left: { top: ['left', 'top'], bottom: ['bottomLeft'] },
-  right: { top: ['right'], bottom: ['bottomRight'] },
-}
-
 export type RailProps = {
   /** Edge the rail sticks to. Each rail also carries the band's half on its own side. */
-  side: 'left' | 'right'
+  side: Side
   /** Rendered above the panel icons — a "new" button, a logo, anything the project pins there. */
   header?: React.ReactNode
   className?: string
@@ -28,7 +23,7 @@ export type RailProps = {
  * at the foot — so that an icon's position tells where the panel will open.
  */
 export function Rail({ side, header, className }: RailProps) {
-  const { top, bottom } = ZONES_BY_SIDE[side]
+  const { column, band } = ZONES_BY_SIDE[side]
 
   return (
     <div
@@ -43,13 +38,11 @@ export function Rail({ side, header, className }: RailProps) {
             <Separator orientation="horizontal" />
           </>
         )}
-        {top.map(zone => (
+        {column.map(zone => (
           <RailZone key={zone} zone={zone} />
         ))}
       </div>
-      {bottom.map(zone => (
-        <RailZone key={zone} zone={zone} />
-      ))}
+      <RailZone zone={band} />
     </div>
   )
 }
