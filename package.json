@@ -1,6 +1,6 @@
 {
   "name": "@pasquelin/panels",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Châssis à panneaux React : rails d'icônes, zones redimensionnables, centre libre. Headless + composants par défaut, entièrement surchargeable.",
   "type": "module",
   "packageManager": "pnpm@11.16.0",
