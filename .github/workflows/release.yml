@@ -42,6 +42,15 @@ jobs:
       - name: Update npm (required for OIDC)
         run: npm install -g npm@latest
 
+      # Printed because the failure mode is silent: an npm too old simply does not attempt the
+      # exchange and reports ENEEDAUTH, which reads like a missing token rather than a stale CLI.
+      - name: Report the npm that will publish
+        run: |
+          echo "npm      $(npm --version)"
+          echo "which    $(which npm)"
+          echo "registry $(npm config get registry)"
+          echo "OIDC env: ACTIONS_ID_TOKEN_REQUEST_URL is ${ACTIONS_ID_TOKEN_REQUEST_URL:+set}${ACTIONS_ID_TOKEN_REQUEST_URL:-UNSET}"
+
       - run: pnpm install --frozen-lockfile
 
       # The tag must match package.json, or we would publish a version that does not match the
