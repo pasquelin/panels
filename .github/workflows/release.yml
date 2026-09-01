@@ -27,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
       # 🛑 NO `registry-url`. It makes setup-node write an .npmrc pointing at
       # `${NODE_AUTH_TOKEN}`, a secret that does not exist here — npm then authenticates with the
