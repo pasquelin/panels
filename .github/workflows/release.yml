@@ -29,11 +29,14 @@ jobs:
 
       - uses: pnpm/action-setup@v4
 
+      # 🛑 NO `registry-url`. It makes setup-node write an .npmrc pointing at
+      # `${NODE_AUTH_TOKEN}`, a secret that does not exist here — npm then authenticates with the
+      # literal placeholder instead of exchanging the OIDC token, and the registry answers 404
+      # "you do not have permission" after having happily signed the provenance.
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
-          registry-url: 'https://registry.npmjs.org'
 
       # OIDC trusted publishing needs npm >= 11.5.1; Node 22 ships npm 10.
       - name: Update npm (required for OIDC)
