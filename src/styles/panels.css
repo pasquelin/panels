@@ -344,6 +344,11 @@
   flex-shrink: 0;
   background: transparent;
   border: none;
+  /* The gesture is ours: left to the browser, a finger on the handle scrolls the page and the
+     drag is cancelled, and a mouse leaving it mid-drag selects every title on its way. */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .pnl-handle--col {

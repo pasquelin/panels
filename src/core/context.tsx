@@ -7,6 +7,12 @@ import { DEFAULT_VIEW, type OpenByZone } from './types'
 
 const PanelsContext = createContext<PanelsStore<string> | null>(null)
 
+/**
+ * How long a change may wait before it is on disk. Short enough that a crash loses one gesture
+ * at most, long enough that a drag pays for one write rather than for one per frame.
+ */
+const WRITE_EVERY = 250
+
 export type PanelsProviderProps<Id extends string> = {
   /**
    * A store built by the project. Pass one to drive the chassis from OUTSIDE React — a socket
@@ -82,22 +88,49 @@ export function PanelsProvider<Id extends string = string>({
   useEffect(() => {
     if (!kept) return
 
-    // What was last written, by reference. The store notifies on EVERY write — a focus, a
-    // measure, a view brought forward — and a drag writes on every `pointermove`; without this,
-    // each of them re-serialised the whole file for a change it does not carry.
-    let written: Pick<PanelsState<Id>, 'views' | 'lengths'> | undefined
+    // What was last written, and what is waiting to be, by reference. The store notifies on
+    // EVERY write — a focus, a measure, a view brought forward — and comparing the two
+    // references is what keeps those from re-serialising the whole file for a change it does
+    // not carry.
+    //
+    // The two references alone: holding the whole state would pin the registry, and with it
+    // every panel's content, for as long as the chassis lives.
+    type Written = Pick<PanelsState<Id>, 'views' | 'lengths'>
+    let written: Written | undefined
+    let pending: Written | undefined
+    let timer: ReturnType<typeof setTimeout> | undefined
 
-    return made.subscribe(state => {
+    const flush = (): void => {
+      if (timer !== undefined) clearTimeout(timer)
+      timer = undefined
+      if (!pending) return
+
+      written = pending
+      pending = undefined
+      writeLayout(kept, storageKey, written)
+    }
+
+    const unsubscribe = made.subscribe(state => {
       // Never before the view in front is settled: the empty state of the very first render
       // would be written over a layout the reader spent time arranging.
       if (!isSettled(state, state.view)) return
-      if (written?.views === state.views && written.lengths === state.lengths) return
+      const last = pending ?? written
+      if (last?.views === state.views && last.lengths === state.lengths) return
 
-      // The two references alone: holding the whole state would pin the registry, and with it
-      // every panel's content, for as long as the chassis lives.
-      written = { views: state.views, lengths: state.lengths }
-      writeLayout(kept, storageKey, state)
+      // 🛑 Held, not written: a drag writes on every `pointermove`, and `localStorage` is
+      // synchronous — sixty serialisations a second, on the thread that draws the drag. One
+      // write per `WRITE_EVERY` carries the latest state, and the pointer never waits on disk.
+      pending = { views: state.views, lengths: state.lengths }
+      timer ??= setTimeout(flush, WRITE_EVERY)
     })
+
+    // The window may go before the timer fires: what is pending is written on the way out.
+    globalThis.addEventListener?.('pagehide', flush)
+    return () => {
+      unsubscribe()
+      globalThis.removeEventListener?.('pagehide', flush)
+      flush()
+    }
   }, [kept, made, storageKey])
 
   return (

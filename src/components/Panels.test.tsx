@@ -1,6 +1,6 @@
 import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { memoryStorage } from '../core/persistence'
 import { createPanelsStore } from '../core/store'
 import { IconButton, type IconButtonProps } from './IconButton'
@@ -254,5 +254,78 @@ describe('Panels', () => {
       expect(handle).toHaveAttribute('aria-orientation')
       expect(handle).toHaveAttribute('tabindex', '0')
     }
+  })
+})
+
+describe('persistence', () => {
+  afterEach(() => vi.useRealTimers())
+
+  function One({
+    store,
+    storage,
+  }: {
+    store: ReturnType<typeof createPanelsStore<Id>>
+    storage: ReturnType<typeof memoryStorage>
+  }) {
+    return (
+      <Panels<Id> store={store} storage={storage} storageKey="test">
+        <Panel<Id> id="files" zone="left" title="Files">
+          <p>file list</p>
+        </Panel>
+      </Panels>
+    )
+  }
+
+  /** The widths the file holds right now. */
+  const sizesIn = (storage: ReturnType<typeof memoryStorage>) =>
+    (JSON.parse(storage.read('test') ?? '{}') as { lengths?: { sizes?: Record<string, number> } })
+      .lengths?.sizes
+
+  it('writes once a drag has settled, not on every frame', () => {
+    vi.useFakeTimers()
+    const storage = memoryStorage()
+    const write = vi.spyOn(storage, 'write')
+    const store = createPanelsStore<Id>()
+    render(<One store={store} storage={storage} />)
+    act(() => {
+      vi.runAllTimers()
+    })
+    write.mockClear()
+
+    // Sixty frames of a drag, as a pointer delivers them.
+    act(() => {
+      for (let step = 1; step <= 60; step++) store.getState().resize('left', 300 + step, 1600)
+    })
+    expect(write).not.toHaveBeenCalled()
+
+    act(() => {
+      vi.runAllTimers()
+    })
+    expect(write).toHaveBeenCalledTimes(1)
+    expect(sizesIn(storage)?.left).toBe(360)
+  })
+
+  it('flushes what is pending when the chassis unmounts', () => {
+    const storage = memoryStorage()
+    const store = createPanelsStore<Id>()
+    const view = render(<One store={store} storage={storage} />)
+
+    act(() => store.getState().resize('left', 420, 1600))
+    view.unmount()
+
+    expect(sizesIn(storage)?.left).toBe(420)
+  })
+
+  it('flushes when the page is being hidden — a window closing does not wait', () => {
+    const storage = memoryStorage()
+    const store = createPanelsStore<Id>()
+    render(<One store={store} storage={storage} />)
+
+    act(() => store.getState().resize('left', 420, 1600))
+    act(() => {
+      window.dispatchEvent(new Event('pagehide'))
+    })
+
+    expect(sizesIn(storage)?.left).toBe(420)
   })
 })

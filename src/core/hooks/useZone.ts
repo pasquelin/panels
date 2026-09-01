@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import { usePanelsState } from '../context'
-import { undraggedSizeOf } from '../store'
+import { shownSpecsIn, undraggedSizeOf, zoneTakesRoom } from '../store'
 import { OPPOSITE, sharedSizes, sizeKeyOf } from '../clamps'
 import { isHorizontal, type PanelSpec, type Slot, type Zone } from '../types'
-import { useShownSpecsIn, useZoneTakesRoom } from './useArrangement'
+import { useArrangement } from './useArrangement'
 
 export type ZoneView<Id extends string> = {
   /** What each half actually DRAWS — not what it holds: a `solo` panel silences the other. */
@@ -50,11 +50,9 @@ function wantedSize<Id extends string>(
  * on every write — five re-renders a frame where two are owed.
  */
 export function useZone<Id extends string = string>(zone: Zone): ZoneView<Id> {
-  const shown = useShownSpecsIn<Id>(zone)
-  const facing = useShownSpecsIn<Id>(OPPOSITE[zone])
-  // What the OPPOSITE zone takes off the shared axis, which for the band is the whole strip:
-  // asked per half, `top` believed nothing faced it whenever the other half was the open one.
-  const facingTakesRoom = useZoneTakesRoom<Id>(OPPOSITE[zone])
+  // ONE subscription to the arrangement, read three ways below. Three hooks each subscribed to
+  // it on their own put fourteen selectors on every zone, rerun on every write to the store.
+  const arrangement = useArrangement<Id>()
 
   const stored = usePanelsState<Id, number | undefined>(
     state => state.lengths.sizes[sizeKeyOf(zone)],
@@ -69,8 +67,13 @@ export function useZone<Id extends string = string>(zone: Zone): ZoneView<Id> {
   const focused = usePanelsState<Id, boolean>(state => state.focusedZone === zone)
 
   return useMemo(() => {
-    const { primary, secondary } = shown
+    const { primary, secondary } = shownSpecsIn(arrangement, zone)
     const draws = primary !== undefined || secondary !== undefined
+
+    // What the OPPOSITE zone takes off the shared axis, which for the band is the whole strip:
+    // asked per half, `top` believed nothing faced it whenever the other half was the open one.
+    const facing = shownSpecsIn(arrangement, OPPOSITE[zone])
+    const facingTakesRoom = zoneTakesRoom(arrangement, OPPOSITE[zone])
 
     const wanted = wantedSize(primary, stored, zone, draws)
     const wantedFacing = wantedSize(facing.primary, storedFacing, OPPOSITE[zone], facingTakesRoom)
@@ -85,7 +88,7 @@ export function useZone<Id extends string = string>(zone: Zone): ZoneView<Id> {
       split,
       focused,
     }
-  }, [shown, facing, facingTakesRoom, stored, storedFacing, room, split, focused, zone])
+  }, [arrangement, stored, storedFacing, room, split, focused, zone])
 }
 
 /** The panels a rail draws for that zone, cut the way the zone itself is cut. */

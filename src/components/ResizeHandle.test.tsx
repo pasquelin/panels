@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { ResizeHandle } from './ResizeHandle'
@@ -62,5 +62,30 @@ describe('ResizeHandle', () => {
     await user.keyboard('{ArrowRight}')
 
     expect(onSize).toHaveBeenCalledWith(250, expect.any(Number))
+  })
+})
+
+describe('ResizeHandle, under a pointer', () => {
+  it('ignores a drag that did not start with the main button', () => {
+    const onSize = vi.fn()
+    render(<ResizeHandle axis="horizontal" size={300} label="R" onSize={onSize} />)
+    const handle = screen.getByRole('separator')
+
+    // A right click captured the pointer and dragged the column along with the context menu.
+    fireEvent.pointerDown(handle, { pointerId: 1, button: 2, isPrimary: true, clientX: 0 })
+    fireEvent.pointerMove(handle, { pointerId: 1, clientX: 20 })
+
+    expect(onSize).not.toHaveBeenCalled()
+  })
+
+  it('follows the main button', () => {
+    const onSize = vi.fn()
+    render(<ResizeHandle axis="horizontal" size={300} label="R" onSize={onSize} />)
+    const handle = screen.getByRole('separator')
+
+    fireEvent.pointerDown(handle, { pointerId: 1, button: 0, isPrimary: true, clientX: 0 })
+    fireEvent.pointerMove(handle, { pointerId: 1, clientX: 20 })
+
+    expect(onSize).toHaveBeenCalledWith(320, expect.any(Number))
   })
 })

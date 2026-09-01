@@ -335,6 +335,15 @@ function slotsClosing<Id extends string>(
 
 export const EMPTY_LENGTHS: Lengths = { sizes: {}, splits: {} }
 
+/** Whether two sets of lengths hold the same numbers — by value, since `fitted` always rebuilds. */
+function sameLengths(held: Lengths, next: Lengths): boolean {
+  if (held.bandSplit !== next.bandSplit) return false
+
+  return ZONES.every(
+    zone => held.sizes[zone] === next.sizes[zone] && held.splits[zone] === next.splits[zone],
+  )
+}
+
 export type CreatePanelsStoreOptions<Id extends string> = {
   /** The view that starts in front. A project with one view never has to name it. */
   view?: string
@@ -370,8 +379,6 @@ export function createPanelsStore<Id extends string = string>(
     // to what is still declared — see `resolve` — and names it again the day it comes back.
     declare: specs => set({ registry: specs }),
 
-    // Having an entry in `views` IS the record of having been settled. No second field can then
-    // disagree about which views have been opened, or fall out of step when a reset clears them.
     // Having an entry in `views` IS the record of having been settled. No second field can then
     // disagree about which views have been opened, or fall out of step when a reset clears them.
     settle: defaults =>
@@ -480,17 +487,25 @@ export function createPanelsStore<Id extends string = string>(
         return { lengths: { ...state.lengths, bandSplit: next } }
       }),
 
+    // Guarded like `resize`, and for a heavier reason: the observer fires on every frame of a
+    // window resize, and the persistence subscriber compares `lengths` by reference. A fresh
+    // object carrying the same numbers had each of those frames re-serialising the whole file.
     fit: (width, height) =>
-      set(state => ({
-        available: { width, height },
-        lengths: fitted(
+      set(state => {
+        const next = fitted(
           state.lengths,
           width,
           height,
           zone => zoneTakesRoom(state, zone),
           zone => undraggedSizeOf(zone, shownSpecsIn(state, zone).primary),
-        ),
-      })),
+        )
+        const lengths = sameLengths(state.lengths, next) ? state.lengths : next
+        const { available } = state
+        if (lengths === state.lengths && available.width === width && available.height === height)
+          return state
+
+        return { available: { width, height }, lengths }
+      }),
 
     // Every view, not just the one in front: a reset the reader asked for must not leave the
     // arrangement they were escaping waiting for them one click away.

@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, type ReactNode } from 'react'
 import { cx } from '../core/cx'
 import { usePanelsActions, usePanelsState } from '../core/context'
 import { useShownIn } from '../core/hooks/useArrangement'
@@ -11,7 +11,7 @@ export type RailProps = {
   /** Edge the rail sticks to. Each rail also carries the band's half on its own side. */
   side: Side
   /** Rendered above the panel icons — a "new" button, a logo, anything the project pins there. */
-  header?: React.ReactNode
+  header?: ReactNode
   className?: string
 }
 

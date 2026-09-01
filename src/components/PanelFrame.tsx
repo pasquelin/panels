@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, type Ref } from 'react'
 import { cx } from '../core/cx'
 import { usePanelsActions } from '../core/context'
 import { isHorizontal, type PanelSpec } from '../core/types'
@@ -15,6 +15,8 @@ export type PanelFrameProps<Id extends string> = {
   /** Text of the close button, already translated. */
   closeLabel: string
   onFocus: () => void
+  /** The surface itself, for a parent that has to measure this half. */
+  ref?: Ref<HTMLElement>
 }
 
 /**
@@ -28,6 +30,7 @@ function PanelFrameInner<Id extends string>({
   length,
   closeLabel,
   onFocus,
+  ref,
 }: PanelFrameProps<Id>) {
   const { close } = usePanelsActions<Id>()
   const { IconButton } = usePanelsComponents()
@@ -37,6 +40,7 @@ function PanelFrameInner<Id extends string>({
     // The zone owns its length: a half given one keeps it, the other takes what is left. Both
     // sized here would make the pair overflow the zone the user dragged.
     <Surface
+      ref={ref}
       aria-label={panel.title}
       onPointerDownCapture={onFocus}
       // `pnl-surface--give` overrides the surface's own `shrink: 0`: a half given a length must

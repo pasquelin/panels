@@ -5,6 +5,41 @@ All notable changes to `@pasquelin/panels`.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] — 2026-09-02
+
+### Fixed
+
+- **A zone's divider no longer jumps to 100 px on its first drag.** Until a split was stored, CSS
+  parted the zone in two and the handle had nothing to start from, so it started from zero and
+  the clamp floored the first pixel of the drag to `MIN_SPLIT` — a half of 390 px snapped to 100.
+  The handle now measures the half it moves. The band's divider had the same defect, and the same
+  cure.
+- **A column is bounded against the columns box, not against the row the band left it in.** With
+  one half of the band drawing, the opposite column runs to the foot and this one sits in an
+  inner row that already lacks that column — and `resize` took it off a second time. The right
+  column stopped at 418 px with the centre still 554 wide; it now reaches 744, the centre at its
+  floor.
+- **`fit` writes nothing when nothing had to move.** It rebuilt `lengths` on every frame of a
+  window resize, and the persistence subscriber — which compares by reference — re-serialised
+  the whole layout for each of them.
+- **A right click, or a second finger, no longer starts a drag.** The handle captured any
+  pointer; it now takes the main button of the primary pointer and nothing else.
+- **The handles keep the gesture on touch.** `touch-action: none` and `user-select: none`, so a
+  finger on a handle resizes the zone rather than scrolling the page, and a mouse leaving the
+  handle mid-drag selects no title on its way.
+- **`<DockviewCenter>` reads `onLayout` when a change lands, not when Dockview became ready.**
+  `onReady` fires once, and the callback it captured was the first render's.
+
+### Changed
+
+- **The layout is written at most every 250 ms, and flushed on unmount and `pagehide`.** A drag
+  wrote to `localStorage` on every `pointermove` — sixty synchronous serialisations a second, on
+  the thread that draws the drag. A project reading the storage right after an action may find
+  it not written yet; unmounting the chassis, or the page being hidden, writes what is pending.
+- **`useZone` subscribes once to the arrangement rather than three times.** Fourteen selectors
+  per zone, rerun on every write to the store, are now eight.
+- **`<PanelFrame>` takes a `ref`, which reaches its surface.**
+
 ## [0.3.0] — 2026-09-01
 
 ### Added
@@ -175,6 +210,7 @@ First release.
 - Optional `@pasquelin/panels/dockview` entry point for document tabs.
 - No runtime dependencies.
 
+[0.3.1]: https://github.com/pasquelin/panels/releases/tag/v0.3.1
 [0.3.0]: https://github.com/pasquelin/panels/releases/tag/v0.3.0
 [0.2.0]: https://github.com/pasquelin/panels/releases/tag/v0.2.0
 [0.1.1]: https://github.com/pasquelin/panels/releases/tag/v0.1.1

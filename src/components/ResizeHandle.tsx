@@ -103,6 +103,11 @@ export function ResizeHandle({
       aria-valuemin={min}
       aria-valuemax={max}
       onPointerDown={event => {
+        // The main button of the main pointer, and nothing else: a right click captured the
+        // pointer and dragged the column along with the context menu, and a second finger
+        // restarted the gesture from wherever it landed.
+        if (event.button !== 0 || !event.isPrimary) return
+
         drag.start(event, {
           position: lying ? event.clientY : event.clientX,
           size: size ?? measure?.() ?? 0,

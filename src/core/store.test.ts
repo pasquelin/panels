@@ -474,3 +474,38 @@ describe('zoneTakesRoom', () => {
     expect(zoneTakesRoom(store.getState(), 'bottomRight')).toBe(false)
   })
 })
+
+describe('fit', () => {
+  it('leaves the lengths alone when nothing had to move', () => {
+    const store = made()
+    store.getState().settle()
+    store.getState().resize('left', 300, 1600)
+
+    const before = store.getState().lengths
+    store.getState().fit(1600, 900)
+
+    // 🛑 By reference: the persistence subscriber compares nothing else, and a fresh object
+    // carrying the same numbers had every resize of the window writing the whole file.
+    expect(store.getState().lengths).toBe(before)
+  })
+
+  it('does not write at all when the room has not changed either', () => {
+    const store = made()
+    store.getState().settle()
+    store.getState().fit(1600, 900)
+
+    const before = store.getState()
+    store.getState().fit(1600, 900)
+
+    expect(store.getState()).toBe(before)
+  })
+
+  it('still re-clamps a length the room no longer holds', () => {
+    const store = made()
+    store.getState().settle()
+    store.getState().resize('left', 600, 1600)
+    store.getState().fit(700, 900)
+
+    expect(store.getState().lengths.sizes.left).toBeLessThan(600)
+  })
+})

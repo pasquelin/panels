@@ -1,4 +1,4 @@
-import type { HTMLAttributes } from 'react'
+import type { ComponentProps } from 'react'
 import { cx } from '../core/cx'
 
 /**
@@ -8,7 +8,7 @@ import { cx } from '../core/cx'
  * "panels on a frame" rather than as a web page. A project that inverts it back only has to
  * repaint two tokens.
  */
-export function Surface({ children, className, ...rest }: HTMLAttributes<HTMLElement>) {
+export function Surface({ children, className, ...rest }: ComponentProps<'section'>) {
   return (
     <section className={cx('pnl-surface', className)} {...rest}>
       {children}

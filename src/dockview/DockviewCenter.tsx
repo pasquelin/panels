@@ -4,7 +4,7 @@ import {
   type DockviewReadyEvent,
   type IDockviewPanelProps,
 } from 'dockview-react'
-import { useCallback, useRef, type FunctionComponent } from 'react'
+import { useCallback, useEffect, useRef, type FunctionComponent } from 'react'
 import { cx } from '../core/cx'
 
 /**
@@ -52,6 +52,13 @@ export function DockviewCenter({
   className,
 }: DockviewCenterProps) {
   const restored = useRef(false)
+  // Read when a change lands, not when Dockview became ready: `onReady` fires once, and the
+  // callback it captured was the first render's — a project rebuilding `onLayout` with fresh
+  // state was still handing changes to the stale one.
+  const layoutChanged = useRef(onLayout)
+  useEffect(() => {
+    layoutChanged.current = onLayout
+  }, [onLayout])
 
   const ready = useCallback(
     (event: DockviewReadyEvent) => {
@@ -70,9 +77,7 @@ export function DockviewCenter({
       // document opened by the project on `onReady` would be added and then thrown away.
       onReady?.(event.api)
 
-      if (onLayout) {
-        event.api.onDidLayoutChange(() => onLayout(event.api.toJSON()))
-      }
+      event.api.onDidLayoutChange(() => layoutChanged.current?.(event.api.toJSON()))
     },
     [layout, onLayout, onReady],
   )

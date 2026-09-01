@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useRef } from 'react'
 import { cx } from '../core/cx'
 import { usePanelsActions, usePanelsState } from '../core/context'
 import { MIN_SPLIT } from '../core/clamps'
@@ -21,11 +21,14 @@ export type BandProps = {
 export function Band<Id extends string = string>({ left, right, labels }: BandProps) {
   const split = usePanelsState<Id, number | undefined>(state => state.lengths.bandSplit)
   const { resplitBand } = usePanelsActions<Id>()
+  const leftHalf = useRef<HTMLDivElement>(null)
 
   const resplit = useCallback(
     (size: number, available: number) => resplitBand(size, available),
     [resplitBand],
   )
+  // Where the divider stands while CSS still parts the strip in the middle — see `ZoneEdge`.
+  const measureLeft = useCallback(() => leftHalf.current?.clientWidth ?? 0, [])
 
   if (!left && !right) return null
   if (!left || !right) {
@@ -36,6 +39,7 @@ export function Band<Id extends string = string>({ left, right, labels }: BandPr
     <div className="pnl-band">
       {/* Undefined until dragged: both halves are then flex and the strip parts in the middle. */}
       <div
+        ref={leftHalf}
         className={cx('pnl-band__half', split === undefined && 'pnl-band__half--even')}
         style={split === undefined ? undefined : { width: split }}
       >
@@ -46,6 +50,7 @@ export function Band<Id extends string = string>({ left, right, labels }: BandPr
         axis="horizontal"
         size={split}
         min={MIN_SPLIT}
+        measure={measureLeft}
         label={labels.resizeBand}
         onSize={resplit}
       />
