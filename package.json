@@ -24,6 +24,7 @@
   "files": [
     "dist",
     "LICENSE",
+    "CHANGELOG.md",
     "llms.txt",
     "llms-full.txt"
   ],

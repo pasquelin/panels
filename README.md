@@ -154,6 +154,19 @@ For coding agents: [`llms.txt`](llms.txt) is the mental model, the API and the t
 page; [`llms-full.txt`](llms-full.txt) is every English chapter concatenated. Both ship with the
 package, and `pnpm llms` regenerates the second from the first plus `docs/`.
 
+## Releasing
+
+`main` is production; `develop` is where work lands. A release is a tag:
+
+```bash
+npm version patch      # or minor / major — bumps, commits, tags
+git push --follow-tags
+```
+
+The tag triggers `release.yml`, which checks that it matches `package.json`, replays
+`pnpm validate`, builds, and publishes to npm with a signed provenance attestation — over OIDC,
+with no token anywhere. See [CHANGELOG.md](CHANGELOG.md) for what shipped.
+
 ## Licence
 
 **MIT** — see [LICENSE](LICENSE).
