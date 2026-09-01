@@ -1,4 +1,11 @@
-import { SLOTS, ZONES, type Lengths, type OpenByZone, type SizesByZone } from './types'
+import {
+  DEFAULT_VIEW,
+  SLOTS,
+  ZONES,
+  type LayoutState,
+  type OpenByZone,
+  type SizesByZone,
+} from './types'
 
 /**
  * Where a layout is kept. `localStorage` by default, so the library works the moment it is
@@ -39,17 +46,18 @@ export const browserStorage = (): LayoutStorage => ({
 })
 
 /**
- * What is written down, and the version it was written in. Only the arrangement and the sizes:
+ * What is written down, and the version it was written in. Only the arrangements and the sizes:
  * focus and the solo stash are session state — see `PanelsState`.
  */
-type Stored<Id extends string> = {
-  version: number
-  open: OpenByZone<Id>
-  lengths: Lengths
-}
+type Stored<Id extends string> = LayoutState<Id> & { version: number }
 
-/** Bumped when the stored shape stops being one this build can restore. */
-export const LAYOUT_VERSION = 1
+/**
+ * Bumped when the stored shape stops being one this build can restore.
+ *
+ * 2 keeps the views apart. A version 1 file held one arrangement under `open`, which is read
+ * back as the view in front — nobody loses a layout to the upgrade.
+ */
+export const LAYOUT_VERSION = 2
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -71,8 +79,10 @@ function openFrom<Id extends string>(stored: Record<string, unknown>): OpenByZon
 
     for (const slot of SLOTS) {
       const id: unknown = held[slot]
-      if (typeof id !== 'string') continue
-      open[zone] = { ...open[zone], [slot]: id as Id }
+      // `null` is a half open on no panel in particular, and it is the state most halves are
+      // written in — dropped here, every untouched half would come back CLOSED.
+      if (id !== null && typeof id !== 'string') continue
+      open[zone] = { ...open[zone], [slot]: id as Id | null }
     }
   }
   return open
@@ -89,15 +99,48 @@ function sizesFrom(stored: Record<string, unknown>): SizesByZone {
   return sizes
 }
 
+/** Every view a stored file names, or `undefined` if it names none this build can read. */
+function viewsFrom<Id extends string>(
+  parsed: Record<string, unknown>,
+  view: string,
+): Record<string, OpenByZone<Id>> | undefined {
+  // A version 1 file held ONE arrangement, under `open`, at a time when there was one view to
+  // put it in — so it comes back as the view being asked for, which is the only one that would
+  // ever see it. Nobody loses a layout to the upgrade.
+  if (parsed.version === 1) {
+    return isRecord(parsed.open) ? { [view]: openFrom<Id>(parsed.open) } : undefined
+  }
+  if (parsed.version !== LAYOUT_VERSION || !isRecord(parsed.views)) return undefined
+
+  // 🛑 No prototype: `JSON.parse` makes `__proto__` an own property, and assigning to it on a
+  // plain object fires the SETTER — the view was lost, and the map's prototype became data from
+  // the file, so a view named `left` would have inherited an arrangement that is not its own.
+  const views: Record<string, OpenByZone<Id>> = Object.create(null) as Record<
+    string,
+    OpenByZone<Id>
+  >
+  for (const [name, held] of Object.entries(parsed.views)) {
+    if (isRecord(held)) views[name] = openFrom<Id>(held)
+  }
+  return views
+}
+
 /**
  * Reads a stored layout back, dropping anything this build cannot make sense of. Returns
  * `undefined` rather than a partial answer: a half-read layout is worse than none, since the
  * project's own defaults are a deliberate arrangement and a corrupted one is not.
+ *
+ * A view the file does not name is simply absent, which is what tells the store to settle it —
+ * so arriving straight at a view nobody has arranged yet opens its halves.
+ *
+ * `view` is the one starting in front, and it only matters for a version 1 file: that one held a
+ * single arrangement, and this says which view inherits it.
  */
 export function readLayout<Id extends string>(
   storage: LayoutStorage,
   key: string,
-): { open: OpenByZone<Id>; lengths: Lengths } | undefined {
+  view: string = DEFAULT_VIEW,
+): LayoutState<Id> | undefined {
   const raw = storage.read(key)
   if (raw === null) return undefined
 
@@ -108,15 +151,17 @@ export function readLayout<Id extends string>(
     return undefined
   }
 
-  if (!isRecord(parsed) || parsed.version !== LAYOUT_VERSION) return undefined
-  if (!isRecord(parsed.open) || !isRecord(parsed.lengths)) return undefined
+  if (!isRecord(parsed) || !isRecord(parsed.lengths)) return undefined
+
+  const views = viewsFrom<Id>(parsed, view)
+  if (!views) return undefined
 
   const lengths = parsed.lengths
   if (!isRecord(lengths.sizes) || !isRecord(lengths.splits)) return undefined
 
   const bandSplit = lengths.bandSplit
   return {
-    open: openFrom<Id>(parsed.open),
+    views,
     lengths: {
       sizes: sizesFrom(lengths.sizes),
       splits: sizesFrom(lengths.splits),
@@ -129,8 +174,12 @@ export function readLayout<Id extends string>(
 export function writeLayout<Id extends string>(
   storage: LayoutStorage,
   key: string,
-  layout: { open: OpenByZone<Id>; lengths: Lengths },
+  layout: LayoutState<Id>,
 ): void {
-  const stored: Stored<Id> = { version: LAYOUT_VERSION, ...layout }
+  const stored: Stored<Id> = {
+    version: LAYOUT_VERSION,
+    views: layout.views,
+    lengths: layout.lengths,
+  }
   storage.write(key, JSON.stringify(stored))
 }

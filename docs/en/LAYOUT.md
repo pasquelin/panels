@@ -82,7 +82,9 @@ This is what lets it be adopted a piece at a time in an application that already
 
 ## Persistence
 
-What is stored: which half holds which panel, and the sizes. That is all.
+What is stored: which half holds which panel, in each view, and the sizes. That is all — and
+only a real choice is written: a half nobody has touched is stored as open, naming nobody, so it
+follows your declarations rather than freezing an answer.
 
 ```tsx
 <Panels

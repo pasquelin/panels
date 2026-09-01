@@ -1,9 +1,9 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useStore } from 'zustand'
-import { createPanelsStore, type PanelsState, type PanelsStore } from './store'
+import { createPanelsStore, isSettled, type PanelsState, type PanelsStore } from './store'
 import { browserStorage, readLayout, writeLayout, type LayoutStorage } from './persistence'
 import { useIsomorphicLayoutEffect } from './layoutEffect'
-import type { OpenByZone } from './types'
+import { DEFAULT_VIEW, type OpenByZone } from './types'
 
 const PanelsContext = createContext<PanelsStore<string> | null>(null)
 
@@ -18,8 +18,18 @@ export type PanelsProviderProps<Id extends string> = {
   storageKey?: string
   /** Where the layout is kept. `localStorage` by default; `null` disables persistence. */
   storage?: LayoutStorage | null
-  /** Which halves start open, overriding "the first panel declared for that half". */
+  /** Which halves start open, overriding "every half something is declared for". */
   defaultOpen?: OpenByZone<Id>
+  /**
+   * The view in front. Each view keeps its OWN open panels, so two parts of one application can
+   * arrange their columns differently — and find them as they left them on the way back.
+   *
+   * The lengths are shared on purpose: a column that changed width on the way to another view
+   * reads as another window.
+   *
+   * Left out, everything lands in one view and nothing about this is visible.
+   */
+  view?: string
   children: ReactNode
 }
 
@@ -28,6 +38,7 @@ export function PanelsProvider<Id extends string = string>({
   storageKey = 'panels:layout',
   storage,
   defaultOpen,
+  view,
   children,
 }: PanelsProviderProps<Id>) {
   // Settled on the first render and never again: swapping the storage under a live chassis would
@@ -36,30 +47,56 @@ export function PanelsProvider<Id extends string = string>({
     storage === null ? null : (storage ?? browserStorage()),
   )
 
-  const [made] = useState<PanelsStore<Id>>(
-    () =>
-      store ??
-      createPanelsStore<Id>({
-        initial: kept ? readLayout<Id>(kept, storageKey) : undefined,
-      }),
-  )
+  const [made] = useState<PanelsStore<Id>>(() => {
+    const opening = view ?? DEFAULT_VIEW
+    const initial = kept ? readLayout<Id>(kept, storageKey, opening) : undefined
+    if (!store) return createPanelsStore<Id>({ view: opening, initial })
+
+    // A store the project built is filled rather than replaced: it was never handed the stored
+    // layout, so the chassis opened on nothing and then OVERWROTE the file on the first write —
+    // a project lost its arrangement on every launch for having brought its own store.
+    if (initial) store.setState(initial)
+    return store
+  })
 
   // Before the paint, and after the panels have registered — a child's effect runs before its
-  // parent's, and `<Frame>` registers in an effect of the same kind.
+  // parent's, and `<Frame>` declares in an effect of the same kind. So the view is brought
+  // forward once the panels it offers are known, and settled against them.
+  //
+  // 🛑 No dependency array, and that is what makes `view` a CONTROLLED prop: with one, the
+  // reconciliation only ran when a dep changed identity — so a `setView` made behind the prop's
+  // back stuck, unless an unrelated `defaultOpen` written inline happened to rerun the effect.
+  // Two projects writing the same code got opposite contracts. Both calls below return early
+  // when there is nothing to do, so running every render writes nothing.
   useIsomorphicLayoutEffect(() => {
-    // `defaultOpen` is deliberately read once: `settle` refuses to run twice, so a later change
-    // would be silently ignored rather than half-applied.
-    made.getState().settle(defaultOpen)
-  }, [made, defaultOpen])
+    const state = made.getState()
+    // Only when the project names one. Defaulted, this claimed the view on every render — so a
+    // `setView` made from a native menu or a socket was undone at the next unrelated render of
+    // some ancestor, which is the worst way to fail: correct, then silently not.
+    if (view !== undefined) state.setView(view)
+    // `defaultOpen` is deliberately read per view: `settle` refuses to run twice for the same
+    // one, so a later change is ignored rather than half-applied.
+    state.settle(defaultOpen)
+  })
 
   useEffect(() => {
     if (!kept) return
 
+    // What was last written, by reference. The store notifies on EVERY write — a focus, a
+    // measure, a view brought forward — and a drag writes on every `pointermove`; without this,
+    // each of them re-serialised the whole file for a change it does not carry.
+    let written: Pick<PanelsState<Id>, 'views' | 'lengths'> | undefined
+
     return made.subscribe(state => {
-      // Never before the arrangement is settled: the empty state of the very first render would
-      // be written over a layout the reader spent time arranging.
-      if (!state.settled) return
-      writeLayout(kept, storageKey, { open: state.open, lengths: state.lengths })
+      // Never before the view in front is settled: the empty state of the very first render
+      // would be written over a layout the reader spent time arranging.
+      if (!isSettled(state, state.view)) return
+      if (written?.views === state.views && written.lengths === state.lengths) return
+
+      // The two references alone: holding the whole state would pin the registry, and with it
+      // every panel's content, for as long as the chassis lives.
+      written = { views: state.views, lengths: state.lengths }
+      writeLayout(kept, storageKey, state)
     })
   }, [kept, made, storageKey])
 

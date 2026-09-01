@@ -90,3 +90,19 @@ What the chassis does for you:
 
 What is yours: the contrast of your palette, and the accessible names of whatever you put inside
 the panels.
+
+## Drawing the buttons yourself
+
+The chassis draws two buttons you never reach: the rail's, and a panel header's close. Replace
+them rather than configure them — a tooltip, a shortcut hint, a badge belong to your design
+system, not to a layout library.
+
+```tsx
+<Panels components={{ IconButton: MyIconButton }}>
+```
+
+`MyIconButton` receives `IconButtonProps`: `icon`, `label`, `active`, `accented`, `acts`,
+`onClick`, plus anything else you spread. `acts` tells the close button from a rail toggle.
+
+Read **once**, like `storage`: an object written inline changes identity on every render, and
+every panel would re-render with it.

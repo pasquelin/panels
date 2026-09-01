@@ -88,6 +88,10 @@ Donnez-leur des clés de stockage différentes, sinon ils écrasent mutuellement
 
 Chaque `<Panels>` fabrique son propre store ; rien n'est partagé entre eux.
 
+Deux châssis n'est pas la même question que deux **vues**. Deux châssis sont deux cadres à
+l'écran en même temps ; deux vues sont un cadre que deux parties de l'application arrangent
+différemment — voir `view` dans [PANELS](PANELS.md#les-vues), qui garde les longueurs communes.
+
 ## Tests
 
 Le châssis est du React ordinaire. Donnez-lui un stockage qui oublie, pour qu'un test ne fuie pas

@@ -4,7 +4,7 @@ import { usePanelsActions, usePanelsState } from '../core/context'
 import { useShownIn } from '../core/hooks/useArrangement'
 import { useZonePanels } from '../core/hooks/useZone'
 import { ZONES_BY_SIDE, type Side, type Zone } from '../core/types'
-import { IconButton } from './IconButton'
+import { usePanelsComponents } from '../core/components'
 import { Separator } from './Separator'
 
 export type RailProps = {
@@ -56,6 +56,7 @@ export function RailZone<Id extends string = string>({ zone }: { zone: Zone }) {
   const drawn = useShownIn<Id>(zone)
   const focused = usePanelsState<Id, boolean>(state => state.focusedZone === zone)
   const { toggle } = usePanelsActions<Id>()
+  const { IconButton } = usePanelsComponents()
 
   // An empty flex child still eats one of the rail's gaps — a hole where icons never were.
   if (halves.length === 0) return null

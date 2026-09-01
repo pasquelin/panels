@@ -84,7 +84,9 @@ C'est ce qui permet de l'adopter pièce par pièce dans une application qui exis
 
 ## Persistance
 
-Ce qui est stocké : quelle moitié tient quel panneau, et les tailles. C'est tout.
+Ce qui est stocké : quelle moitié tient quel panneau, dans chaque vue, et les tailles. C'est tout
+— et seul un vrai choix s'écrit : une moitié que personne n'a touchée est stockée ouverte sans
+nommer personne, donc elle suit vos déclarations au lieu de figer une réponse.
 
 ```tsx
 <Panels

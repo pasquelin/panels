@@ -1,42 +1,66 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
   createPanelsStore,
+  EMPTY_LENGTHS,
+  openOf,
   shownIn,
+  shownSpecsIn,
   undraggedSizeOf,
   zoneDraws,
   zoneTakesRoom,
   type PanelsStore,
+  type CreatePanelsStoreOptions,
 } from './store'
 import { DEFAULT_SIZES } from './clamps'
-import type { PanelSpec } from './types'
+import { DEFAULT_VIEW, type PanelSpec } from './types'
 
-type Id = 'files' | 'search' | 'outline' | 'chat' | 'inspector' | 'terminal'
+type Id = 'files' | 'search' | 'outline' | 'chat' | 'preview' | 'inspector' | 'terminal' | 'notes'
 
 const SPECS: PanelSpec<Id>[] = [
   { id: 'files', zone: 'left', slot: 'primary', title: 'Files' },
   { id: 'search', zone: 'left', slot: 'primary', title: 'Search' },
   { id: 'outline', zone: 'left', slot: 'secondary', title: 'Outline' },
   { id: 'chat', zone: 'right', slot: 'primary', title: 'Chat', solo: true, opens: 460 },
+  { id: 'preview', zone: 'right', slot: 'primary', title: 'Preview' },
   { id: 'inspector', zone: 'right', slot: 'secondary', title: 'Inspector' },
   { id: 'terminal', zone: 'bottomRight', slot: 'primary', title: 'Terminal' },
 ]
 
-function made(): PanelsStore<Id> {
-  const store = createPanelsStore<Id>()
-  for (const spec of SPECS) store.getState().register(spec)
+/** A store with the decor declared, as `<Panels>` declares it — options passed straight on. */
+function made(options?: CreatePanelsStoreOptions<Id>): PanelsStore<Id> {
+  const store = createPanelsStore<Id>(options)
+  store.getState().declare(SPECS)
   return store
 }
 
+/** Declared apart: in `SPECS` it would open a band half every `settle` test then has to name. */
+const NOTES: PanelSpec<Id> = { id: 'notes', zone: 'bottomLeft', slot: 'primary', title: 'Notes' }
+
 describe('settle', () => {
-  it('opens each half on the panel declared first for it', () => {
+  it('opens every half something is declared for, naming no panel', () => {
     const store = made()
     store.getState().settle()
 
-    expect(store.getState().open).toEqual({
-      left: { primary: 'files', secondary: 'outline' },
-      right: { primary: 'chat', secondary: 'inspector' },
-      bottomRight: { primary: 'terminal' },
+    expect(openOf(store.getState())).toEqual({
+      left: { primary: null, secondary: null },
+      right: { primary: null, secondary: null },
+      bottomRight: { primary: null },
     })
+  })
+
+  it('leaves a half nothing is declared for closed — an empty one still holds a handle', () => {
+    const store = made()
+    store.getState().settle()
+
+    expect(openOf(store.getState()).top).toBeUndefined()
+    expect(openOf(store.getState()).bottomLeft).toBeUndefined()
+  })
+
+  it('draws the panel declared first for each half all the same', () => {
+    const store = made()
+    store.getState().settle()
+
+    expect(shownIn(store.getState(), 'left')).toEqual({ primary: 'files', secondary: 'outline' })
   })
 
   it('runs once — a second call must not undo what the reader has done since', () => {
@@ -45,23 +69,28 @@ describe('settle', () => {
     store.getState().show('search')
     store.getState().settle()
 
-    expect(store.getState().open.left?.primary).toBe('search')
+    expect(openOf(store.getState()).left?.primary).toBe('search')
   })
 
   it('lets the project name the halves it cares about and fills in the rest', () => {
     const store = made()
     store.getState().settle({ left: { primary: 'search' } })
 
-    expect(store.getState().open.left?.primary).toBe('search')
-    expect(store.getState().open.left?.secondary).toBe('outline')
+    expect(openOf(store.getState()).left?.primary).toBe('search')
+    expect(openOf(store.getState()).left?.secondary).toBeNull()
   })
 
   it('never runs when a layout was restored — that arrangement is the reader’s own', () => {
-    const store = createPanelsStore<Id>({ initial: { open: { left: { primary: 'search' } } } })
-    for (const spec of SPECS) store.getState().register(spec)
+    const store = createPanelsStore<Id>({
+      initial: {
+        views: { [DEFAULT_VIEW]: { left: { primary: 'search' } } },
+        lengths: EMPTY_LENGTHS,
+      },
+    })
+    store.getState().declare(SPECS)
     store.getState().settle()
 
-    expect(store.getState().open).toEqual({ left: { primary: 'search' } })
+    expect(openOf(store.getState())).toEqual({ left: { primary: 'search' } })
   })
 })
 
@@ -75,7 +104,7 @@ describe('show and close', () => {
   it('swaps within a half rather than stacking', () => {
     store.getState().show('search')
 
-    expect(store.getState().open.left).toEqual({ primary: 'search', secondary: 'outline' })
+    expect(shownIn(store.getState(), 'left')).toEqual({ primary: 'search', secondary: 'outline' })
   })
 
   it('focuses the zone it opened in', () => {
@@ -86,7 +115,17 @@ describe('show and close', () => {
   it('empties only the half it was asked about', () => {
     store.getState().close('left', 'primary')
 
-    expect(store.getState().open.left).toEqual({ secondary: 'outline' })
+    expect(openOf(store.getState()).left).toEqual({ secondary: null })
+    expect(shownIn(store.getState(), 'left')).toEqual({ secondary: 'outline' })
+  })
+
+  it('only focuses a panel already on screen, rather than writing its name down', () => {
+    // `files` is what the untouched half draws. Naming it would settle for every other view a
+    // question this click never asked.
+    store.getState().show('files')
+
+    expect(openOf(store.getState()).left?.primary).toBeNull()
+    expect(store.getState().focusedZone).toBe('left')
   })
 
   it('drops the focus when the zone it named stops drawing', () => {
@@ -98,10 +137,10 @@ describe('show and close', () => {
   })
 
   it('ignores a panel nobody declared', () => {
-    const before = store.getState().open
+    const before = openOf(store.getState())
     store.getState().show('nope' as Id)
 
-    expect(store.getState().open).toBe(before)
+    expect(openOf(store.getState())).toBe(before)
   })
 })
 
@@ -138,26 +177,200 @@ describe('solo', () => {
 
   it('stashes what the zone held when a solo panel arrives', () => {
     const store = createPanelsStore<Id>({
-      initial: { open: { right: { primary: 'inspector', secondary: 'inspector' } } },
+      initial: {
+        views: { [DEFAULT_VIEW]: { right: { primary: 'preview', secondary: 'inspector' } } },
+        lengths: EMPTY_LENGTHS,
+      },
     })
-    for (const spec of SPECS) store.getState().register(spec)
+    store.getState().declare(SPECS)
 
     store.getState().show('chat')
     expect(store.getState().stashed.right).toBeDefined()
 
     store.getState().close('right', 'primary')
-    expect(store.getState().open.right).toEqual({ primary: 'inspector', secondary: 'inspector' })
+    expect(openOf(store.getState()).right).toEqual({ primary: 'preview', secondary: 'inspector' })
+  })
+
+  it('closes the half rather than stashing when the solo panel was only a fallback', () => {
+    // Nobody chose it: the zone cannot draw both, and the rail reopens it in one click.
+    const store = made()
+    store.getState().settle()
+    store.getState().show('inspector')
+
+    expect(shownIn(store.getState(), 'right')).toEqual({ secondary: 'inspector' })
   })
 })
 
-describe('unregister', () => {
-  it('empties the half a removed panel occupied', () => {
+describe('declare', () => {
+  const without = (id: Id) => SPECS.filter(spec => spec.id !== id)
+
+  it('leaves the half open, on whatever is still declared for it', () => {
     const store = made()
     store.getState().settle()
-    store.getState().unregister('files')
+    store.getState().declare(without('files'))
 
-    expect(store.getState().open.left?.primary).toBeUndefined()
-    expect(store.getState().registry.some(spec => spec.id === 'files')).toBe(false)
+    expect(shownIn(store.getState(), 'left').primary).toBe('search')
+  })
+
+  it('gives the half back to the chosen panel when it returns', () => {
+    // 🛑 The defect this exists for: a panel hidden behind a right, a route or a connection came
+    // back to a half that had forgotten it was ever asked for.
+    const store = made()
+    store.getState().settle()
+    store.getState().show('search')
+    store.getState().declare(without('search'))
+    expect(shownIn(store.getState(), 'left').primary).toBe('files')
+
+    store.getState().declare(SPECS)
+    expect(shownIn(store.getState(), 'left').primary).toBe('search')
+  })
+
+  it('keeps the order the project declares, so a returning icon finds its place', () => {
+    const store = made()
+    store.getState().declare(without('files'))
+    store.getState().declare(SPECS)
+
+    expect(store.getState().registry.map(spec => spec.id)).toEqual(SPECS.map(spec => spec.id))
+  })
+
+  it('closes nothing: a half whose last panel goes simply draws no more', () => {
+    const store = made()
+    store.getState().settle()
+    store.getState().declare(without('terminal'))
+
+    expect(zoneDraws(store.getState(), 'bottomRight')).toBe(false)
+  })
+})
+
+describe('resolve', () => {
+  it('falls back to the panel declared first when the stored one moved half', () => {
+    const store = createPanelsStore<Id>({
+      initial: {
+        views: { [DEFAULT_VIEW]: { left: { primary: 'outline' } } },
+        lengths: EMPTY_LENGTHS,
+      },
+    })
+    // `outline` is declared for the SECOND half of the left column, not the first.
+    store.getState().declare(SPECS)
+
+    expect(shownIn(store.getState(), 'left').primary).toBe('files')
+  })
+
+  it('tells a closed half from one that named nobody', () => {
+    const store = createPanelsStore<Id>({
+      initial: { views: { [DEFAULT_VIEW]: { left: { secondary: null } } }, lengths: EMPTY_LENGTHS },
+    })
+    store.getState().declare(SPECS)
+
+    expect(shownIn(store.getState(), 'left')).toEqual({ secondary: 'outline' })
+  })
+})
+
+describe('views', () => {
+  it('keeps the open panels of each view to itself', () => {
+    const store = made()
+    store.getState().settle()
+    store.getState().close('left', 'primary')
+
+    store.getState().setView('other')
+    store.getState().settle()
+    expect(shownIn(store.getState(), 'left').primary).toBe('files')
+
+    store.getState().setView(DEFAULT_VIEW)
+    expect(shownIn(store.getState(), 'left').primary).toBeUndefined()
+  })
+
+  it('settles the view it arrives at, without waiting for a render', () => {
+    // 🛑 Reachable only through a render, a view arrived at from outside React stayed unsettled
+    // — a blank chassis for as long as no ancestor happened to re-render.
+    const store = made()
+    store.getState().setView('other')
+
+    expect(shownIn(store.getState(), 'left').primary).toBe('files')
+  })
+
+  it('settles a view whose name is one of Object.prototype', () => {
+    // 🛑 `'constructor' in {}` is true: the view was taken for settled and drew nothing at all,
+    // then the first click froze the remaining half closed for good.
+    const store = made({ view: 'constructor' })
+    store.getState().settle()
+
+    expect(shownIn(store.getState(), 'left')).toEqual({ primary: 'files', secondary: 'outline' })
+  })
+
+  it('holds every view it has opened, the one in front included', () => {
+    const store = made()
+    store.getState().settle()
+    store.getState().setView('other')
+
+    expect(Object.keys(store.getState().views).sort()).toEqual([DEFAULT_VIEW, 'other'])
+  })
+
+  it('settles each view against the panels declared for it, once', () => {
+    const store = made()
+    store.getState().settle()
+    store.getState().setView('other')
+    store.getState().settle()
+    store.getState().close('left', 'primary')
+    store.getState().settle()
+
+    expect(shownIn(store.getState(), 'left').primary).toBeUndefined()
+  })
+
+  it('shares the lengths: no column changes width on the way to another view', () => {
+    const store = made()
+    store.getState().settle()
+    store.getState().resize('left', 400, 1600)
+    store.getState().setView('other')
+
+    expect(store.getState().lengths.sizes.left).toBe(400)
+  })
+
+  it('drops the focus and the stash, which belong to the view being left', () => {
+    const store = made()
+    store.getState().settle()
+    store.getState().show('terminal')
+    store.getState().setView('other')
+
+    expect(store.getState().focusedZone).toBeNull()
+    expect(store.getState().stashed).toEqual({})
+  })
+
+  it('settles a view the stored layout never named — arriving straight at one is not empty', () => {
+    // 🛑 The defect this exists for, and it only shows on a COLD start: a file existed, so the
+    // view was taken as settled, `settle` returned early, and the chassis drew nothing at all.
+    // Reached through `setView` from another view it worked, so the same screen answered two
+    // ways depending on how you got there.
+    const store = made({
+      view: 'reports',
+      initial: { views: { sites: { left: { primary: null } } }, lengths: EMPTY_LENGTHS },
+    })
+    store.getState().settle()
+
+    expect(shownIn(store.getState(), 'left').primary).toBe('files')
+  })
+
+  it('leaves a view the stored layout DID name exactly as it was', () => {
+    const store = made({
+      view: 'reports',
+      initial: { views: { reports: { right: { primary: null } } }, lengths: EMPTY_LENGTHS },
+    })
+    store.getState().settle()
+
+    expect(shownIn(store.getState(), 'left').primary).toBeUndefined()
+  })
+
+  it('drops every other view on reset, and reopens the one in front on the spot', () => {
+    const store = made()
+    store.getState().settle()
+    store.getState().setView('other')
+    store.getState().close('left', 'primary')
+    store.getState().reset()
+
+    expect(Object.keys(store.getState().views)).toEqual(['other'])
+    // 🛑 On the spot: nothing re-renders the provider when a button inside the chassis asked for
+    // the reset, so the frame used to stay blank — and the escaped arrangement stayed on disk.
+    expect(shownIn(store.getState(), 'left').primary).toBe('files')
   })
 })
 
@@ -167,9 +380,7 @@ describe('undraggedSizeOf', () => {
     store.getState().settle()
 
     const state = store.getState()
-    expect(undraggedSizeOf(state.registry, 'left', shownIn(state, 'left').primary)).toBe(
-      DEFAULT_SIZES.left,
-    )
+    expect(undraggedSizeOf('left', shownSpecsIn(state, 'left').primary)).toBe(DEFAULT_SIZES.left)
   })
 
   it('honours what the leading panel asks for', () => {
@@ -178,7 +389,7 @@ describe('undraggedSizeOf', () => {
 
     // `chat` asks for 460 against the column's own 260.
     const state = store.getState()
-    expect(undraggedSizeOf(state.registry, 'right', shownIn(state, 'right').primary)).toBe(460)
+    expect(undraggedSizeOf('right', shownSpecsIn(state, 'right').primary)).toBe(460)
   })
 })
 
@@ -204,15 +415,24 @@ describe('resize', () => {
 })
 
 describe('reset', () => {
-  it('clears the arrangement but keeps the declared panels', () => {
+  it('gives back the arrangement of a first launch, and keeps the declared panels', () => {
     const store = made()
     store.getState().settle()
+    store.getState().show('search')
     store.getState().resize('left', 400, 1600)
     store.getState().reset()
 
-    expect(store.getState().open).toEqual({})
+    expect(shownIn(store.getState(), 'left').primary).toBe('files')
     expect(store.getState().lengths.sizes).toEqual({})
     expect(store.getState().registry).toHaveLength(SPECS.length)
+  })
+
+  it('honours the defaults the project settled with, rather than a bare frame', () => {
+    const store = made()
+    store.getState().settle({ left: { primary: 'search' } })
+    store.getState().reset()
+
+    expect(shownIn(store.getState(), 'left').primary).toBe('search')
   })
 })
 
@@ -232,9 +452,12 @@ describe('zoneTakesRoom', () => {
     // opposite is `bottomRight` — was told nothing faced it whenever the OTHER half was the one
     // open, and could then be dragged over the height the strip was already drawing in.
     const store = createPanelsStore<Id>({
-      initial: { open: { bottomLeft: { primary: 'terminal' } } },
+      initial: {
+        views: { [DEFAULT_VIEW]: { bottomLeft: { primary: 'notes' } } },
+        lengths: EMPTY_LENGTHS,
+      },
     })
-    for (const spec of SPECS) store.getState().register(spec)
+    store.getState().declare([...SPECS, NOTES])
     const state = store.getState()
 
     expect(zoneDraws(state, 'bottomRight')).toBe(false)
@@ -243,8 +466,10 @@ describe('zoneTakesRoom', () => {
   })
 
   it('takes no room when the whole strip is closed', () => {
-    const store = createPanelsStore<Id>({ initial: { open: {} } })
-    for (const spec of SPECS) store.getState().register(spec)
+    const store = createPanelsStore<Id>({
+      initial: { views: { [DEFAULT_VIEW]: {} }, lengths: EMPTY_LENGTHS },
+    })
+    store.getState().declare(SPECS)
 
     expect(zoneTakesRoom(store.getState(), 'bottomRight')).toBe(false)
   })

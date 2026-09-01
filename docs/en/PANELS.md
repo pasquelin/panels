@@ -64,8 +64,8 @@ To open somewhere else, name the halves yourself:
 <Panels<PanelId> defaultOpen={{ left: { primary: 'search' } }}>
 ```
 
-`defaultOpen` is read once, and never against a layout that was restored — an arrangement the
-reader made outranks a default.
+`defaultOpen` is read once per view, and never against a layout that was restored — an
+arrangement the reader made outranks a default.
 
 ## `opens`
 
@@ -95,9 +95,10 @@ arrangement nobody remembers making, is not a restoration.
 
 ## Adding and removing panels
 
-The registry follows your JSX. A panel that stops being declared is unregistered, and the half it
-occupied is emptied — a stored id naming a panel that no longer exists would otherwise leave a
-frame with nothing to draw in it.
+The registry follows your JSX, in the order you declare it. A panel that stops being declared
+leaves the rail, and the half it held **falls back** to whatever is still declared for it — it is
+not closed, and the choice is not forgotten. Declare the panel again and the half is its once
+more, in the place it had.
 
 Conditional panels work as you would expect:
 
@@ -108,4 +109,26 @@ Conditional panels work as you would expect:
 ```
 
 This is how you express what a capability system would otherwise be for: a panel that should not
-be offered is a panel you do not declare.
+be offered is a panel you do not declare. And because a withdrawal costs nothing, a panel may go
+and come back as often as a right, a route or a connection does.
+
+## Views
+
+Two parts of one application may want their own arrangement — an editor and a review screen, a
+project and a dashboard. Name the one in front, and each keeps the panels it had open:
+
+```tsx
+<Panels<PanelId> view={reviewing ? 'review' : 'edit'}>
+```
+
+Closing a column in one view leaves it open in the other, and coming back finds it as it was
+left. The **lengths are shared**: a column that changed width on the way to another view would
+read as another window.
+
+Left out, everything lands in one view and nothing about this is visible. Views cost nothing to
+ignore, and a project that grows into a second one only has a prop to pass.
+
+The prop is **controlled**: it is reconciled on every render, so `setView` called behind its back
+is taken over on the next one. And views are never evicted — name the handful of screens that own
+an arrangement rather than every route, or `view={location.pathname}` grows one stored entry per
+URL, for ever.

@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import { usePanelsState } from '../context'
-import { specOf, undraggedSizeOf } from '../store'
+import { undraggedSizeOf } from '../store'
 import { OPPOSITE, sharedSizes, sizeKeyOf } from '../clamps'
 import { isHorizontal, type PanelSpec, type Slot, type Zone } from '../types'
-import { useArrangement, useShownIn, useZoneTakesRoom } from './useArrangement'
+import { useShownSpecsIn, useZoneTakesRoom } from './useArrangement'
 
 export type ZoneView<Id extends string> = {
   /** What each half actually DRAWS — not what it holds: a `solo` panel silences the other. */
@@ -25,8 +25,7 @@ export type ZoneView<Id extends string> = {
  * of to the whole `lengths` object — which every resize replaces, waking all five zones.
  */
 function wantedSize<Id extends string>(
-  registry: PanelSpec<Id>[],
-  leading: Id | undefined,
+  leading: PanelSpec<Id> | undefined,
   stored: number | undefined,
   zone: Zone,
   draws: boolean,
@@ -35,7 +34,7 @@ function wantedSize<Id extends string>(
 
   // The zone's own size until the reader drags one, and the drag then serves the whole zone: a
   // length somebody chose is an answer about the COLUMN, not about the panel that was in it.
-  return stored ?? undraggedSizeOf(registry, zone, leading)
+  return stored ?? undraggedSizeOf(zone, leading)
 }
 
 /**
@@ -51,9 +50,8 @@ function wantedSize<Id extends string>(
  * on every write — five re-renders a frame where two are owed.
  */
 export function useZone<Id extends string = string>(zone: Zone): ZoneView<Id> {
-  const arrangement = useArrangement<Id>()
-  const shown = useShownIn<Id>(zone)
-  const facing = useShownIn<Id>(OPPOSITE[zone])
+  const shown = useShownSpecsIn<Id>(zone)
+  const facing = useShownSpecsIn<Id>(OPPOSITE[zone])
   // What the OPPOSITE zone takes off the shared axis, which for the band is the whole strip:
   // asked per half, `top` believed nothing faced it whenever the other half was the open one.
   const facingTakesRoom = useZoneTakesRoom<Id>(OPPOSITE[zone])
@@ -71,19 +69,11 @@ export function useZone<Id extends string = string>(zone: Zone): ZoneView<Id> {
   const focused = usePanelsState<Id, boolean>(state => state.focusedZone === zone)
 
   return useMemo(() => {
-    const { registry } = arrangement
-    const primary = specOf(registry, shown.primary)
-    const secondary = specOf(registry, shown.secondary)
+    const { primary, secondary } = shown
     const draws = primary !== undefined || secondary !== undefined
 
-    const wanted = wantedSize(registry, shown.primary, stored, zone, draws)
-    const wantedFacing = wantedSize(
-      registry,
-      facing.primary,
-      storedFacing,
-      OPPOSITE[zone],
-      facingTakesRoom,
-    )
+    const wanted = wantedSize(primary, stored, zone, draws)
+    const wantedFacing = wantedSize(facing.primary, storedFacing, OPPOSITE[zone], facingTakesRoom)
 
     return {
       primary,
@@ -95,18 +85,7 @@ export function useZone<Id extends string = string>(zone: Zone): ZoneView<Id> {
       split,
       focused,
     }
-  }, [
-    arrangement,
-    shown,
-    facing,
-    facingTakesRoom,
-    stored,
-    storedFacing,
-    room,
-    split,
-    focused,
-    zone,
-  ])
+  }, [shown, facing, facingTakesRoom, stored, storedFacing, room, split, focused, zone])
 }
 
 /** The panels a rail draws for that zone, cut the way the zone itself is cut. */
