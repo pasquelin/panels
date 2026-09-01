@@ -12,7 +12,7 @@ const here = import.meta.dirname
  */
 export default defineConfig(({ command }) => ({
   root: here,
-  base: command === 'build' ? '/panel/' : '/',
+  base: command === 'build' ? '/panels/' : '/',
   plugins: [react()],
   // The source, not the build: an example is also how the library is developed, and a `dist`
   // between the two means every change needs a build before it can be seen.

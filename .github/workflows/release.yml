@@ -6,7 +6,7 @@
 #
 # Authentication: **npm Trusted Publishing (OIDC)** — no token, anywhere. npm exchanges the
 # GitHub OIDC token (the `id-token: write` permission below) for a short-lived publish token.
-# The trusted publisher is declared on npm's side: pasquelin/panel → release.yml.
+# The trusted publisher is declared on npm's side: pasquelin/panels → release.yml.
 name: Release
 
 on:

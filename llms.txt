@@ -4,7 +4,7 @@
 > types). Icon rails on the edges, five resizable zones around a free centre, a layout that
 > survives a reload. **Headless underneath, repaintable on top** — the components are built on
 > hooks that render nothing, and every visual value is a CSS custom property.
-> MIT. Live: https://pasquelin.github.io/panel/
+> MIT. Live: https://pasquelin.github.io/panels/
 
 ## Mental model (read this first)
 

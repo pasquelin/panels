@@ -8,10 +8,10 @@
   "author": "Alban Pasquelin <alban.pasquelin@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pasquelin/panel.git"
+    "url": "git+https://github.com/pasquelin/panels.git"
   },
-  "homepage": "https://github.com/pasquelin/panel#readme",
-  "bugs": "https://github.com/pasquelin/panel/issues",
+  "homepage": "https://github.com/pasquelin/panels#readme",
+  "bugs": "https://github.com/pasquelin/panels/issues",
   "publishConfig": {
     "access": "public"
   },

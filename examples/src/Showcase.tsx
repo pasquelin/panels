@@ -306,7 +306,7 @@ function Api() {
   )
 }
 
-const REPO = 'https://github.com/pasquelin/panel'
+const REPO = 'https://github.com/pasquelin/panels'
 
 function Foot() {
   const [lang] = useLang()

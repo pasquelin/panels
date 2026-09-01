@@ -1,6 +1,6 @@
 # @pasquelin/panels
 
-**[Live demo ↗](https://pasquelin.github.io/panel/)** · **[Documentation 🇫🇷](docs/fr/README.md)** · **[Documentation 🇬🇧](docs/en/README.md)** · MIT
+**[Live demo ↗](https://pasquelin.github.io/panels/)** · **[Documentation 🇫🇷](docs/fr/README.md)** · **[Documentation 🇬🇧](docs/en/README.md)** · MIT
 
 A React panel chassis: icon rails on the edges, resizable zones around a free centre, and a
 layout that survives a reload.
@@ -125,7 +125,7 @@ project's panels come from — a router, a state machine, a config — is that p
 
 ## Examples
 
-All four run at **[pasquelin.github.io/panel](https://pasquelin.github.io/panel/)**, or locally:
+All four run at **[pasquelin.github.io/panels](https://pasquelin.github.io/panels/)**, or locally:
 
 ```bash
 pnpm dev
