@@ -1,0 +1,97 @@
+{
+  "meta": {
+    "lang": "id",
+    "name": "Bahasa Indonesia",
+    "short": "ID",
+    "flag": "🇮🇩",
+    "docs": "en",
+    "ogLocale": "id_ID"
+  },
+  "head": {
+    "title": "@pasquelin/panels — Rangka di bawah perkakas Anda",
+    "description": "Rel ikon di tepi, zona yang bisa diubah ukurannya mengelilingi pusat yang sepenuhnya milik Anda, dan tata letak yang bertahan setelah halaman dimuat ulang. Tanpa render di bawah, bebas dicat ulang di atas.",
+    "ogDescription": "Ini hidup. Seret celah di antara permukaan, klik ikon pada rel, atau ubah ukuran jendela."
+  },
+  "nav": {
+    "overview": "Ringkasan",
+    "examples": "Contoh",
+    "api": "API",
+    "languageLabel": "Bahasa"
+  },
+  "hero": {
+    "eyebrow": "React 19 · 8 kB terkompresi · tanpa dependensi",
+    "titleBefore": "Rangka",
+    "titleAccent": "di bawah",
+    "titleAfter": "perkakas Anda.",
+    "lead": "Rel ikon di tepi, zona yang bisa diubah ukurannya mengelilingi pusat yang sepenuhnya milik Anda, dan tata letak yang bertahan setelah halaman dimuat ulang. Tanpa render di bawah, bebas dicat ulang di atas.",
+    "copy": "Salin",
+    "copied": "Tersalin",
+    "seeExamples": "Lihat contoh",
+    "caption": "Ini hidup. Seret celah di antara permukaan, klik ikon pada rel, atau ubah ukuran jendela.",
+    "frameTitle": "Ini hidup. Seret celah di antara permukaan, klik ikon pada rel, atau ubah ukuran jendela."
+  },
+  "demo": {
+    "centre": "Pusat Anda",
+    "centreHint": "outlet router · kanvas · peta · tab dokumen",
+    "panels": {
+      "files": "Berkas",
+      "search": "Cari",
+      "outline": "Kerangka",
+      "notes": "Catatan",
+      "console": "Konsol"
+    },
+    "said": {
+      "share": "Dua panel berbagi separuh ini. Rel yang berganti di antara keduanya.",
+      "second": "Separuh kedua dari kolom yang sama, dengan pegangannya sendiri.",
+      "opens": "Panel ini meminta terbuka lebih lebar daripada kolomnya.",
+      "band": "Bilah bawah membentang di bawah kolom yang sedang terbuka."
+    }
+  },
+  "examples": {
+    "title": "Empat cara memulai",
+    "lead": "Semuanya berjalan di peramban Anda dan seluruh kodenya ada di layar. Mulailah dari yang paling dekat.",
+    "tip": "Tips.",
+    "open0": "Buka Minimal",
+    "open1": "Buka React Router",
+    "open2": "Buka Tab dokumen",
+    "open3": "Buka Dicat ulang"
+  },
+  "api": {
+    "title": "Seluruh permukaan",
+    "lead": "Tidak banyak, dan memang itu maksudnya. Lima hal yang perlu diketahui."
+  },
+  "foot": {
+    "docs": "Dokumentasi",
+    "architecture": "Arsitektur",
+    "source": "Kode sumber",
+    "note": "MIT · oleh alban.pasquelin · rangka di halaman ini adalah pustakanya sendiri",
+    "changelog": "Riwayat perubahan",
+    "licence": "Lisensi"
+  },
+  "cards": {
+    "title0": "Minimal",
+    "what0": "Rangka terkecil yang benar-benar bekerja. Dua kolom, satu bilah bawah, satu pusat — dan header milik Anda yang mengendalikannya.",
+    "tip0": "Panel yang berbagi zona dan separuh yang sama tampil bergantian; rel yang mengganti. Beri panel kedua separuh secondary agar ia tersusun di bawah yang pertama.",
+    "title1": "React Router",
+    "what1": "Pusatnya adalah outlet. Berpindah halaman hanya mengubah bagian tengah — kolom tetap selebar semula dan panel yang terbuka tetap terbuka.",
+    "tip1": "Deklarasikan panel di rute layout, di atas outlet. Jika dideklarasikan per halaman, panel akan dilepas setiap kali berpindah dan kehilangan isinya.",
+    "title2": "Tab dokumen",
+    "what2": "Pusatnya membawa dokumen di atas Dockview — tab yang bisa diseret dan dibelah — sementara panel tetap di tepi.",
+    "tip2": "Impor dari entri dockview agar bebannya hanya jatuh pada proyek yang memang ingin tab. Panel tidak pernah masuk ke pusat: dokumen punya nama, panel punya ikon.",
+    "title3": "Dicat ulang",
+    "what3": "Rangka yang sama dengan empat palet. Warna, radius, lebar rel, tinggi header — semuanya properti kustom.",
+    "tip3": "Setel token aksen pada leluhur mana pun, dan rangka akan mengikuti identitas Anda alih-alih memaksakan miliknya. Ingin lebih jauh? Setiap bagian diekspor dan bisa diganti sendiri-sendiri."
+  },
+  "api5": {
+    "name0": "Deklarasikan",
+    "body0": "Panel adalah deskriptor: di mana ia menggantung, apa namanya, dan apa yang digambarnya.",
+    "name1": "Kendalikan",
+    "body1": "Satu hook untuk setiap header, pintasan, atau menu yang perlu memengaruhi panel.",
+    "name2": "Kendalikan dari luar React",
+    "body2": "Buat sendiri store-nya, lalu socket, menu native, atau worker pun bisa membuka panel.",
+    "name3": "Cat ulang",
+    "body3": "Setiap nilai adalah properti kustom. Setel aksennya, dan rel akan mengikuti identitas Anda.",
+    "name4": "Atau ambil logikanya saja",
+    "body4": "Komponen dibangun di atas hook yang tidak menggambar apa pun. Gambarlah rangka Anda sendiri di atasnya."
+  }
+}

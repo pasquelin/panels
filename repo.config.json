@@ -1,0 +1,42 @@
+{
+  "name": "@pasquelin/panels",
+  "repo": "pasquelin/panels",
+  "author": "Alban Pasquelin",
+  "license": "https://opensource.org/licenses/MIT",
+
+  "site": {
+    "url": "https://pasquelin.github.io/panels/",
+    "defaultLang": "en",
+    "schemaType": "SoftwareSourceCode",
+    "schema": {
+      "programmingLanguage": "TypeScript",
+      "runtimePlatform": "React 19"
+    },
+    "copy": ["tokens.css", "styles.css", "hud.js", "assets"],
+    "optional": [],
+    "examples": [{ "from": "examples/dist", "to": "examples" }]
+  },
+
+  "llms": {
+    "parts": [
+      ["llms.txt", null],
+      ["README.md", "README"],
+      ["docs/en/PANELS.md", "Panels"],
+      ["docs/en/LAYOUT.md", "Layout"],
+      ["docs/en/HOOKS.md", "Hooks"],
+      ["docs/en/THEMING.md", "Theming"],
+      ["docs/en/COMPONENTS.md", "Components"],
+      ["docs/en/DOCKVIEW.md", "Document tabs"],
+      ["docs/en/RECIPES.md", "Recipes"],
+      ["docs/ARCHITECTURE.md", "Architecture"],
+      ["THIRD-PARTY-NOTICES.md", "Licences"]
+    ]
+  },
+
+  "licences": {
+    "expected": "MIT",
+    "noRuntimeDeps": true,
+    "bundled": ["zustand"],
+    "allowed": ["MIT", "ISC", "BSD-2-Clause", "BSD-3-Clause", "0BSD", "Apache-2.0"]
+  }
+}

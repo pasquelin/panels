@@ -1,6 +1,9 @@
-# Anti-regression net: on every push to main or develop, and on every pull request, the same
-# barrier `pnpm validate` raises locally — llms freshness, licences, typecheck, lint, format and
-# the test suite. Anything that slips blocks the merge.
+# Filet anti-régression : à chaque push sur `main` et sur chaque PR, on rejoue le même
+# garde-fou que `pnpm validate` en local — fraîcheur du llms, licences, typecheck strict,
+# lint, format:check et la suite de tests. Un test qui casse (ou un `any`/format qui
+# glisse) bloque la fusion.
+#
+# Squelette commun aux trois dépôts (map3D, panels, IA Studio).
 name: CI
 
 on:
@@ -8,31 +11,37 @@ on:
     branches: [main, develop]
   pull_request:
 
-# A pull request that pushes another commit cancels the previous run: only the latest state is
-# worth paying for.
+# Une PR qui pousse un nouveau commit annule le run précédent : on ne paie que le dernier état.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v6
         with:
-          node-version: 22
+          version: 11
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Validate
-        run: pnpm validate
+      # Le garde-fou lui-même, et non la liste de ses maillons : les épeler un par un
+      # donne une liste d'étapes plus jolie et un job qui cesse silencieusement de
+      # correspondre au poste de travail dès qu'un maillon est ajouté à `validate`.
+      - run: pnpm validate
 
-      # The published artefact must build, not merely typecheck: `vite build` also emits the
-      # types, and a broken declaration only shows up here.
-      - name: Build the package
-        run: pnpm build
+      # L'artefact publié doit se construire, pas seulement passer le typecheck :
+      # `vite build` émet aussi les types, et une déclaration cassée n'apparaît qu'ici.
+      - run: pnpm build

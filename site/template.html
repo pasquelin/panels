@@ -1,0 +1,324 @@
+<!doctype html>
+<!--
+  Ce fichier est un GABARIT : `site/build.mjs` le rend une fois par dictionnaire de
+  `site/i18n/`, et n'écrit jamais dedans. Les `{{clés}}` viennent de ces dictionnaires ;
+  ce qui n'est pas traduit — le code, les icônes — est écrit ici en clair.
+-->
+<html lang="{{lang}}" dir="{{dir}}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{head.title}}</title>
+    <meta name="description" content="{{head.description}}" />
+    <meta name="theme-color" content="#2e2b26" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" href="{{root}}assets/favicon.svg" type="image/svg+xml" />
+
+    <!-- Une URL par langue, et chacune nomme toutes les autres : c'est ce qui dit à un moteur
+         qu'il a affaire à la même page traduite, et non à quinze pages minces. -->
+    {{alternates}}
+
+    <!-- À quoi ressemble un lien vers cette page, collé ailleurs. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://pasquelin.github.io/panels/" />
+    <meta property="og:title" content="{{head.title}}" />
+    <meta property="og:description" content="{{head.ogDescription}}" />
+    <meta property="og:image" content="https://pasquelin.github.io/panels/assets/social.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="{{ogLocale}}" />
+    {{localeAlternates}}
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{root}}tokens.css" />
+    <link rel="stylesheet" href="{{root}}styles.css" />
+
+    <script type="application/ld+json">
+      {{jsonld}}
+    </script>
+  </head>
+  <body>
+    <nav class="railnav" aria-label="Sections">
+      <span class="railnav__mark" aria-hidden="true"></span>
+      <a href="#top" class="railnav__dot" data-section="top">
+        <span class="railnav__glyph" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path fill="currentColor" d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" /></svg></span>
+        <span class="railnav__label">{{nav.overview}}</span>
+      </a>
+      <a href="#examples" class="railnav__dot" data-section="examples">
+        <span class="railnav__glyph" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2M4 18V8h16v10z" /></svg></span>
+        <span class="railnav__label">{{nav.examples}}</span>
+      </a>
+      <a href="#api" class="railnav__dot" data-section="api">
+        <span class="railnav__glyph" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 17v2h6v-2zM3 5v2h10V5zm10 16v-2h8v-2h-8v-2h-2v6zM7 9v2H3v2h4v2h2V9zm14 4v-2H11v2zm-6-4h2V7h4V5h-4V3h-2z" /></svg></span>
+        <span class="railnav__label">{{nav.api}}</span>
+      </a>
+
+      <span class="railnav__rule" aria-hidden="true"></span>
+
+      <a href="https://github.com/pasquelin/panels" class="railnav__dot" target="_blank" rel="noopener">
+        <span class="railnav__glyph" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2A10 10 0 0 0 8.84 21.5c.5.08.66-.23.66-.5v-1.7C6.73 19.91 6.14 18 6.14 18a2.7 2.7 0 0 0-1.13-1.49c-.92-.63.07-.62.07-.62a2.14 2.14 0 0 1 1.56 1.05 2.17 2.17 0 0 0 2.96.85 2.16 2.16 0 0 1 .64-1.36c-2.22-.25-4.56-1.11-4.56-4.95a3.87 3.87 0 0 1 1.03-2.69 3.6 3.6 0 0 1 .1-2.65s.85-.27 2.79 1.03a9.6 9.6 0 0 1 5.08 0c1.94-1.3 2.79-1.03 2.79-1.03a3.6 3.6 0 0 1 .1 2.65 3.87 3.87 0 0 1 1.03 2.69c0 3.85-2.34 4.7-4.57 4.95a2.43 2.43 0 0 1 .69 1.88v2.79c0 .27.16.59.67.5A10 10 0 0 0 12 2" /></svg></span>
+        <span class="railnav__label">{{foot.source}}</span>
+      </a>
+      <a href="https://www.npmjs.com/package/@pasquelin/panels" class="railnav__dot" target="_blank" rel="noopener">
+        <span class="railnav__glyph" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path fill="currentColor" d="M2 10.5h20v5.5h-10v-1.1h-2.2v1.1H2zm1.1 4.4h2.2v-3.3h1.1v3.3h1.1v-4.4H3.1zm5.5-4.4v5.5h2.2v-1.1h2.2v-4.4zm2.2 1.1h1.1v2.2h-1.1zm3.3-1.1v4.4h2.2v-3.3h1.1v3.3h1.1v-3.3h1.1v3.3h1.1v-4.4z" /></svg></span>
+        <span class="railnav__label">npm</span>
+      </a>
+
+      {{langSwitch}}
+    </nav>
+
+    <main class="page">
+      <header class="hero" id="top">
+        <p class="hero__eyebrow">{{hero.eyebrow}}</p>
+        <h1 class="hero__title">
+          {{hero.titleBefore}}<br />
+          <em>{{hero.titleAccent}}</em> {{hero.titleAfter}}
+        </h1>
+        <p class="hero__lead">{{hero.lead}}</p>
+
+        <div class="hero__actions">
+          <button type="button" class="install" data-copy="pnpm add @pasquelin/panels">
+            <code>pnpm add @pasquelin/panels</code>
+            <span class="install__state" data-copy-idle="{{hero.copy}}" data-copy-done="{{hero.copied}}"
+              >{{hero.copy}}</span
+            >
+          </button>
+          <a class="link" href="#examples">{{hero.seeExamples}}</a>
+        </div>
+
+        <!--
+          Le chassis en train de tourner, pas une capture : c'est la thèse de la page. Il est
+          servi comme démo à part (`examples/hero/`) et embarqué ici, parce que cette page-ci
+          est du HTML rendu au build — la faire vivre l'aurait obligée à redevenir une
+          application React. `loading="lazy"` garde le bundle hors du premier rendu.
+        -->
+        <figure class="stage">
+          <div class="stage__frame">
+            <iframe
+              src="{{root}}examples/hero/index.html?lang={{lang}}"
+              title="{{hero.frameTitle}}"
+              loading="lazy"
+            ></iframe>
+          </div>
+          <figcaption class="stage__caption">{{hero.caption}}</figcaption>
+        </figure>
+      </header>
+
+      <section class="section" id="examples">
+        <h2 class="section__title">{{examples.title}}</h2>
+        <p class="section__lead">{{examples.lead}}</p>
+
+        <div class="cards">
+        <article class="card">
+          <header class="card__head">
+            <h3 class="card__title">{{cards.title0}}</h3>
+            <p class="card__what">{{cards.what0}}</p>
+          </header>
+
+          <figure class="code">
+            <pre class="code__pre"><code><span class="k">import</span> { Panels, Panel } <span class="k">from</span> <span class="s">'@pasquelin/panels'</span>
+<span class="k">import</span> <span class="s">'@pasquelin/panels/styles.css'</span>
+
+&lt;<span class="t">Panels</span>&lt;<span class="t">PanelId</span>&gt;&gt;
+  &lt;<span class="t">Panel</span>&lt;<span class="t">PanelId</span>&gt; id=<span class="s">"files"</span> zone=<span class="s">"left"</span> title=<span class="s">"Files"</span>&gt;
+    &lt;<span class="t">FileTree</span> /&gt;
+  &lt;/<span class="t">Panel</span>&gt;
+
+  &lt;<span class="t">Panel</span>&lt;<span class="t">PanelId</span>&gt; id=<span class="s">"notes"</span> zone=<span class="s">"right"</span> opens={380}&gt;
+    &lt;<span class="t">Notes</span> /&gt;
+  &lt;/<span class="t">Panel</span>&gt;
+
+  &lt;<span class="t">Panels.Center</span>&gt;
+    &lt;<span class="t">YourApp</span> /&gt;
+  &lt;/<span class="t">Panels.Center</span>&gt;
+&lt;/<span class="t">Panels</span>&gt;</code></pre>
+          </figure>
+
+          <p class="card__tip"><strong>{{examples.tip}}</strong> {{cards.tip0}}</p>
+
+          <!-- La langue voyage avec le lien : un exemple s'ouvre dans celle que le lecteur a choisie. -->
+          <a class="card__open" href="{{root}}examples/minimal/index.html?lang={{lang}}"
+            >{{examples.open0}} <span aria-hidden="true">→</span></a
+          >
+        </article>
+
+        <article class="card">
+          <header class="card__head">
+            <h3 class="card__title">{{cards.title1}}</h3>
+            <p class="card__what">{{cards.what1}}</p>
+          </header>
+
+          <figure class="code">
+            <pre class="code__pre"><code><span class="k">function</span> Layout() {
+  <span class="k">return</span> (
+    &lt;<span class="t">Panels</span>&lt;<span class="t">PanelId</span>&gt;&gt;
+      &lt;<span class="t">Panel</span>&lt;<span class="t">PanelId</span>&gt; id=<span class="s">"sites"</span> zone=<span class="s">"left"</span> title=<span class="s">"Sites"</span>&gt;
+        &lt;<span class="t">SiteList</span> /&gt;
+      &lt;/<span class="t">Panel</span>&gt;
+
+      &lt;<span class="t">Panels.Center</span>&gt;
+        &lt;<span class="t">Outlet</span> /&gt;
+      &lt;/<span class="t">Panels.Center</span>&gt;
+    &lt;/<span class="t">Panels</span>&gt;
+  )
+}</code></pre>
+          </figure>
+
+          <p class="card__tip"><strong>{{examples.tip}}</strong> {{cards.tip1}}</p>
+
+          <!-- La langue voyage avec le lien : un exemple s'ouvre dans celle que le lecteur a choisie. -->
+          <a class="card__open" href="{{root}}examples/router/index.html?lang={{lang}}"
+            >{{examples.open1}} <span aria-hidden="true">→</span></a
+          >
+        </article>
+
+        <article class="card">
+          <header class="card__head">
+            <h3 class="card__title">{{cards.title2}}</h3>
+            <p class="card__what">{{cards.what2}}</p>
+          </header>
+
+          <figure class="code">
+            <pre class="code__pre"><code><span class="k">import</span> { DockviewCenter } <span class="k">from</span> <span class="s">'@pasquelin/panels/dockview'</span>
+
+&lt;<span class="t">Panels.Center</span>&gt;
+  &lt;<span class="t">DockviewCenter</span>
+    documents={{ editor: Editor }}
+    empty={NothingOpen}
+    onReady={setApi}
+  /&gt;
+&lt;/<span class="t">Panels.Center</span>&gt;</code></pre>
+          </figure>
+
+          <p class="card__tip"><strong>{{examples.tip}}</strong> {{cards.tip2}}</p>
+
+          <!-- La langue voyage avec le lien : un exemple s'ouvre dans celle que le lecteur a choisie. -->
+          <a class="card__open" href="{{root}}examples/dockview/index.html?lang={{lang}}"
+            >{{examples.open2}} <span aria-hidden="true">→</span></a
+          >
+        </article>
+
+        <article class="card">
+          <header class="card__head">
+            <h3 class="card__title">{{cards.title3}}</h3>
+            <p class="card__what">{{cards.what3}}</p>
+          </header>
+
+          <figure class="code">
+            <pre class="code__pre"><code>.pnl-root {
+  <span class="t">--pnl-chassis</span>: #2e2b26;
+  <span class="t">--pnl-panel</span>: #1b1916;
+  <span class="t">--pnl-accent</span>: #d99a2b;
+  <span class="t">--pnl-radius</span>: 12px;
+  <span class="t">--pnl-rail</span>: 60px;
+}</code></pre>
+          </figure>
+
+          <p class="card__tip"><strong>{{examples.tip}}</strong> {{cards.tip3}}</p>
+
+          <!-- La langue voyage avec le lien : un exemple s'ouvre dans celle que le lecteur a choisie. -->
+          <a class="card__open" href="{{root}}examples/theme/index.html?lang={{lang}}"
+            >{{examples.open3}} <span aria-hidden="true">→</span></a
+          >
+        </article>
+        </div>
+      </section>
+
+      <section class="section" id="api">
+        <h2 class="section__title">{{api.title}}</h2>
+        <p class="section__lead">{{api.lead}}</p>
+
+        <dl class="api">
+          <div class="api__row">
+            <dt class="api__name">{{api5.name0}}</dt>
+            <dd class="api__body">
+              <p>{{api5.body0}}</p>
+              <figure class="code">
+            <pre class="code__pre"><code>&lt;<span class="t">Panel</span> id=<span class="s">"files"</span> zone=<span class="s">"left"</span> title=<span class="s">"Files"</span> icon={&lt;<span class="t">Icon</span> /&gt;}&gt;
+  &lt;<span class="t">FileTree</span> /&gt;
+&lt;/<span class="t">Panel</span>&gt;</code></pre>
+          </figure>
+            </dd>
+          </div>
+
+          <div class="api__row">
+            <dt class="api__name">{{api5.name1}}</dt>
+            <dd class="api__body">
+              <p>{{api5.body1}}</p>
+              <figure class="code">
+            <pre class="code__pre"><code><span class="k">const</span> { reveal, close, toggle, isShown } = usePanels&lt;<span class="t">PanelId</span>&gt;()</code></pre>
+          </figure>
+            </dd>
+          </div>
+
+          <div class="api__row">
+            <dt class="api__name">{{api5.name2}}</dt>
+            <dd class="api__body">
+              <p>{{api5.body2}}</p>
+              <figure class="code">
+            <pre class="code__pre"><code><span class="k">const</span> store = createPanelsStore&lt;<span class="t">PanelId</span>&gt;()
+socket.on(<span class="s">'alert'</span>, () =&gt; store.getState().show(<span class="s">'alerts'</span>))</code></pre>
+          </figure>
+            </dd>
+          </div>
+
+          <div class="api__row">
+            <dt class="api__name">{{api5.name3}}</dt>
+            <dd class="api__body">
+              <p>{{api5.body3}}</p>
+              <figure class="code">
+            <pre class="code__pre"><code>.pnl-root {
+  <span class="t">--pnl-panel</span>: #101418;
+  <span class="t">--pnl-accent</span>: #47965c;
+  <span class="t">--pnl-radius</span>: 10px;
+}</code></pre>
+          </figure>
+            </dd>
+          </div>
+
+          <div class="api__row">
+            <dt class="api__name">{{api5.name4}}</dt>
+            <dd class="api__body">
+              <p>{{api5.body4}}</p>
+              <figure class="code">
+            <pre class="code__pre"><code><span class="k">const</span> zone = useZone(<span class="s">'left'</span>)
+useContainerFit(ref)</code></pre>
+          </figure>
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <footer class="foot">
+        <div class="foot__links">
+          <!-- Les deux langues, toujours offertes, celle du lecteur d'abord : une page qui ne
+               lie que la documentation qu'elle a devinée cache l'autre moitié. -->
+          <a class="link" href="https://github.com/pasquelin/panels/blob/main/docs/fr/README.md" hreflang="fr"
+            >{{foot.docs}} <span aria-hidden="true">🇫🇷</span></a
+          >
+          <a class="link" href="https://github.com/pasquelin/panels/blob/main/docs/en/README.md" hreflang="en"
+            >{{foot.docs}} <span aria-hidden="true">🇬🇧</span></a
+          >
+          <a class="link" href="https://github.com/pasquelin/panels/blob/main/docs/ARCHITECTURE.md"
+            >{{foot.architecture}}</a
+          >
+          <a class="link" href="https://github.com/pasquelin/panels">{{foot.source}}</a>
+          <a class="link" href="https://www.npmjs.com/package/@pasquelin/panels">npm</a>
+          <a class="link" href="https://github.com/pasquelin/panels/blob/main/CHANGELOG.md"
+            >{{foot.changelog}}</a
+          >
+          <a class="link" href="https://github.com/pasquelin/panels/blob/main/LICENSE">{{foot.licence}}</a>
+        </div>
+        <p class="foot__note">{{foot.note}}</p>
+      </footer>
+    </main>
+
+    <script src="{{root}}hud.js" type="module"></script>
+  </body>
+</html>

@@ -58,6 +58,25 @@ export const LANG_NAMES: Record<Lang, string> = {
   it: 'Italiano',
 }
 
+/** Two letters for the button, where the full name would not fit. */
+export const LANG_SHORT: Record<Lang, string> = {
+  en: 'EN',
+  zh: 'ZH',
+  hi: 'HI',
+  es: 'ES',
+  ar: 'AR',
+  pt: 'PT',
+  fr: 'FR',
+  ru: 'RU',
+  id: 'ID',
+  de: 'DE',
+  ja: 'JA',
+  tr: 'TR',
+  ko: 'KO',
+  vi: 'VI',
+  it: 'IT',
+}
+
 /** The tag that goes in `<html lang>` and in `hreflang`. */
 export const LANG_TAGS: Record<Lang, string> = {
   en: 'en',

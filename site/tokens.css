@@ -1,0 +1,35 @@
+/*
+ * La palette, la typographie et les mesures — la seule chose que la vitrine et le chassis
+ * vivant ont en commun.
+ *
+ * Un seul fichier, lu des deux côtés : le site le lie depuis `site/template.html`, la démo
+ * l'importe depuis `examples/src/demo.css`. Recopié, il aurait dérivé à la première
+ * retouche de couleur, et l'iframe aurait alors juré avec la page qui l'encadre.
+ */
+
+:root {
+  --chassis: #2e2b26;
+  --panel: #1b1916;
+  --sunk: #141210;
+  --raised: #3b362e;
+  --line: #3a352d;
+  --ink: #ece6da;
+  --muted: #9d9484;
+  --brass: #d99a2b;
+  --brass-ink: #211c12;
+
+  --rail: 68px;
+  --measure: 74ch;
+
+  --display: 'Space Grotesk', system-ui, sans-serif;
+  --body: 'IBM Plex Sans', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}

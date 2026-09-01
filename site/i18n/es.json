@@ -1,0 +1,97 @@
+{
+  "meta": {
+    "lang": "es",
+    "name": "Español",
+    "short": "ES",
+    "flag": "🇪🇸",
+    "docs": "en",
+    "ogLocale": "es_ES"
+  },
+  "head": {
+    "title": "@pasquelin/panels — El chasis bajo tu herramienta",
+    "description": "Raíles de iconos en los bordes, zonas redimensionables alrededor de un centro que es tuyo, y una disposición que sobrevive a una recarga. Sin renderizado por debajo, repintable por encima.",
+    "ogDescription": "En vivo. Arrastra las separaciones entre superficies, pulsa un icono del raíl, cambia el tamaño de la ventana."
+  },
+  "nav": {
+    "overview": "Resumen",
+    "examples": "Ejemplos",
+    "api": "API",
+    "languageLabel": "Idioma"
+  },
+  "hero": {
+    "eyebrow": "React 19 · 8 kB comprimido · sin dependencias",
+    "titleBefore": "El chasis",
+    "titleAccent": "bajo",
+    "titleAfter": "tu herramienta.",
+    "lead": "Raíles de iconos en los bordes, zonas redimensionables alrededor de un centro que es tuyo, y una disposición que sobrevive a una recarga. Sin renderizado por debajo, repintable por encima.",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "seeExamples": "Ver los ejemplos",
+    "caption": "En vivo. Arrastra las separaciones entre superficies, pulsa un icono del raíl, cambia el tamaño de la ventana.",
+    "frameTitle": "En vivo. Arrastra las separaciones entre superficies, pulsa un icono del raíl, cambia el tamaño de la ventana."
+  },
+  "demo": {
+    "centre": "Tu centro",
+    "centreHint": "una ruta · un lienzo · un mapa · pestañas de documentos",
+    "panels": {
+      "files": "Archivos",
+      "search": "Buscar",
+      "outline": "Esquema",
+      "notes": "Notas",
+      "console": "Consola"
+    },
+    "said": {
+      "share": "Dos paneles comparten esta mitad. El raíl alterna entre ellos.",
+      "second": "La segunda mitad de la misma columna, con su propio tirador.",
+      "opens": "Este pide abrirse más ancho que su propia columna.",
+      "band": "La banda corre bajo la columna que esté abierta."
+    }
+  },
+  "examples": {
+    "title": "Cuatro formas de empezar",
+    "lead": "Cada uno se ejecuta en tu navegador y su código completo está a la vista. Empieza por el más cercano.",
+    "tip": "Consejo.",
+    "open0": "Abrir Mínimo",
+    "open1": "Abrir React Router",
+    "open2": "Abrir Pestañas de documentos",
+    "open3": "Abrir Repintado"
+  },
+  "api": {
+    "title": "Toda la superficie",
+    "lead": "No hay mucha, y esa es la idea. Cinco cosas que saber."
+  },
+  "foot": {
+    "docs": "Documentación",
+    "architecture": "Arquitectura",
+    "source": "Código",
+    "note": "MIT · por alban.pasquelin · el chasis de esta página es la propia biblioteca",
+    "changelog": "Cambios",
+    "licence": "Licencia"
+  },
+  "cards": {
+    "title0": "Mínimo",
+    "what0": "El chasis más pequeño que funciona. Dos columnas, una banda, un centro — y una cabecera tuya que lo gobierna.",
+    "tip0": "Los paneles que comparten zona y mitad se turnan; el raíl alterna entre ellos. Dale a uno la mitad secundaria para apilarlo bajo el primero.",
+    "title1": "React Router",
+    "what1": "El centro es una salida de ruta. Navegar cambia el medio y nada más: las columnas mantienen su ancho y los paneles abiertos siguen abiertos.",
+    "tip1": "Declara los paneles en la ruta de layout, por encima de la salida. Declarados por página, se desmontarían en cada navegación y perderían lo que contenían.",
+    "title2": "Pestañas de documentos",
+    "what2": "El centro lleva documentos sobre Dockview — pestañas que se arrastran y se dividen — mientras los paneles permanecen en los bordes.",
+    "tip2": "Impórtalo desde el punto de entrada dockview: así su peso solo recae en los proyectos que quieren pestañas. Un panel nunca entra en el centro: un documento tiene nombre, un panel tiene icono.",
+    "title3": "Repintado",
+    "what3": "El mismo chasis bajo cuatro paletas. Colores, radio, ancho del raíl, altura de cabecera — todo son propiedades personalizadas.",
+    "tip3": "Define el token de acento en cualquier ancestro y el chasis heredará tu marca en lugar de imponer la suya. ¿Necesitas ir más lejos? Cada pieza está exportada y se puede sustituir por separado."
+  },
+  "api5": {
+    "name0": "Declarar",
+    "body0": "Un panel es un descriptor: dónde se cuelga, cómo se llama y qué dibuja.",
+    "name1": "Gobernar",
+    "body1": "Un único hook para cualquier cabecera, atajo o menú que deba actuar sobre los paneles.",
+    "name2": "Gobernar fuera de React",
+    "body2": "Crea tú el store y un socket, un menú nativo o un worker podrán abrir un panel.",
+    "name3": "Repintar",
+    "body3": "Cada valor es una propiedad personalizada. Define el acento y los raíles seguirán tu marca.",
+    "name4": "O quedarte solo con la lógica",
+    "body4": "Los componentes se apoyan en hooks que no dibujan nada. Dibuja tu propio marco sobre ellos."
+  }
+}

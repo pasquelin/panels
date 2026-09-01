@@ -1,0 +1,110 @@
+/*
+ * Ce que le chassis vivant dessine à l'intérieur de son cadre — et rien de la page qui
+ * l'entoure. La vitrine est servie à part, en HTML statique : ces règles suivent la démo
+ * dans son iframe, où elles sont les seules à s'appliquer.
+ */
+
+/* La palette de la vitrine, pour que le cadre et son contenu ne jurent pas. */
+@import '../../site/tokens.css';
+
+.demo-bar {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  padding: 9px 14px;
+}
+
+.demo-bar__chip {
+  border: none;
+  border-radius: 4px;
+  padding: 4px 10px;
+  background: transparent;
+  color: var(--pnl-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+}
+
+.demo-bar__chip--on {
+  background: var(--pnl-elevated);
+  color: var(--pnl-text);
+}
+
+.demo-centre {
+  display: grid;
+  place-content: center;
+  height: 100%;
+  text-align: center;
+  gap: 6px;
+}
+
+.demo-centre p {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 19px;
+  color: var(--pnl-text);
+}
+
+.demo-centre span {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--pnl-muted);
+}
+
+/* The furniture inside the hero's panels, borrowed from the examples' own sheet. */
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 0;
+}
+
+.row {
+  padding: 5px 14px;
+  color: var(--pnl-muted);
+}
+
+.note {
+  margin: 0;
+  padding: 14px;
+  color: var(--pnl-muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.note code {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--pnl-text);
+}
+
+/*
+ * The demo chassis, wearing the page's palette.
+ *
+ * Nothing is overridden here beyond the tokens the library publishes — which is the claim the
+ * page makes two sections further down, made good on in the hero.
+ */
+
+.pnl-root {
+  --pnl-chassis: var(--panel);
+  --pnl-panel: var(--sunk);
+  --pnl-elevated: var(--raised);
+  --pnl-border: var(--line);
+  --pnl-text: var(--ink);
+  --pnl-muted: var(--muted);
+  --pnl-accent: var(--brass);
+  --pnl-accent-text: var(--brass-ink);
+}
+
+/* La démo est servie seule dans son cadre : elle occupe tout ce qu'on lui donne. */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--body);
+  background: var(--panel);
+}

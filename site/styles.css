@@ -1,4 +1,12 @@
 /*
+ * La vitrine, en HTML statique servi tel quel.
+ *
+ * Ce qui habille le chassis lui-même vit dans `examples/src/demo.css` : il tourne dans son
+ * iframe et n'a rien à voir avec la page qui l'encadre. La palette commune aux deux est
+ * dans `tokens.css`.
+ */
+
+/*
  * The showcase.
  *
  * Its palette is the library's own inversion, kept honest: the page is the CHASSIS colour and
@@ -6,33 +14,6 @@
  * accent is brass rather than the library's default blue — the page is itself a demonstration
  * that the accent comes from the host.
  */
-
-:root {
-  --chassis: #2e2b26;
-  --panel: #1b1916;
-  --sunk: #141210;
-  --raised: #3b362e;
-  --line: #3a352d;
-  --ink: #ece6da;
-  --muted: #9d9484;
-  --brass: #d99a2b;
-  --brass-ink: #211c12;
-
-  --rail: 68px;
-  --measure: 74ch;
-
-  --display: 'Space Grotesk', system-ui, sans-serif;
-  --body: 'IBM Plex Sans', system-ui, sans-serif;
-  --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
-
-  color-scheme: dark;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
 
 html {
   scroll-behavior: smooth;
@@ -150,6 +131,7 @@ a {
 }
 
 /* The label rides out of the rail on hover — the rail stays a rail. */
+
 .railnav__label {
   position: absolute;
   left: calc(100% + 8px);
@@ -295,54 +277,21 @@ a {
   box-shadow: 0 24px 60px rgb(0 0 0 / 0.4);
 }
 
+/* 🛑 Sans ces deux lignes, le chassis se dessinait dans un rectangle de 300 × 150 px,
+   coincé en haut à gauche du cadre : c'est la taille par défaut d'une `<iframe>`, qui
+   ne s'étire pas toute seule vers son parent. La démo vivait dans le flux de la page
+   tant qu'elle était un composant React — elle n'avait alors aucune boîte à remplir. */
+.stage__frame iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
 .stage__caption {
   margin-top: 12px;
   font-size: 12.5px;
   color: var(--muted);
-}
-
-.demo-bar {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-  padding: 9px 14px;
-}
-
-.demo-bar__chip {
-  border: none;
-  border-radius: 4px;
-  padding: 4px 10px;
-  background: transparent;
-  color: var(--pnl-muted);
-  cursor: pointer;
-  font: inherit;
-  font-size: 12px;
-}
-
-.demo-bar__chip--on {
-  background: var(--pnl-elevated);
-  color: var(--pnl-text);
-}
-
-.demo-centre {
-  display: grid;
-  place-content: center;
-  height: 100%;
-  text-align: center;
-  gap: 6px;
-}
-
-.demo-centre p {
-  margin: 0;
-  font-family: var(--display);
-  font-size: 19px;
-  color: var(--pnl-text);
-}
-
-.demo-centre span {
-  font-family: var(--mono);
-  font-size: 11.5px;
-  color: var(--pnl-muted);
 }
 
 /* ---------- sections ---------- */
@@ -545,56 +494,7 @@ a {
   font-size: 12.5px;
 }
 
-/* The furniture inside the hero's panels, borrowed from the examples' own sheet. */
-.rows {
-  display: flex;
-  flex-direction: column;
-  padding: 6px 0;
-}
-
-.row {
-  padding: 5px 14px;
-  color: var(--pnl-muted);
-}
-
-.note {
-  margin: 0;
-  padding: 14px;
-  color: var(--pnl-muted);
-  font-size: 13px;
-  line-height: 1.55;
-}
-
-.note code {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--pnl-text);
-}
-
-/*
- * The demo chassis, wearing the page's palette.
- *
- * Nothing is overridden here beyond the tokens the library publishes — which is the claim the
- * page makes two sections further down, made good on in the hero.
- */
-.stage__frame .pnl-root {
-  --pnl-chassis: var(--panel);
-  --pnl-panel: var(--sunk);
-  --pnl-elevated: var(--raised);
-  --pnl-border: var(--line);
-  --pnl-text: var(--ink);
-  --pnl-muted: var(--muted);
-  --pnl-accent: var(--brass);
-  --pnl-accent-text: var(--brass-ink);
-}
-
 /* The language pair, at the foot of the rail: a preference, not a step in the reading. */
-.railnav__langs {
-  display: flex;
-  margin-top: auto;
-  margin-bottom: 20px;
-  padding-inline: 6px;
-}
 
 .railnav__lang {
   border: none;
@@ -618,29 +518,116 @@ a {
 }
 
 @media (max-width: 900px) {
-  .railnav__langs {
-    flex-direction: row;
+  /* The rail is a horizontal bar there: the switch sits at its end and opens downward. */
+  .langs {
     margin: 0 0 0 auto;
+  }
+  .langs__menu {
+    top: calc(100% + 8px);
+    bottom: auto;
+    inset-inline-start: auto;
+    inset-inline-end: 0;
   }
 }
 
-/* A native select rather than fifteen buttons: a column of two-letter codes is a puzzle, and
-   every platform already knows how to open this one. */
-.railnav__select {
-  max-width: 100%;
+/*
+ * The language switch, at the foot of the rail.
+ *
+ * The button carries the code — all that fits in 68 px — and the menu opens BESIDE the rail,
+ * where there is room for the native names. Same shape as map3D's, which had already solved it.
+ */
+
+.langs {
+  position: relative;
+  margin-top: auto;
+  margin-bottom: 18px;
+}
+
+.langs__current {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 7px;
   border: 1px solid var(--line);
   border-radius: 5px;
-  padding: 4px 6px;
   background: var(--sunk);
   color: var(--muted);
-  font-family: var(--body);
+  font-family: var(--mono);
   font-size: 11px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.langs__current::-webkit-details-marker {
+  display: none;
+}
+
+.langs__current::after {
+  content: '▾';
+  font-size: 9px;
+}
+
+.langs__current:hover,
+details[open] > .langs__current {
+  color: var(--ink);
+  border-color: var(--brass);
+}
+
+/* Beside the rail and anchored to its foot: opening upward keeps the list on screen when the
+   button is already at the bottom of the viewport. */
+
+.langs__menu {
+  position: absolute;
+  bottom: 0;
+  inset-inline-start: calc(100% + 8px);
+  z-index: 12;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  max-height: 70vh;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--sunk);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.45);
+}
+
+.langs__item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+  width: 100%;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  text-align: start;
+  white-space: nowrap;
   cursor: pointer;
 }
 
-.railnav__select:hover {
+.langs__item:hover {
+  background: var(--raised);
   color: var(--ink);
-  border-color: var(--brass);
+}
+
+.langs__item[aria-current='true'] {
+  color: var(--brass);
+}
+
+.langs__item b {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 400;
+  opacity: 0.55;
+}
+
+.langs__item i {
+  font-style: normal;
 }
 
 .sr-only {
@@ -656,6 +643,7 @@ a {
 
 /* Right-to-left. The stylesheet uses logical properties throughout, so the only things left to
    turn are the two places that name a physical side. */
+
 [dir='rtl'] .railnav {
   right: 0;
   left: auto;
@@ -681,6 +669,7 @@ a {
 }
 
 /* Code is read left to right whatever the page around it does. */
+
 [dir='rtl'] .code,
 [dir='rtl'] .install code {
   direction: ltr;
@@ -693,5 +682,38 @@ a {
   }
   [dir='rtl'] .railnav {
     border-left: none;
+  }
+}
+
+/* Le pavillon du sélecteur de langue. Taille fixée en `em` pour qu'il suive le texte, et
+   `line-height: 1` parce que les emoji drapeaux ont une hauteur de ligne propre qui
+   décalait la ligne de base des noms à côté d'eux. */
+.langs__flag {
+  flex: none;
+  font-size: 1.05em;
+  line-height: 1;
+}
+
+/* Avec le pavillon la ligne porte trois éléments, et `space-between` les aurait écartés
+   un à un — drapeau à gauche, nom au milieu, code à droite. Le nom prend l'espace qui
+   reste : le drapeau lui reste collé, le code à deux lettres tient la droite. */
+.langs__item i {
+  flex: 1;
+}
+
+/* Le filet qui sépare les sections de la page des liens qui en sortent : au-dessus on
+   navigue dans la page, en dessous on la quitte. */
+.railnav__rule {
+  width: 20px;
+  height: 1px;
+  margin: 6px 0;
+  background: var(--line);
+}
+
+@media (max-width: 900px) {
+  .railnav__rule {
+    width: 1px;
+    height: 20px;
+    margin: 0 6px;
   }
 }

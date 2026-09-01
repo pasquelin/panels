@@ -2,4 +2,6 @@ node_modules/
 dist/
 *.tsbuildinfo
 .DS_Store
-dist-site/
+# Vitrine bâtie (site/build.mjs) — jamais versionnée, rebâtie à chaque publication.
+_site/
+examples/dist/

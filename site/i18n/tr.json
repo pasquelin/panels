@@ -1,0 +1,97 @@
+{
+  "meta": {
+    "lang": "tr",
+    "name": "Türkçe",
+    "short": "TR",
+    "flag": "🇹🇷",
+    "docs": "en",
+    "ogLocale": "tr_TR"
+  },
+  "head": {
+    "title": "@pasquelin/panels — Aracınızın altındaki iskelet",
+    "description": "Kenarlarda simge rayları, tamamen size ait bir merkezin çevresinde yeniden boyutlandırılabilir bölgeler ve sayfa yenilense de kaybolmayan bir yerleşim. Altta görselleştirme yok, üstte istediğiniz gibi boyanabilir.",
+    "ogDescription": "Canlı çalışıyor. Yüzeyler arasındaki boşlukları sürükleyin, raydaki bir simgeye tıklayın ya da pencereyi yeniden boyutlandırın."
+  },
+  "nav": {
+    "overview": "Genel bakış",
+    "examples": "Örnekler",
+    "api": "API",
+    "languageLabel": "Dil"
+  },
+  "hero": {
+    "eyebrow": "React 19 · gzip ile 8 kB · bağımlılık yok",
+    "titleBefore": "Aracınızın",
+    "titleAccent": "altındaki",
+    "titleAfter": "iskelet.",
+    "lead": "Kenarlarda simge rayları, tamamen size ait bir merkezin çevresinde yeniden boyutlandırılabilir bölgeler ve sayfa yenilense de kaybolmayan bir yerleşim. Altta görselleştirme yok, üstte istediğiniz gibi boyanabilir.",
+    "copy": "Kopyala",
+    "copied": "Kopyalandı",
+    "seeExamples": "Örnekleri gör",
+    "caption": "Canlı çalışıyor. Yüzeyler arasındaki boşlukları sürükleyin, raydaki bir simgeye tıklayın ya da pencereyi yeniden boyutlandırın.",
+    "frameTitle": "Canlı çalışıyor. Yüzeyler arasındaki boşlukları sürükleyin, raydaki bir simgeye tıklayın ya da pencereyi yeniden boyutlandırın."
+  },
+  "demo": {
+    "centre": "Sizin merkeziniz",
+    "centreHint": "yönlendirici çıkışı · tuval · harita · belge sekmeleri",
+    "panels": {
+      "files": "Dosyalar",
+      "search": "Ara",
+      "outline": "Ana hat",
+      "notes": "Notlar",
+      "console": "Konsol"
+    },
+    "said": {
+      "share": "İki panel bu yarıyı paylaşır. Ray aralarında geçiş yapar.",
+      "second": "Aynı sütunun ikinci yarısı, kendi tutamacıyla birlikte.",
+      "opens": "Bu panel kendi sütunundan daha geniş açılmayı ister.",
+      "band": "Alt şerit, açık olan sütunun altından geçer."
+    }
+  },
+  "examples": {
+    "title": "Başlamanın dört yolu",
+    "lead": "Her biri tarayıcınızda çalışır ve tüm kaynak kodu ekranda durur. Size en yakın olandan başlayın.",
+    "tip": "İpucu.",
+    "open0": "En küçük örneğini aç",
+    "open1": "React Router örneğini aç",
+    "open2": "Belge sekmeleri örneğini aç",
+    "open3": "Yeniden boyanmış örneğini aç"
+  },
+  "api": {
+    "title": "Tüm yüzey",
+    "lead": "Çok fazla değil, mesele de bu zaten. Bilinmesi gereken beş şey."
+  },
+  "foot": {
+    "docs": "Belgeler",
+    "architecture": "Mimari",
+    "source": "Kaynak",
+    "note": "MIT · alban.pasquelin tarafından · bu sayfadaki iskelet kütüphanenin kendisidir",
+    "changelog": "Değişiklikler",
+    "licence": "Lisans"
+  },
+  "cards": {
+    "title0": "En küçük",
+    "what0": "Gerçekten çalışan en küçük iskelet. İki sütun, bir alt şerit, bir merkez — ve onu yöneten kendi başlığınız.",
+    "tip0": "Aynı bölgeyi ve aynı yarıyı paylaşan paneller sırayla görünür; ray aralarında geçiş yapar. İkincisine secondary yarıyı verirseniz ilkinin altına yerleşir.",
+    "title1": "React Router",
+    "what1": "Merkez bir çıkıştır. Gezinmek yalnızca ortayı değiştirir — sütunlar genişliğini korur, açık paneller açık kalır.",
+    "tip1": "Panelleri yerleşim rotasında, çıkışın üstünde tanımlayın. Sayfa başına tanımlanırsa her gezinmede sökülür ve içindekileri kaybederler.",
+    "title2": "Belge sekmeleri",
+    "what2": "Merkez, belgeleri Dockview üzerinde taşır — sürüklenebilen ve bölünebilen sekmeler — paneller ise kenarlarda kalır.",
+    "tip2": "dockview giriş noktasından içe aktarın; böylece ağırlığı yalnızca sekme isteyen projelere biner. Panel merkeze asla girmez: belgenin adı, panelin simgesi vardır.",
+    "title3": "Yeniden boyanmış",
+    "what3": "Aynı iskelet, dört ayrı palet. Renkler, köşe yarıçapı, ray genişliği, başlık yüksekliği — hepsi özel özellik.",
+    "tip3": "Vurgu değişkenini herhangi bir üst öğede tanımlayın; iskelet kendi kimliğini dayatmak yerine sizinkini benimser. Daha ileri gitmek isterseniz her parça dışa aktarılmıştır ve tek tek değiştirilebilir."
+  },
+  "api5": {
+    "name0": "Tanımlayın",
+    "body0": "Panel bir tanımlayıcıdır: nereye asıldığı, adının ne olduğu ve ne çizdiği.",
+    "name1": "Yönetin",
+    "body1": "Panellere etki etmesi gereken her başlık, kısayol ve menü için tek bir hook.",
+    "name2": "React'in dışından yönetin",
+    "body2": "Store'u kendiniz oluşturun; ardından bir soket, yerel menü ya da worker bir paneli açabilir.",
+    "name3": "Yeniden boyayın",
+    "body3": "Her değer bir özel özelliktir. Vurguyu belirleyin, raylar markanızı izlesin.",
+    "name4": "Ya da yalnızca mantığı alın",
+    "body4": "Bileşenler hiçbir şey çizmeyen hookların üzerine kuruludur. Kendi çerçevenizi onların üstüne çizin."
+  }
+}

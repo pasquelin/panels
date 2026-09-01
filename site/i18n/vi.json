@@ -1,0 +1,97 @@
+{
+  "meta": {
+    "lang": "vi",
+    "name": "Tiếng Việt",
+    "short": "VI",
+    "flag": "🇻🇳",
+    "docs": "en",
+    "ogLocale": "vi_VN"
+  },
+  "head": {
+    "title": "@pasquelin/panels — Bộ khung bên dưới công cụ của bạn",
+    "description": "Thanh biểu tượng ở hai bên, các vùng thay đổi được kích thước bao quanh một khu vực trung tâm hoàn toàn thuộc về bạn, và bố cục vẫn còn nguyên sau khi tải lại trang. Bên dưới không dựng giao diện, bên trên tha hồ sơn lại.",
+    "ogDescription": "Đang chạy thật. Hãy kéo khe giữa các mặt phẳng, bấm một biểu tượng trên thanh, hoặc đổi kích thước cửa sổ."
+  },
+  "nav": {
+    "overview": "Tổng quan",
+    "examples": "Ví dụ",
+    "api": "API",
+    "languageLabel": "Ngôn ngữ"
+  },
+  "hero": {
+    "eyebrow": "React 19 · 8 kB sau nén · không phụ thuộc",
+    "titleBefore": "Bộ khung",
+    "titleAccent": "bên dưới",
+    "titleAfter": "công cụ của bạn.",
+    "lead": "Thanh biểu tượng ở hai bên, các vùng thay đổi được kích thước bao quanh một khu vực trung tâm hoàn toàn thuộc về bạn, và bố cục vẫn còn nguyên sau khi tải lại trang. Bên dưới không dựng giao diện, bên trên tha hồ sơn lại.",
+    "copy": "Sao chép",
+    "copied": "Đã sao chép",
+    "seeExamples": "Xem các ví dụ",
+    "caption": "Đang chạy thật. Hãy kéo khe giữa các mặt phẳng, bấm một biểu tượng trên thanh, hoặc đổi kích thước cửa sổ.",
+    "frameTitle": "Đang chạy thật. Hãy kéo khe giữa các mặt phẳng, bấm một biểu tượng trên thanh, hoặc đổi kích thước cửa sổ."
+  },
+  "demo": {
+    "centre": "Trung tâm của bạn",
+    "centreHint": "outlet của router · canvas · bản đồ · thẻ tài liệu",
+    "panels": {
+      "files": "Tệp",
+      "search": "Tìm kiếm",
+      "outline": "Dàn ý",
+      "notes": "Ghi chú",
+      "console": "Bảng điều khiển"
+    },
+    "said": {
+      "share": "Hai bảng cùng chia nửa này. Thanh bên chuyển qua lại giữa chúng.",
+      "second": "Nửa còn lại của cùng một cột, với tay kéo riêng của nó.",
+      "opens": "Bảng này yêu cầu mở rộng hơn cả cột chứa nó.",
+      "band": "Dải dưới chạy bên dưới cột đang mở."
+    }
+  },
+  "examples": {
+    "title": "Bốn cách bắt đầu",
+    "lead": "Mỗi ví dụ đều chạy ngay trong trình duyệt và toàn bộ mã nguồn nằm ngay trên màn hình. Hãy bắt đầu từ cái gần nhu cầu của bạn nhất.",
+    "tip": "Mẹo.",
+    "open0": "Mở Tối giản",
+    "open1": "Mở React Router",
+    "open2": "Mở Thẻ tài liệu",
+    "open3": "Mở Sơn lại"
+  },
+  "api": {
+    "title": "Toàn bộ API",
+    "lead": "Không nhiều, và đó chính là chủ đích. Chỉ có năm điều cần biết."
+  },
+  "foot": {
+    "docs": "Tài liệu",
+    "architecture": "Kiến trúc",
+    "source": "Mã nguồn",
+    "note": "MIT · thực hiện bởi alban.pasquelin · bộ khung của trang này chính là thư viện",
+    "changelog": "Nhật ký thay đổi",
+    "licence": "Giấy phép"
+  },
+  "cards": {
+    "title0": "Tối giản",
+    "what0": "Bộ khung nhỏ nhất mà vẫn chạy được. Hai cột, một dải dưới, một khu trung tâm — và phần đầu trang của riêng bạn điều khiển tất cả.",
+    "tip0": "Các bảng cùng vùng và cùng nửa sẽ hiện luân phiên; thanh bên chuyển giữa chúng. Cho bảng thứ hai nửa secondary thì nó sẽ xếp bên dưới bảng đầu tiên.",
+    "title1": "React Router",
+    "what1": "Trung tâm là một outlet. Điều hướng chỉ thay đổi phần giữa — các cột giữ nguyên bề rộng và bảng đang mở vẫn mở.",
+    "tip1": "Hãy khai báo các bảng ở route bố cục, phía trên outlet. Nếu khai báo theo từng trang, chúng sẽ bị gỡ bỏ sau mỗi lần điều hướng và mất hết những gì đang giữ.",
+    "title2": "Thẻ tài liệu",
+    "what2": "Trung tâm chứa tài liệu trên Dockview — những thẻ có thể kéo và tách — trong khi các bảng vẫn ở hai bên.",
+    "tip2": "Hãy nhập từ điểm vào dockview để dung lượng của nó chỉ đè lên những dự án thật sự cần thẻ. Bảng không bao giờ vào trung tâm: tài liệu có tên, còn bảng có biểu tượng.",
+    "title3": "Sơn lại",
+    "what3": "Cùng một bộ khung với bốn bảng màu. Màu sắc, bo góc, bề rộng thanh, chiều cao đầu bảng — tất cả đều là thuộc tính tùy biến.",
+    "tip3": "Đặt biến màu nhấn ở bất kỳ phần tử cha nào, bộ khung sẽ theo bản sắc của bạn thay vì áp đặt của nó. Muốn đi xa hơn? Mọi bộ phận đều được xuất ra và thay thế được riêng lẻ."
+  },
+  "api5": {
+    "name0": "Khai báo",
+    "body0": "Một bảng là bản mô tả: nó treo ở đâu, tên là gì, và vẽ ra cái gì.",
+    "name1": "Điều khiển",
+    "body1": "Một hook duy nhất cho mọi đầu trang, phím tắt hay trình đơn cần tác động lên các bảng.",
+    "name2": "Điều khiển từ ngoài React",
+    "body2": "Tự tạo store, rồi socket, trình đơn hệ thống hay worker đều có thể mở một bảng.",
+    "name3": "Sơn lại",
+    "body3": "Mọi giá trị đều là thuộc tính tùy biến. Đặt màu nhấn và các thanh sẽ theo bản sắc của bạn.",
+    "name4": "Hoặc chỉ lấy phần logic",
+    "body4": "Các thành phần dựng trên những hook không vẽ gì cả. Hãy vẽ khung của riêng bạn lên trên."
+  }
+}
