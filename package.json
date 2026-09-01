@@ -57,8 +57,10 @@
     "dev": "vite --config examples/vite.config.ts",
     "build:site": "vite build --config examples/vite.config.ts",
     "preview:site": "vite preview --config examples/vite.config.ts",
+    "llms": "node scripts/make-llms-full.mjs",
+    "llms:check": "node scripts/make-llms-full.mjs --check",
     "licences:check": "node scripts/check-licences.mjs",
-    "validate": "pnpm licences:check && pnpm typecheck && pnpm lint && pnpm format:check && pnpm test"
+    "validate": "pnpm llms:check && pnpm licences:check && pnpm typecheck && pnpm lint && pnpm format:check && pnpm test"
   },
   "peerDependencies": {
     "dockview-react": ">=8.0.0",

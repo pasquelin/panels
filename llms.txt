@@ -1,0 +1,150 @@
+# @pasquelin/panels
+
+> **React panel chassis** (React 19, no runtime dependencies), published to npm (ESM + CJS +
+> types). Icon rails on the edges, five resizable zones around a free centre, a layout that
+> survives a reload. **Headless underneath, repaintable on top** — the components are built on
+> hooks that render nothing, and every visual value is a CSS custom property.
+> MIT. Live: https://pasquelin.github.io/panel/
+
+## Mental model (read this first)
+
+- **It is a LAYOUT, not a framework.** It draws the frame and remembers the sizes. What goes in
+  the panels is the consuming project's business. No state management, no data layer, no icon
+  set, no i18n, no opinion about the centre.
+- **`<Panel>` and `<Center>` are DESCRIPTORS**, in the shape of `<Route>`: they return `null` and
+  are never rendered where they are written. `<Panels>` reads them out of its children with
+  `Children.toArray` and hands their content to the zone they named. They must therefore be
+  children of `<Panels>`, not of a component in between.
+- **Not portals, and deliberately so**: a portal puts panel content in a different React tree, so
+  context, error boundaries and suspense would stop at the boundary and a panel could not read a
+  provider its own file sits under.
+- **One store per chassis**, created not imported (`createPanelsStore`). No module singleton —
+  two chassis can live in one application, and a test cannot leak into the next.
+- **What is stored is not what is shown.** Stored: which panel each half holds, and the sizes.
+  Resolved at render: what a zone draws (a `solo` panel silences the other half), the size it
+  takes (bounded against the opposite zone), whether it takes room at all (the band's two halves
+  share one height).
+- **There are no "surfaces" or sections.** An earlier design carried them; they were removed. In
+  React the router changes the children — there is nothing to solve.
+- **A panel that should not be offered is a panel you do not declare.** That replaces what a
+  capability system would be for.
+
+## Install and shape
+
+```bash
+pnpm add @pasquelin/panels
+```
+
+```tsx
+import { Panels, Panel } from '@pasquelin/panels'
+import '@pasquelin/panels/styles.css'
+
+type PanelId = 'files' | 'notes'
+
+<Panels<PanelId>>
+  <Panel<PanelId> id="files" zone="left" title="Files" icon={<Icon />}>
+    <FileTree />
+  </Panel>
+  <Panel<PanelId> id="notes" zone="right" title="Notes" opens={380}>
+    <Notes />
+  </Panel>
+  <Panels.Center>
+    <YourApp />
+  </Panels.Center>
+</Panels>
+```
+
+`<Panels>` fills its parent: that parent needs a height. On a flex child, `minHeight: 0` is the
+usual missing piece.
+
+## Geometry
+
+- Zones: `left` `right` `top` `bottomLeft` `bottomRight`. **An empty zone takes no room at all.**
+- Each zone has two halves: `primary` (nearest the window edge) and `secondary`.
+- Panels sharing a zone AND a slot **take turns** — the rail switches between them. Different
+  slots show together, stacked.
+- `bottomLeft` + `bottomRight` share **one height**. Whichever is alone runs under the opposite
+  column; a side column runs to the foot unless the band's half on its side is drawing.
+- The centre stays at one place in the React tree through every arrangement — moving it would
+  unmount whatever engine or canvas it holds.
+
+## API
+
+### Components
+`Panels` `Panel` `Center` · `Rail` `RailZone` `ZoneEdge` `Band` `PanelFrame` · `Surface`
+`PanelHeader` `IconButton` `Separator` `ResizeHandle`
+
+### `<Panels>` props
+`store` `storageKey` `storage` `defaultOpen` `header` `footer` `railHeader` `labels` `theme`
+`className`
+
+### `<Panel>` props
+`id` `zone` `slot?` `title` `icon?` `actions?` `opens?` `solo?`
+
+### Hooks
+- `usePanels<Id>()` → `{ panels, reveal, close, toggle, isShown, focusedZone, reset }`
+- `useZone<Id>(zone)` → `{ primary, secondary, draws, size, split, focused }`
+- `useArrangement` `useShownIn` `useZoneDraws` `useZoneTakesRoom` `useBandHalves`
+- `useContainerFit(ref)` `usePointerDrag()` `usePanelsState(selector)` `usePanelsActions()`
+
+### Core
+`createPanelsStore` `shownIn` `specOf` `zoneDraws` `zoneTakesRoom` `undraggedSizeOf`
+`fitZoneSize` `fitSplit` `sharedSizes` `sizeKeyOf` `MIN_SIZE` `MIN_CENTER` `MIN_SPLIT`
+`DEFAULT_SIZES` · `browserStorage` `memoryStorage` `readLayout` `writeLayout` `LAYOUT_VERSION`
+· `ZONES` `SLOTS` `BOTTOM_ZONES` `ZONES_BY_SIDE` `isBottom` `isHorizontal` `isLeading` `cx`
+
+### Optional entry point
+`@pasquelin/panels/dockview` → `DockviewCenter`, for document tabs. Separate so its weight only
+lands on projects that want it. Requires `dockview-react` as a peer.
+
+## Driving it from outside React
+
+```tsx
+const store = createPanelsStore<PanelId>()
+socket.on('alert', () => store.getState().show('alerts'))
+window.electron?.onMenu(id => store.getState().show(id))
+
+<Panels<PanelId> store={store}>…</Panels>
+```
+
+## Theming
+
+Every value is a custom property on `.pnl-root`. Set them anywhere that reaches the chassis.
+
+Surfaces: `--pnl-chassis` `--pnl-panel` `--pnl-elevated` `--pnl-border` `--pnl-text` `--pnl-muted`
+Accent: `--pnl-accent` `--pnl-accent-text`
+Gauges: `--pnl-rail` `--pnl-rail-button` `--pnl-rail-inset` `--pnl-gutter` `--pnl-header`
+`--pnl-radius` `--pnl-radius-sm` `--pnl-font-size`
+
+- **Panels are DARKER than the chassis.** That inversion is the one visual idea the library is
+  built on. Invert it back by repainting two tokens.
+- Defaults sit inside `:where()`, at zero specificity, so a consumer's palette always wins
+  whatever order the stylesheets load in. A guard reads the sheet to keep it that way.
+- `<Panels theme="dark" | "light">` forces the palette; left out it follows `prefers-color-scheme`.
+
+## Traps worth knowing
+
+- `usePanels` **must be called inside `<Panels>`**. A component that renders the chassis cannot
+  also read it — put the consumer in a child, or in a panel's `actions`.
+- Subscribe with **scalar** selectors. `lengths` and `available` are replaced wholesale on every
+  write, so subscribing to either as an object re-renders on every frame of a drag.
+- `close(id)` closes THAT panel or nothing. `close(zone, slot)` on the store empties the half
+  whatever stands in it — two panels share a half.
+- `useZoneTakesRoom` ≠ `useZoneDraws`: the band's halves share a height, so either drawing means
+  the strip takes it.
+- Two chassis in one app need two `storageKey`s, or they overwrite each other.
+- The chassis measures **its container**, never the window — that is what lets it sit inside an
+  existing page.
+- Client-side only: it reads `localStorage` and measures the DOM. Under Next.js, `'use client'`.
+
+## Not in v1
+
+Floating panels, and dragging a panel from one zone to another. The state model already allows
+an override of the declared zone; the gesture is not built.
+
+## Documentation
+
+- English: docs/en/README.md · PANELS · LAYOUT · HOOKS · THEMING · COMPONENTS · DOCKVIEW · RECIPES
+- Français: docs/fr/README.md (same eight chapters)
+- Architecture: docs/ARCHITECTURE.md
+- Full text of all of it: llms-full.txt

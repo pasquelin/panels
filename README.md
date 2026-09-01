@@ -150,6 +150,10 @@ pnpm dev
 | Recipes | [RECIPES.md](docs/fr/RECIPES.md) | [RECIPES.md](docs/en/RECIPES.md) |
 | Architecture | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | — |
 
+For coding agents: [`llms.txt`](llms.txt) is the mental model, the API and the traps in one
+page; [`llms-full.txt`](llms-full.txt) is every English chapter concatenated. Both ship with the
+package, and `pnpm llms` regenerates the second from the first plus `docs/`.
+
 ## Licence
 
 **MIT** — see [LICENSE](LICENSE).
