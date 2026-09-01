@@ -138,8 +138,11 @@ function Frame<Id extends string>({
   children,
 }: FrameProps<Id>) {
   const store = usePanelsStore<Id>()
-  const box = useRef<HTMLDivElement>(null)
-  useContainerFit(box)
+  // The COLUMNS box, not the chassis: the rails, the header and the footer are not room the
+  // zones may be dragged into, and counting them would let a column overrun the centre by
+  // exactly their width.
+  const columns = useRef<HTMLDivElement>(null)
+  useContainerFit(columns)
 
   const { specs, content, centre, loose } = useMemo(() => collect<Id>(children), [children])
   const words = useMemo(() => ({ ...DEFAULT_LABELS, ...labels }), [labels])
@@ -162,7 +165,7 @@ function Frame<Id extends string>({
 
   return (
     <ContentProvider value={content}>
-      <div ref={box} data-pnl-theme={theme} className={cx('pnl-root', className)}>
+      <div data-pnl-theme={theme} className={cx('pnl-root', className)}>
         {header}
 
         <div className="pnl-middle">
@@ -170,7 +173,7 @@ function Frame<Id extends string>({
 
           {/* Handles occupy exactly the gutter: the space between two surfaces IS the resize
               area, rather than decorative emptiness doubled by a handle. */}
-          <div className="pnl-columns">
+          <div ref={columns} className="pnl-columns">
             <ZoneEdge<Id> zone="top" labels={words} />
 
             {/* A column runs to the FOOT of the frame unless the band's half on its side is

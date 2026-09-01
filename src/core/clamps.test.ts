@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { fitSplit, fitted, fitZoneSize, MIN_SIZE, MIN_SPLIT, sizeKeyOf } from './clamps'
+import {
+  fitSplit,
+  fitted,
+  fitZoneSize,
+  MIN_CENTER,
+  MIN_SIZE,
+  MIN_SPLIT,
+  sharedSizes,
+  sizeKeyOf,
+} from './clamps'
 import type { Lengths, OpenByZone } from './types'
 
 describe('fitZoneSize', () => {
@@ -75,5 +84,49 @@ describe('fitted', () => {
   it('clamps the band divider against the width, not against a zone', () => {
     const lengths: Lengths = { sizes: {}, splits: {}, bandSplit: 5000 }
     expect(fitted(lengths, open, 1000, 800, undragged).bandSplit).toBe(900)
+  })
+})
+
+describe('sharedSizes', () => {
+  it('leaves both alone when they fit', () => {
+    expect(sharedSizes(320, 380, 1600)).toEqual([320, 380])
+  })
+
+  it('keeps the centre its floor when two untouched columns ask for too much', () => {
+    // The defect this exists for: 320 + 380 on a 900 px container left 200 for a centre owed
+    // 240 — and nothing in the stored lengths could catch it, there being nothing stored.
+    const [left, right] = sharedSizes(320, 380, 900)
+
+    expect(left + right).toBeLessThanOrEqual(900 - MIN_CENTER)
+    expect(900 - left - right).toBeGreaterThanOrEqual(MIN_CENTER)
+  })
+
+  it('takes the ground in proportion, rather than from one of them', () => {
+    const [left, right] = sharedSizes(300, 600, 900)
+
+    // The wider one gives up more: collapsing the narrower while the other keeps its width is
+    // how a column ends up unusable.
+    expect(right).toBeGreaterThan(left)
+    expect(left).toBeGreaterThanOrEqual(MIN_SIZE)
+  })
+
+  it('never takes either under its own floor', () => {
+    const [left, right] = sharedSizes(320, 380, 500)
+
+    expect(left).toBeGreaterThanOrEqual(0)
+    expect(left).toBeLessThanOrEqual(MIN_SIZE)
+    expect(right).toBeLessThanOrEqual(MIN_SIZE)
+  })
+
+  it('answers honestly for a container too small for any arrangement', () => {
+    // Nothing fits: both fall to the floor rather than to a negative width.
+    const [left, right] = sharedSizes(320, 380, 200)
+
+    expect(left).toBeGreaterThan(0)
+    expect(right).toBeGreaterThan(0)
+  })
+
+  it('leaves a lone column all the room the centre does not need', () => {
+    expect(sharedSizes(900, 0, 900)).toEqual([900 - MIN_CENTER, 0])
   })
 })

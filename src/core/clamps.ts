@@ -122,3 +122,40 @@ export function fitted(
 
   return bandSplit === undefined ? { sizes, splits } : { sizes, splits, bandSplit }
 }
+
+/**
+ * The two side zones, bounded so the centre keeps its floor — whether or not either was ever
+ * dragged.
+ *
+ * 🛑 `fitted` cannot do this job: it walks the STORED lengths, and a layout nobody has touched
+ * has none. The zones then took the sizes they ask for and the centre took whatever was left,
+ * which on a narrow container was nothing — measured at 104 px against a floor of 240, on a
+ * 900 px window with two untouched columns.
+ *
+ * When the two do not fit, they give ground in PROPORTION to what they asked for: taking it all
+ * from one would collapse the narrower of them while the wider kept its full width.
+ */
+export function sharedSizes(
+  leading: number,
+  trailing: number,
+  available: number,
+): [number, number] {
+  const room = available - MIN_CENTER
+  const asked = leading + trailing
+  if (asked <= room) return [leading, trailing]
+
+  // 🛑 A zone asking for NOTHING is closed, and a closed zone takes no room — floored to
+  // `MIN_SIZE` it would reserve 140 px of nothing beside the panel that is actually open.
+  const floorOf = (size: number): number => (size === 0 ? 0 : MIN_SIZE)
+  const floors = floorOf(leading) + floorOf(trailing)
+
+  // Nothing left to share: both fall to their own floor and the centre takes what it can, which
+  // is the honest answer for a container too small for the arrangement.
+  if (room <= floors) {
+    return [Math.min(leading, floorOf(leading)), Math.min(trailing, floorOf(trailing))]
+  }
+
+  const scale = room / asked
+  const first = Math.max(floorOf(leading), Math.round(leading * scale))
+  return [first, Math.max(floorOf(trailing), Math.round(room - first))]
+}

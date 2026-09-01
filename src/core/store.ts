@@ -35,6 +35,12 @@ export type PanelsState<Id extends string = string> = {
   stashed: Partial<Record<Zone, ZoneSlots<Id>>>
   /** Whether the opening arrangement has been settled — see `settle`. */
   settled: boolean
+  /**
+   * The room the zones and the centre share, as last measured. Held in the store rather than
+   * read per component: every zone has to be bounded against the SAME number, and against what
+   * the opposite zone is taking out of it.
+   */
+  available: { width: number; height: number }
 
   register: (spec: PanelSpec<Id>) => void
   unregister: (id: Id) => void
@@ -189,6 +195,7 @@ export function createPanelsStore<Id extends string = string>(
     focusedZone: null,
     stashed: {},
     settled: restored?.open !== undefined,
+    available: { width: 0, height: 0 },
 
     register: spec =>
       set(state => {
@@ -299,6 +306,7 @@ export function createPanelsStore<Id extends string = string>(
 
     fit: (width, height) =>
       set(state => ({
+        available: { width, height },
         lengths: fitted(state.lengths, state.open, width, height, zone =>
           undraggedSizeOf(state, zone),
         ),
