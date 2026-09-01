@@ -13,8 +13,7 @@
   "homepage": "https://github.com/pasquelin/panel#readme",
   "bugs": "https://github.com/pasquelin/panel/issues",
   "publishConfig": {
-    "access": "public",
-    "provenance": true
+    "access": "public"
   },
   "engines": {
     "node": ">=18"
