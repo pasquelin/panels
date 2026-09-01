@@ -1,7 +1,8 @@
 import { useCallback, useMemo } from 'react'
 import { usePanelsActions, usePanelsState, usePanelsStore } from '../context'
-import { shownIn } from '../store'
-import type { OpenByZone, PanelSpec, Zone } from '../types'
+import { shownIn, specOf } from '../store'
+import { useArrangement } from './useArrangement'
+import type { PanelSpec, Zone } from '../types'
 
 export type PanelsApi<Id extends string> = {
   /** Every panel the project has declared, in declaration order. */
@@ -30,36 +31,35 @@ export type PanelsApi<Id extends string> = {
  */
 export function usePanels<Id extends string = string>(): PanelsApi<Id> {
   const store = usePanelsStore<Id>()
-  const panels = usePanelsState<Id, PanelSpec<Id>[]>(state => state.registry)
   // Subscribed rather than read on demand: this hook's whole job is to let a component OUTSIDE
   // the chassis follow it, and a component that does not re-render follows nothing.
-  const open = usePanelsState<Id, OpenByZone<Id>>(state => state.open)
+  const arrangement = useArrangement<Id>()
   const focusedZone = usePanelsState<Id, Zone | null>(state => state.focusedZone)
   const actions = usePanelsActions<Id>()
 
   const isShown = useCallback(
     (id: Id) => {
-      const spec = panels.find(held => held.id === id)
-      return spec !== undefined && shownIn({ registry: panels, open }, spec.zone)[spec.slot] === id
+      const spec = specOf(arrangement.registry, id)
+      return spec !== undefined && shownIn(arrangement, spec.zone)[spec.slot] === id
     },
-    [panels, open],
+    [arrangement],
   )
 
   const close = useCallback(
     (id: Id) => {
-      const spec = panels.find(held => held.id === id)
+      const spec = specOf(arrangement.registry, id)
       // Asked about THIS panel: `close(zone, slot)` empties the half whatever stands in it, and
       // two panels share a half — closing the wrong one and reporting success.
-      if (!spec || shownIn({ registry: panels, open }, spec.zone)[spec.slot] !== id) return
+      if (!spec || shownIn(arrangement, spec.zone)[spec.slot] !== id) return
 
       store.getState().close(spec.zone, spec.slot)
     },
-    [panels, open, store],
+    [arrangement, store],
   )
 
   return useMemo(
     () => ({
-      panels,
+      panels: arrangement.registry,
       reveal: actions.show,
       close,
       toggle: actions.toggle,
@@ -67,6 +67,6 @@ export function usePanels<Id extends string = string>(): PanelsApi<Id> {
       focusedZone,
       reset: actions.reset,
     }),
-    [panels, actions.show, actions.toggle, actions.reset, close, isShown, focusedZone],
+    [arrangement, actions.show, actions.toggle, actions.reset, close, isShown, focusedZone],
   )
 }

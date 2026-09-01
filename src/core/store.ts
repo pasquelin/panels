@@ -1,6 +1,5 @@
 import { createStore, type StoreApi } from 'zustand/vanilla'
 import {
-  BAND_MAIN,
   DEFAULT_SIZES,
   fitSplit,
   fitted,
@@ -74,8 +73,16 @@ function firstIn<Id extends string>(
   return registry.find(spec => spec.zone === zone && spec.slot === slot)?.id
 }
 
-function specOf<Id extends string>(registry: PanelSpec<Id>[], id: Id): PanelSpec<Id> | undefined {
-  return registry.find(spec => spec.id === id)
+/**
+ * A panel by its id. Exported because four sites had written this same lookup for want of it,
+ * and one of them had already drifted on how it treated `undefined`. It is also the single place
+ * to change the day the registry stops being a list and becomes a `Map`.
+ */
+export function specOf<Id extends string>(
+  registry: PanelSpec<Id>[],
+  id: Id | undefined,
+): PanelSpec<Id> | undefined {
+  return id === undefined ? undefined : registry.find(spec => spec.id === id)
 }
 
 /**
@@ -90,11 +97,7 @@ export function shownIn<Id extends string>(
   const primary = slots?.primary
   if (primary !== undefined && specOf(state.registry, primary)?.solo === true) return { primary }
 
-  const secondary = slots?.secondary
-  return {
-    ...(primary === undefined ? {} : { primary }),
-    ...(secondary === undefined ? {} : { secondary }),
-  }
+  return { primary, secondary: slots?.secondary }
 }
 
 /** Whether the zone draws at all — an empty one takes neither room nor handle. */
@@ -107,16 +110,18 @@ export function zoneDraws<Id extends string>(
 }
 
 /**
- * The size a zone opens at, the panel it is leading with. A panel may ask for more than the
- * zone's own default — a conversation at 260 wraps every sentence onto three lines.
+ * The size a zone opens at, given the panel leading it. A panel may ask for more than the zone's
+ * own default — a conversation at 260 wraps every sentence onto three lines.
+ *
+ * Takes the LEADING panel rather than resolving it: every caller has already asked `shownIn`,
+ * and resolving it again here was a second pass over the registry per zone, per drag frame.
  */
 export function undraggedSizeOf<Id extends string>(
-  state: Pick<PanelsState<Id>, 'registry' | 'open'>,
+  registry: PanelSpec<Id>[],
   zone: Zone,
+  leading: Id | undefined,
 ): number {
-  const leading = shownIn(state, zone).primary
-  const asked = leading === undefined ? undefined : specOf(state.registry, leading)?.opens
-  return Math.max(DEFAULT_SIZES[zone], asked ?? 0)
+  return Math.max(DEFAULT_SIZES[zone], specOf(registry, leading)?.opens ?? 0)
 }
 
 /**
@@ -279,7 +284,7 @@ export function createPanelsStore<Id extends string = string>(
     resize: (zone, size, available) =>
       set(state => {
         const opposite = sizeOf(state.lengths, state.open, OPPOSITE[zone], held =>
-          undraggedSizeOf(state, held),
+          undraggedSizeOf(state.registry, held, shownIn(state, held).primary),
         )
         const next = fitZoneSize(size, available, opposite)
         const key = sizeKeyOf(zone)
@@ -308,7 +313,7 @@ export function createPanelsStore<Id extends string = string>(
       set(state => ({
         available: { width, height },
         lengths: fitted(state.lengths, state.open, width, height, zone =>
-          undraggedSizeOf(state, zone),
+          undraggedSizeOf(state.registry, zone, shownIn(state, zone).primary),
         ),
       })),
 
@@ -325,5 +330,3 @@ export function createPanelsStore<Id extends string = string>(
       })),
   }))
 }
-
-export { BAND_MAIN }

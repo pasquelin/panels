@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { memo, useCallback, useRef } from 'react'
 import { cx } from '../core/cx'
 import { usePanelsActions } from '../core/context'
 import { useZone } from '../core/hooks/useZone'
@@ -17,7 +17,7 @@ export type ZoneEdgeProps = {
  * A zone's two halves and its resize handle, ordered by the zone. `left` and `top` put the
  * panels first; the opposite zones put the handle first, because they grow backwards.
  */
-export function ZoneEdge<Id extends string = string>({ zone, labels }: ZoneEdgeProps) {
+function ZoneEdgeInner<Id extends string = string>({ zone, labels }: ZoneEdgeProps) {
   const view = useZone<Id>(zone)
   const { focus, resize, resplit } = usePanelsActions<Id>()
   const box = useRef<HTMLDivElement>(null)
@@ -62,7 +62,7 @@ export function ZoneEdge<Id extends string = string>({ zone, labels }: ZoneEdgeP
           panel={secondary}
           // The second half keeps a length of its own only while the first is there to take
           // the rest; alone, it fills the zone.
-          {...(primary && split !== undefined ? { length: split } : {})}
+          length={primary && split !== undefined ? split : undefined}
           closeLabel={labels.closePanel}
           onFocus={focusZone}
         />
@@ -94,3 +94,9 @@ export function ZoneEdge<Id extends string = string>({ zone, labels }: ZoneEdgeP
     </>
   )
 }
+
+/**
+ * Memoised for the reason `PanelFrame` is: with five zones on screen, one frame of a drag used
+ * to re-render all five and every panel under them, where two are owed.
+ */
+export const ZoneEdge = memo(ZoneEdgeInner) as typeof ZoneEdgeInner

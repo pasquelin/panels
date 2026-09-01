@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { cx } from '../core/cx'
 import { usePanelsActions } from '../core/context'
 import { isHorizontal, type PanelSpec } from '../core/types'
@@ -22,7 +23,7 @@ export type PanelFrameProps<Id extends string> = {
  * Closing is the only way out, on purpose. A collapsed panel is a third state between open and
  * closed that looks like neither, and the rail already reopens a panel in one click.
  */
-export function PanelFrame<Id extends string>({
+function PanelFrameInner<Id extends string>({
   panel,
   length,
   closeLabel,
@@ -68,6 +69,13 @@ export function PanelFrame<Id extends string>({
     </Surface>
   )
 }
+
+/**
+ * Memoised: a zone drag writes a new size on every `pointermove`, and without this each frame
+ * re-renders both halves and everything the project put in them. `onFocus` must stay stable for
+ * that to bite — see `ZoneEdge`.
+ */
+export const PanelFrame = memo(PanelFrameInner) as typeof PanelFrameInner
 
 /** The one glyph the library draws itself: a panel with no way out is a panel one loses. */
 function CloseGlyph() {

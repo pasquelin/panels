@@ -27,6 +27,7 @@ export {
   type PanelsProviderProps,
 } from './core/context'
 export { usePanels, type PanelsApi } from './core/hooks/usePanels'
+export { useArrangement, useShownIn, useZoneDraws } from './core/hooks/useArrangement'
 export { useZone, useZonePanels, type ZoneView } from './core/hooks/useZone'
 export { useContainerFit } from './core/hooks/useContainerFit'
 export { usePointerDrag, type PointerDrag } from './core/hooks/usePointerDrag'
@@ -34,6 +35,7 @@ export { usePointerDrag, type PointerDrag } from './core/hooks/usePointerDrag'
 export {
   createPanelsStore,
   shownIn,
+  specOf,
   zoneDraws,
   undraggedSizeOf,
   type PanelsState,

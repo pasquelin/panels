@@ -159,7 +159,10 @@ describe('undraggedSizeOf', () => {
     const store = made()
     store.getState().settle()
 
-    expect(undraggedSizeOf(store.getState(), 'left')).toBe(DEFAULT_SIZES.left)
+    const state = store.getState()
+    expect(undraggedSizeOf(state.registry, 'left', shownIn(state, 'left').primary)).toBe(
+      DEFAULT_SIZES.left,
+    )
   })
 
   it('honours what the leading panel asks for', () => {
@@ -167,7 +170,8 @@ describe('undraggedSizeOf', () => {
     store.getState().settle()
 
     // `chat` asks for 460 against the column's own 260.
-    expect(undraggedSizeOf(store.getState(), 'right')).toBe(460)
+    const state = store.getState()
+    expect(undraggedSizeOf(state.registry, 'right', shownIn(state, 'right').primary)).toBe(460)
   })
 })
 

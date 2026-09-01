@@ -1,15 +1,9 @@
 import { useMemo } from 'react'
 import { usePanelsState } from '../context'
-import { shownIn, undraggedSizeOf } from '../store'
+import { specOf, undraggedSizeOf } from '../store'
 import { OPPOSITE, sharedSizes, sizeKeyOf } from '../clamps'
-import {
-  isHorizontal,
-  type Lengths,
-  type OpenByZone,
-  type PanelSpec,
-  type Slot,
-  type Zone,
-} from '../types'
+import { isHorizontal, type PanelSpec, type Slot, type Zone } from '../types'
+import { useArrangement, useShownIn } from './useArrangement'
 
 export type ZoneView<Id extends string> = {
   /** What each half actually DRAWS — not what it holds: a `solo` panel silences the other. */
@@ -24,18 +18,24 @@ export type ZoneView<Id extends string> = {
   focused: boolean
 }
 
-/** What a zone WANTS: what was dragged for it, or what its leading panel asks for. */
+/**
+ * The length a zone WANTS: what was dragged for it, or what its leading panel asks for.
+ *
+ * Takes the stored size rather than reading it, so the caller subscribes to one number instead
+ * of to the whole `lengths` object — which every resize replaces, waking all five zones.
+ */
 function wantedSize<Id extends string>(
-  state: { registry: PanelSpec<Id>[]; open: OpenByZone<Id> },
-  lengths: Lengths,
+  registry: PanelSpec<Id>[],
+  leading: Id | undefined,
+  stored: number | undefined,
   zone: Zone,
+  draws: boolean,
 ): number {
-  const shown = shownIn(state, zone)
-  if (shown.primary === undefined && shown.secondary === undefined) return 0
+  if (!draws) return 0
 
   // The zone's own size until the reader drags one, and the drag then serves the whole zone: a
   // length somebody chose is an answer about the COLUMN, not about the panel that was in it.
-  return lengths.sizes[sizeKeyOf(zone)] ?? undraggedSizeOf(state, zone)
+  return stored ?? undraggedSizeOf(registry, zone, leading)
 }
 
 /**
@@ -43,45 +43,57 @@ function wantedSize<Id extends string>(
  *
  * The size it answers is BOUNDED, not merely stored: two untouched columns asking for 320 and
  * 380 leave a 900 px container 104 px of centre, well under its floor, and nothing in the stored
- * lengths would have caught it — there is nothing stored at all. `sharedSizes` is where that is
- * settled, against the opposite zone and the room actually measured.
+ * lengths would have caught it — there is nothing stored at all. `sharedSizes` settles that,
+ * against the opposite zone and the room actually measured.
+ *
+ * 🛑 The selectors are SCALAR on purpose. Subscribing to `lengths` or to `available` as objects
+ * woke every mounted zone on each `pointermove` of a drag, because both are replaced wholesale
+ * on every write — five re-renders a frame where two are owed.
  */
 export function useZone<Id extends string = string>(zone: Zone): ZoneView<Id> {
-  const registry = usePanelsState<Id, PanelSpec<Id>[]>(state => state.registry)
-  const open = usePanelsState<Id, OpenByZone<Id>>(state => state.open)
-  const lengths = usePanelsState<Id, Lengths>(state => state.lengths)
-  const available = usePanelsState<Id, { width: number; height: number }>(state => state.available)
+  const arrangement = useArrangement<Id>()
+  const shown = useShownIn<Id>(zone)
+  const facing = useShownIn<Id>(OPPOSITE[zone])
+
+  const stored = usePanelsState<Id, number | undefined>(
+    state => state.lengths.sizes[sizeKeyOf(zone)],
+  )
+  const storedFacing = usePanelsState<Id, number | undefined>(
+    state => state.lengths.sizes[sizeKeyOf(OPPOSITE[zone])],
+  )
   const split = usePanelsState<Id, number | undefined>(state => state.lengths.splits[zone])
+  const room = usePanelsState<Id, number>(state =>
+    isHorizontal(zone) ? state.available.height : state.available.width,
+  )
   const focused = usePanelsState<Id, boolean>(state => state.focusedZone === zone)
 
   return useMemo(() => {
-    const state = { registry, open }
-    const shown = shownIn(state, zone)
-    const specOf = (id: Id | undefined): PanelSpec<Id> | undefined =>
-      id === undefined ? undefined : registry.find(spec => spec.id === id)
-
-    const primary = specOf(shown.primary)
-    const secondary = specOf(shown.secondary)
+    const { registry } = arrangement
+    const primary = specOf(registry, shown.primary)
+    const secondary = specOf(registry, shown.secondary)
     const draws = primary !== undefined || secondary !== undefined
 
-    const wanted = wantedSize(state, lengths, zone)
-    const room = isHorizontal(zone) ? available.height : available.width
-    // Zero until the container has been measured: bounding against nothing would collapse every
-    // zone to its floor on the very first paint.
-    const size =
-      room === 0 || !draws
-        ? wanted
-        : sharedSizes(wanted, wantedSize(state, lengths, OPPOSITE[zone]), room)[0]
+    const wanted = wantedSize(registry, shown.primary, stored, zone, draws)
+    const facingDraws = facing.primary !== undefined || facing.secondary !== undefined
+    const wantedFacing = wantedSize(
+      registry,
+      facing.primary,
+      storedFacing,
+      OPPOSITE[zone],
+      facingDraws,
+    )
 
     return {
-      ...(primary === undefined ? {} : { primary }),
-      ...(secondary === undefined ? {} : { secondary }),
+      primary,
+      secondary,
       draws,
-      size,
+      // Zero until the container has been measured: bounding against nothing would collapse
+      // every zone to its floor on the very first paint.
+      size: room === 0 ? wanted : sharedSizes(wanted, wantedFacing, room)[0],
       split,
       focused,
     }
-  }, [registry, open, lengths, available, zone, split, focused])
+  }, [arrangement, shown, facing, stored, storedFacing, room, split, focused, zone])
 }
 
 /** The panels a rail draws for that zone, cut the way the zone itself is cut. */

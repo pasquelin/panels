@@ -1,9 +1,8 @@
 import { useCallback } from 'react'
 import { cx } from '../core/cx'
 import { usePanelsActions, usePanelsState } from '../core/context'
-import { zoneDraws } from '../core/store'
+import { useZoneDraws } from '../core/hooks/useArrangement'
 import { MIN_SPLIT } from '../core/clamps'
-import type { OpenByZone, PanelSpec } from '../core/types'
 import { ResizeHandle } from './ResizeHandle'
 import { ZoneEdge } from './ZoneEdge'
 import type { PanelsLabels } from './labels'
@@ -61,12 +60,8 @@ export function Band<Id extends string = string>({ left, right, labels }: BandPr
 
 /** Whether that half of the band draws anything — asked by the frame before it arranges itself. */
 export function useBandHalves<Id extends string = string>(): { left: boolean; right: boolean } {
-  const registry = usePanelsState<Id, PanelSpec<Id>[]>(state => state.registry)
-  const open = usePanelsState<Id, OpenByZone<Id>>(state => state.open)
-  const state = { registry, open }
-
   return {
-    left: zoneDraws(state, 'bottomLeft'),
-    right: zoneDraws(state, 'bottomRight'),
+    left: useZoneDraws<Id>('bottomLeft'),
+    right: useZoneDraws<Id>('bottomRight'),
   }
 }

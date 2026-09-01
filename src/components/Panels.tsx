@@ -72,16 +72,8 @@ function collect<Id extends string>(children: ReactNode): Collected<Id> {
     const props = child.props as PanelProps<Id>
     const { id, zone, slot = 'primary', title, icon, opens, solo, actions, children: body } = props
 
-    specs.push({
-      id,
-      zone,
-      slot,
-      title,
-      ...(icon === undefined ? {} : { icon }),
-      ...(opens === undefined ? {} : { opens }),
-      ...(solo === undefined ? {} : { solo }),
-    })
-    content.set(id, { content: body, ...(actions === undefined ? {} : { actions }) })
+    specs.push({ id, zone, slot, title, icon, opens, solo })
+    content.set(id, { content: body, actions })
   }
 
   return { specs, content, centre, loose }
@@ -104,12 +96,12 @@ export function Panels<Id extends string = string>({
   return (
     <PanelsProvider<Id> {...provider}>
       <Frame<Id>
-        {...(header === undefined ? {} : { header })}
-        {...(footer === undefined ? {} : { footer })}
-        {...(railHeader === undefined ? {} : { railHeader })}
-        {...(labels === undefined ? {} : { labels })}
-        {...(theme === undefined ? {} : { theme })}
-        {...(className === undefined ? {} : { className })}
+        header={header}
+        footer={footer}
+        railHeader={railHeader}
+        labels={labels}
+        theme={theme}
+        className={className}
       >
         {children}
       </Frame>
@@ -169,7 +161,7 @@ function Frame<Id extends string>({
         {header}
 
         <div className="pnl-middle">
-          <Rail side="left" {...(railHeader === undefined ? {} : { header: railHeader })} />
+          <Rail side="left" header={railHeader} />
 
           {/* Handles occupy exactly the gutter: the space between two surfaces IS the resize
               area, rather than decorative emptiness doubled by a handle. */}

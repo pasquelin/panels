@@ -120,7 +120,8 @@ export function readLayout<Id extends string>(
     lengths: {
       sizes: sizesFrom(lengths.sizes),
       splits: sizesFrom(lengths.splits),
-      ...(typeof bandSplit === 'number' && Number.isFinite(bandSplit) ? { bandSplit } : {}),
+      bandSplit:
+        typeof bandSplit === 'number' && Number.isFinite(bandSplit) ? bandSplit : undefined,
     },
   }
 }

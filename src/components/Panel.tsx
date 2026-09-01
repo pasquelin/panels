@@ -1,20 +1,20 @@
 import type { ReactNode } from 'react'
-import type { Slot, Zone } from '../core/types'
+import type { PanelSpec, Slot } from '../core/types'
 
-export type PanelProps<Id extends string = string> = {
-  id: Id
-  zone: Zone
+/**
+ * Everything the chassis knows about a panel, plus what only JSX can carry.
+ *
+ * Derived from `PanelSpec` rather than restated: the two had been written out field by field,
+ * with the documentation copied word for word, so adding one meant remembering to add it twice
+ * — and nothing would have failed if you had not.
+ *
+ * `slot` is the one field that changes shape: it is required in the registry and optional here,
+ * because a panel that does not say lands in the half nearest the edge.
+ */
+export type PanelProps<Id extends string = string> = Omit<PanelSpec<Id>, 'slot'> & {
   slot?: Slot
-  /** Accessible name and header title. Already translated — the library carries no i18n. */
-  title: string
-  /** Free-form: an icon component, an SVG, an image. No icon set is imposed. */
-  icon?: ReactNode
   /** Actions on the panel's own title row, beside its name. */
   actions?: ReactNode
-  /** What the zone opens at while this panel leads it. A dragged size always wins. */
-  opens?: number
-  /** Takes the zone WHOLE: shown, the other half draws nothing. `primary` only. */
-  solo?: boolean
   children: ReactNode
 }
 

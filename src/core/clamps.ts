@@ -120,7 +120,7 @@ export function fitted(
   // halves of one, so it is clamped against the container and not against a zone's length.
   const bandSplit = lengths.bandSplit === undefined ? undefined : fitSplit(lengths.bandSplit, width)
 
-  return bandSplit === undefined ? { sizes, splits } : { sizes, splits, bandSplit }
+  return { sizes, splits, bandSplit }
 }
 
 /**

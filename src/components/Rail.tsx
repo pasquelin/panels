@@ -1,9 +1,9 @@
 import { Fragment } from 'react'
 import { cx } from '../core/cx'
 import { usePanelsActions, usePanelsState } from '../core/context'
-import { shownIn } from '../core/store'
+import { useShownIn } from '../core/hooks/useArrangement'
 import { useZonePanels } from '../core/hooks/useZone'
-import type { OpenByZone, PanelSpec, Zone } from '../core/types'
+import type { Zone } from '../core/types'
 import { IconButton } from './IconButton'
 import { Separator } from './Separator'
 
@@ -60,15 +60,12 @@ export function Rail({ side, header, className }: RailProps) {
  */
 export function RailZone<Id extends string = string>({ zone }: { zone: Zone }) {
   const halves = useZonePanels<Id>(zone)
-  const registry = usePanelsState<Id, PanelSpec<Id>[]>(state => state.registry)
-  const open = usePanelsState<Id, OpenByZone<Id>>(state => state.open)
+  const drawn = useShownIn<Id>(zone)
   const focused = usePanelsState<Id, boolean>(state => state.focusedZone === zone)
   const { toggle } = usePanelsActions<Id>()
 
   // An empty flex child still eats one of the rail's gaps — a hole where icons never were.
   if (halves.length === 0) return null
-
-  const drawn = shownIn({ registry, open }, zone)
 
   return (
     <div className="pnl-rail__group">
