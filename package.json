@@ -3,14 +3,14 @@
   "version": "0.1.0",
   "description": "Châssis à panneaux React : rails d'icônes, zones redimensionnables, centre libre. Headless + composants par défaut, entièrement surchargeable.",
   "type": "module",
-  "license": "PolyForm-Noncommercial-1.0.0",
+  "license": "MIT",
   "author": "Alban Pasquelin <alban.pasquelin@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pasquelin/panels.git"
+    "url": "git+https://github.com/pasquelin/panel.git"
   },
-  "homepage": "https://github.com/pasquelin/panels#readme",
-  "bugs": "https://github.com/pasquelin/panels/issues",
+  "homepage": "https://github.com/pasquelin/panel#readme",
+  "bugs": "https://github.com/pasquelin/panel/issues",
   "publishConfig": {
     "access": "public",
     "provenance": true
