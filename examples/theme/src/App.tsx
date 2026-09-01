@@ -70,8 +70,11 @@ export function App() {
 
   return (
     <ExampleChrome
-      title="Repainted"
-      lead="Same chassis, four palettes. Every value is a custom property — no component is replaced."
+      title={{ en: 'Repainted', fr: 'Repeint' }}
+      lead={{
+        en: 'Same chassis, four palettes. Every value is a custom property — no component is replaced.',
+        fr: 'Même châssis, quatre palettes. Chaque valeur est une propriété personnalisée — aucun composant n’est remplacé.',
+      }}
     >
       <Panels<PanelId>
         storageKey="panels-example:theme"

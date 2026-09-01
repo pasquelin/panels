@@ -33,9 +33,20 @@ function Empty() {
   )
 }
 
+/**
+ * The panel's own actions, and it must be a component of its own: `usePanels` reads the store
+ * the provider makes, so anything calling it has to be rendered INSIDE `<Panels>`. Called from
+ * `Workbench` itself — which renders the provider rather than living under it — it throws, and
+ * says so.
+ */
+function RevealFiles() {
+  const { reveal } = usePanels<PanelId>()
+
+  return <IconButton label="Go to files" acts icon={<DocIcon />} onClick={() => reveal('files')} />
+}
+
 function Workbench() {
   const [api, setApi] = useState<DockviewApi | null>(null)
-  const { reveal } = usePanels<PanelId>()
 
   const open = useCallback(
     (name: string) => {
@@ -80,9 +91,7 @@ function Workbench() {
         zone="right"
         title="Outline"
         icon={<TuneIcon />}
-        actions={
-          <IconButton label="Go to files" acts icon={<DocIcon />} onClick={() => reveal('files')} />
-        }
+        actions={<RevealFiles />}
       >
         <p className="note">
           A panel's actions sit on its own title row. This one reveals another panel — the same call
@@ -104,8 +113,11 @@ function Workbench() {
 export function App() {
   return (
     <ExampleChrome
-      title="Document tabs"
-      lead="The centre carries documents on Dockview. Panels stay on the edges and never enter it."
+      title={{ en: 'Document tabs', fr: 'Onglets de documents' }}
+      lead={{
+        en: 'The centre carries documents on Dockview. Panels stay on the edges and never enter it.',
+        fr: 'Le centre porte des documents sur Dockview. Les panneaux restent sur les bords et n’y entrent jamais.',
+      }}
     >
       <Workbench />
     </ExampleChrome>

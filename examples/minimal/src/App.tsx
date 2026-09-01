@@ -1,11 +1,26 @@
 import { useState } from 'react'
 import { IconButton, Panel, Panels, usePanels } from '@pasquelin/panels'
 import { ChatIcon, FilesIcon, PlusIcon, SearchIcon, TerminalIcon, TuneIcon } from '../../src/icons'
+import { ExampleChrome } from '../../src/ExampleChrome'
 
 /** The ids this application declares. The union is what makes `reveal('chatt')` fail to compile. */
 type PanelId = 'files' | 'search' | 'chat' | 'inspector' | 'terminal'
 
 export function App() {
+  return (
+    <ExampleChrome
+      title={{ en: 'Minimal', fr: 'Minimal' }}
+      lead={{
+        en: 'The smallest chassis that works, with a header of your own driving it.',
+        fr: 'Le plus petit châssis qui fonctionne, avec un en-tête à vous qui le pilote.',
+      }}
+    >
+      <Chassis />
+    </ExampleChrome>
+  )
+}
+
+function Chassis() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
 
   return (

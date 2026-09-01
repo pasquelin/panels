@@ -65,6 +65,7 @@ export {
   DEFAULT_SIZES,
   fitZoneSize,
   fitSplit,
+  sharedSizes,
   sizeKeyOf,
 } from './core/clamps'
 

@@ -56,7 +56,8 @@
     "dev": "vite --config examples/vite.config.ts",
     "build:site": "vite build --config examples/vite.config.ts",
     "preview:site": "vite preview --config examples/vite.config.ts",
-    "validate": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test"
+    "licences:check": "node scripts/check-licences.mjs",
+    "validate": "pnpm licences:check && pnpm typecheck && pnpm lint && pnpm format:check && pnpm test"
   },
   "peerDependencies": {
     "dockview-react": ">=8.0.0",
@@ -68,9 +69,6 @@
       "optional": true
     }
   },
-  "dependencies": {
-    "zustand": "^5.0.15"
-  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@testing-library/jest-dom": "^7.0.1",
@@ -80,6 +78,7 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^5.2.0",
+    "zustand": "^5.0.15",
     "dockview-react": "^8.2.0",
     "eslint": "^10.8.1",
     "eslint-plugin-react-hooks": "^7.1.1",

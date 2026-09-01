@@ -1,5 +1,7 @@
 # @pasquelin/panels
 
+**[Live demo ↗](https://pasquelin.github.io/panel/)** · **[Documentation 🇫🇷](docs/fr/README.md)** · **[Documentation 🇬🇧](docs/en/README.md)** · MIT
+
 A React panel chassis: icon rails on the edges, resizable zones around a free centre, and a
 layout that survives a reload.
 
@@ -136,9 +138,24 @@ pnpm dev
 
 ## Documentation
 
-- [Architecture](./docs/ARCHITECTURE.md) — how it works inside
-- [Français](./docs/fr/) · [English](./docs/en/)
+| | 🇫🇷 Français | 🇬🇧 English |
+| --- | --- | --- |
+| **Guide + index** | [docs/fr/](docs/fr/README.md) | [docs/en/](docs/en/README.md) |
+| Panels | [PANELS.md](docs/fr/PANELS.md) | [PANELS.md](docs/en/PANELS.md) |
+| Layout | [LAYOUT.md](docs/fr/LAYOUT.md) | [LAYOUT.md](docs/en/LAYOUT.md) |
+| Hooks | [HOOKS.md](docs/fr/HOOKS.md) | [HOOKS.md](docs/en/HOOKS.md) |
+| Theming | [THEMING.md](docs/fr/THEMING.md) | [THEMING.md](docs/en/THEMING.md) |
+| Components | [COMPONENTS.md](docs/fr/COMPONENTS.md) | [COMPONENTS.md](docs/en/COMPONENTS.md) |
+| Document tabs | [DOCKVIEW.md](docs/fr/DOCKVIEW.md) | [DOCKVIEW.md](docs/en/DOCKVIEW.md) |
+| Recipes | [RECIPES.md](docs/fr/RECIPES.md) | [RECIPES.md](docs/en/RECIPES.md) |
+| Architecture | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | — |
 
 ## Licence
 
-MIT — see [LICENSE](./LICENSE).
+**MIT** — see [LICENSE](LICENSE).
+
+Every dependency is MIT too, so there is no copyleft obligation anywhere in the tree.
+`zustand` is bundled into the published package and its notice travels with it; everything else
+is a peer dependency the consuming project installs itself. The full accounting is in
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), and `pnpm licences:check` fails the build if it
+stops being true.

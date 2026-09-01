@@ -590,3 +590,40 @@ a {
   --pnl-accent: var(--brass);
   --pnl-accent-text: var(--brass-ink);
 }
+
+/* The language pair, at the foot of the rail: a preference, not a step in the reading. */
+.railnav__langs {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: auto;
+  margin-bottom: 20px;
+}
+
+.railnav__lang {
+  border: none;
+  border-radius: 5px;
+  padding: 4px 7px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.railnav__lang:hover {
+  background: var(--raised);
+  color: var(--ink);
+}
+
+.railnav__lang--on {
+  color: var(--brass);
+}
+
+@media (max-width: 900px) {
+  .railnav__langs {
+    flex-direction: row;
+    margin: 0 0 0 auto;
+  }
+}

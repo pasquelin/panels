@@ -122,8 +122,11 @@ const router = createHashRouter([
 export function App() {
   return (
     <ExampleChrome
-      title="React Router"
-      lead="The centre is an <Outlet/>. Panels are declared once and outlive every navigation."
+      title={{ en: 'React Router', fr: 'React Router' }}
+      lead={{
+        en: 'The centre is an <Outlet/>. Panels are declared once and outlive every navigation.',
+        fr: 'Le centre est une route. Les panneaux sont déclarés une fois et survivent à chaque navigation.',
+      }}
     >
       <RouterProvider router={router} />
     </ExampleChrome>
