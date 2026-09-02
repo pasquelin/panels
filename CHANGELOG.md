@@ -5,6 +5,17 @@ All notable changes to `@pasquelin/panels`.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.4] — 2026-09-02
+
+### Changed
+
+- **A tag pushed twice no longer fails the release.** Nothing in the library moved: the published
+  files are those of 0.3.3. `v0.3.3` reached GitHub as two push events, and the second run
+  replayed the whole chain only to be turned away by the registry — `cannot publish over the
+  previously published versions` — reporting in red a release that had succeeded. A `guard` job
+  now asks npm whether the version is already there, and the publishing job starts only if it is
+  not, so the duplicate reads as skipped rather than broken.
+
 ## [0.3.3] — 2026-09-02
 
 ### Fixed
@@ -231,6 +242,9 @@ First release.
 - Optional `@pasquelin/panels/dockview` entry point for document tabs.
 - No runtime dependencies.
 
+[0.3.4]: https://github.com/pasquelin/panels/releases/tag/v0.3.4
+[0.3.3]: https://github.com/pasquelin/panels/releases/tag/v0.3.3
+[0.3.2]: https://github.com/pasquelin/panels/releases/tag/v0.3.2
 [0.3.1]: https://github.com/pasquelin/panels/releases/tag/v0.3.1
 [0.3.0]: https://github.com/pasquelin/panels/releases/tag/v0.3.0
 [0.2.0]: https://github.com/pasquelin/panels/releases/tag/v0.2.0
