@@ -76,6 +76,10 @@ export function PanelsProvider<Id extends string = string>({
   // when there is nothing to do, so running every render writes nothing.
   useIsomorphicLayoutEffect(() => {
     const state = made.getState()
+    // 🛑 Before `setView`, which settles the view it ARRIVES at from the store's own `defaults`.
+    // Written by `settle` alone, those were still empty on the first render: the view a project
+    // lands on opened whatever happened to be declared, and a view settles once.
+    if (defaultOpen !== state.defaults) made.setState({ defaults: defaultOpen })
     // Only when the project names one. Defaulted, this claimed the view on every render — so a
     // `setView` made from a native menu or a socket was undone at the next unrelated render of
     // some ancestor, which is the worst way to fail: correct, then silently not.

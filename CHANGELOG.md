@@ -5,6 +5,17 @@ All notable changes to `@pasquelin/panels`.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.3] — 2026-09-02
+
+### Fixed
+
+- **`defaultOpen` reaches the very first view the chassis lands on.** That view is settled by
+  `setView`, which reads the halves off the store's own `defaults` — and those were written by
+  `settle` alone, running after it. So a project naming `view` opened whatever happened to be
+  declared at that instant, and a view settles once: measured in IA Studio, a space entered
+  through Image kept its band shut in Video for good, and the home its lower left for as long as
+  the project was still being read.
+
 ## [0.3.2] — 2026-09-02
 
 ### Fixed

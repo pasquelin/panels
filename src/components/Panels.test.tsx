@@ -157,6 +157,31 @@ describe('Panels', () => {
     expect(screen.getByText('search form')).toBeInTheDocument()
   })
 
+  /**
+   * 🛑 `defaultOpen` on the view the chassis LANDS on. That one is reached by `setView`, which
+   * opens what the store's `defaults` name — and those were only written by `settle`, running
+   * after it. A project's very first view opened whatever happened to be declared, and settles once.
+   */
+  it('honours `defaultOpen` on the first view it lands on', () => {
+    const store = createPanelsStore<Id>()
+
+    render(
+      <Panels<Id>
+        store={store}
+        storage={null}
+        view="edit"
+        defaultOpen={{ right: { primary: null } }}
+      >
+        <Panel<Id> id="files" zone="left" title="Files">
+          <p>file list</p>
+        </Panel>
+      </Panels>,
+    )
+
+    // Nothing is declared for the right column, so only `defaultOpen` can have opened it.
+    expect(store.getState().views.edit?.right).toEqual({ primary: null })
+  })
+
   it('takes the view back from an imperative setView — the prop is what decides', async () => {
     const user = userEvent.setup()
     // 🛑 Reconciled without a dependency array: with one, this held only when some OTHER prop
