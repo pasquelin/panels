@@ -15,17 +15,69 @@ on:
 
 permissions:
   contents: read
-  id-token: write # required for `npm publish --provenance`
 
+# Two pushes of the same tag produce two runs. `cancel-in-progress: false` queues the second
+# rather than killing a publish half-written to the registry — the right trade, but it means the
+# duplicate still runs. The `guard` job below is what makes that duplicate harmless.
 concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  publish:
+  # A cheap gate ahead of the real work: it decides whether there is anything to publish at all.
+  # Its own job, and not an `if:` on four steps, so a duplicate tag push reports as *skipped*
+  # instead of a failed run — a red notification for a release that already succeeded is noise
+  # that trains you to ignore the next real one.
+  guard:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      publish: ${{ steps.check.outputs.publish }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - id: check
+        name: Check the tag, and whether npm already has this version
+        run: |
+          set -euo pipefail
+
+          # The tag must match package.json, or we would publish a version that does not match
+          # the code the tag points at. This one is a hard error: the mismatch is a mistake.
+          TAG="${GITHUB_REF_NAME#v}"
+          NAME="$(node -p "require('./package.json').name")"
+          PKG="$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "$PKG" ]; then
+            echo "::error::Tag v$TAG does not match package.json $PKG"
+            exit 1
+          fi
+
+          # `npm view pkg@version version` prints the version and exits 0 only when that exact
+          # version is published; on a missing version — or a package that does not exist yet, on
+          # the very first release — it exits non-zero. Hence the empty-output test rather than
+          # the exit code, and the `|| true` so `set -e` does not turn "not published" into a
+          # failed job.
+          PUBLISHED="$(npm view "$NAME@$PKG" version 2>/dev/null || true)"
+          if [ -n "$PUBLISHED" ]; then
+            echo "::notice::$NAME@$PKG is already on npm — nothing to publish."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  publish:
+    needs: guard
+    if: needs.guard.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write # required for `npm publish --provenance`
+    steps:
+      - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v6
 
@@ -33,12 +85,12 @@ jobs:
       # `${NODE_AUTH_TOKEN}`, a secret that does not exist here — npm then authenticates with the
       # literal placeholder instead of exchanging the OIDC token, and the registry answers 404
       # "you do not have permission" after having happily signed the provenance.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: pnpm
 
-      # OIDC trusted publishing needs npm >= 11.5.1; Node 22 ships npm 10.
+      # OIDC trusted publishing needs npm >= 11.5.1; the Node 22 pinned by .nvmrc ships npm 10.
       - name: Update npm (required for OIDC)
         run: npm install -g npm@latest
 
@@ -49,16 +101,6 @@ jobs:
         run: npm --version
 
       - run: pnpm install --frozen-lockfile
-
-      # The tag must match package.json, or we would publish a version that does not match the
-      # code the tag points at.
-      - name: Check the tag matches package.json
-        run: |
-          TAG="${GITHUB_REF_NAME#v}"
-          PKG="$(node -p "require('./package.json').version")"
-          if [ "$TAG" != "$PKG" ]; then
-            echo "::error::Tag v$TAG does not match package.json $PKG"; exit 1
-          fi
 
       # The same barrier as CI, before anything leaves for the registry.
       - name: Validate
