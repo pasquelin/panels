@@ -21,7 +21,7 @@
 - **One store per chassis**, created not imported (`createPanelsStore`). No module singleton —
   two chassis can live in one application, and a test cannot leak into the next.
 - **What is stored is not what is shown, and only a CHOICE is stored.** Stored: which panel each
-  half was told to hold, per view, and the sizes. A half nobody touched is stored open, naming
+  half was told to hold, per view, the sizes, and the half a reader has dragged a panel into. A half nobody touched is stored open, naming
   nobody, and a view nobody has opened is simply absent — which is what tells the chassis to
   settle it. Resolved at render: which panel a half draws (the one named if it is still declared for
   that half, else the first one that is), whether the zone draws at all, the size it takes
@@ -33,6 +33,11 @@
 - **A panel that should not be offered is a panel you do not declare.** That replaces what a
   capability system would be for — and withdrawing one costs nothing: the half falls back, the
   choice is remembered, and declaring the panel again gives it its place back.
+- **Moving panels is opt-in too.** `<Panels draggablePanels>` lets a reader drag a rail icon into
+  any half a rail draws, and where they put it is stored. The declaration is never overwritten —
+  it is what the panel falls back to, and dropping a panel back where it was declared removes the
+  override rather than writing it down. `arrangedRegistry(state)` is the declared list re-ordered
+  and re-placed; every reader downstream goes on reading `spec.zone` and `spec.slot`.
 - **Views are named arrangements, and they are opt-in.** `<Panels view="review">`: each view
   keeps the panels it had open to itself, the lengths stay shared. Left out, everything lands in
   one view and nothing about this is visible. Not "surfaces": the library still knows nothing
@@ -70,6 +75,9 @@ usual missing piece.
 
 - Zones: `left` `right` `top` `bottomLeft` `bottomRight`. **An empty zone takes no room at all.**
 - Each zone has two halves: `primary` (nearest the window edge) and `secondary`.
+- Two rails, both vertical: the LEFT carries `left` + `bottomLeft`, the RIGHT `right` +
+  `bottomRight`. **`top` is carried by no rail** — a band across the width has no edge of its own —
+  so a panel declared there has no rail icon and cannot be dragged into: the project drives it.
 - Panels sharing a zone AND a slot **take turns** — the rail switches between them. Different
   slots show together, stacked.
 - `bottomLeft` + `bottomRight` share **one height**. Whichever is alone runs under the opposite
@@ -84,8 +92,8 @@ usual missing piece.
 `PanelHeader` `IconButton` `Separator` `ResizeHandle`
 
 ### `<Panels>` props
-`store` `storageKey` `storage` `defaultOpen` `view` `header` `footer` `railHeader` `labels`
-`components` `theme` `className`
+`store` `storageKey` `storage` `defaultOpen` `view` `placementScope` `draggablePanels` `header`
+`footer` `railHeader` `labels` `components` `theme` `className`
 
 ### `<Panel>` props
 `id` `zone` `slot?` `title` `icon?` `actions?` `opens?` `solo?` `fillActions?`
@@ -99,7 +107,7 @@ usual missing piece.
 
 ### Core
 `createPanelsStore` `shownIn` `shownSpecsIn` `openOf` `specOf` `zoneDraws` `zoneTakesRoom`
-`undraggedSizeOf`
+`undraggedSizeOf` `arrangedRegistry`
 `fitZoneSize` `fitSplit` `sharedSizes` `sizeKeyOf` `MIN_SIZE` `MIN_CENTER` `MIN_SPLIT`
 `DEFAULT_SIZES` · `browserStorage` `memoryStorage` `readLayout` `writeLayout` `LAYOUT_VERSION`
 · `ZONES` `SLOTS` `BOTTOM_ZONES` `ZONES_BY_SIDE` `DEFAULT_VIEW` `isBottom` `isHorizontal`
@@ -118,6 +126,10 @@ window.electron?.onMenu(id => store.getState().show(id))
 
 <Panels<PanelId> store={store}>…</Panels>
 ```
+
+Actions: `show` `close` `toggle` `movePanel(id, { zone, slot }, index)` `focus` `resize` `resplit`
+`resplitBand` `fit` `reset` — plus `declare` `settle` `setView` `setPlacementScope`, which the
+chassis drives itself.
 
 ## Theming
 

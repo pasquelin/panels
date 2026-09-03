@@ -5,6 +5,9 @@ import {
   type LayoutState,
   type OpenByZone,
   type SizesByZone,
+  type PanelPlacement,
+  type PlacementLayout,
+  type PlacementsByScope,
 } from './types'
 
 /**
@@ -54,8 +57,13 @@ type Stored<Id extends string> = LayoutState<Id> & { version: number }
 /**
  * Bumped when the stored shape stops being one this build can restore.
  *
- * 2 keeps the views apart. A version 1 file held one arrangement under `open`, which is read
- * back as the view in front — nobody loses a layout to the upgrade.
+ * 2 keeps the views apart. A version 1 file held one arrangement under `open`, which is read back
+ * as the view in front — nobody loses a layout to the upgrade.
+ *
+ * 🛑 NOT bumped for the placements a reader drags. That key only ever GREW the file: a build
+ * without it ignores it, and this one reads a file without it. Bumped, an older bundle — a second
+ * tab, a rollback — would have found a version it does not know and dropped the whole layout,
+ * sizes and arrangements included, to reject a key it never needed.
  */
 export const LAYOUT_VERSION = 2
 
@@ -125,6 +133,43 @@ function viewsFrom<Id extends string>(
   return views
 }
 
+/** One panel's saved position, or nothing if it names a zone or a half this build cannot draw. */
+function placementFrom(stored: unknown): PanelPlacement | undefined {
+  if (!isRecord(stored)) return undefined
+
+  // Matched against what this build knows rather than cast into it, exactly as `openFrom` does:
+  // a zone renamed since the file was written is dropped, not drawn as a key nothing draws.
+  const zone = ZONES.find(known => known === stored.zone)
+  const slot = SLOTS.find(known => known === stored.slot)
+  return zone !== undefined && slot !== undefined ? { zone, slot } : undefined
+}
+
+/**
+ * The arrangements the reader has dragged, scope by scope.
+ *
+ * 🛑 No prototype on EITHER map: both are keyed by strings straight out of the file — scope names
+ * here, panel ids inside — and `__proto__` assigned to a plain object fires the setter. The same
+ * hazard `viewsFrom` guards against, one level deeper.
+ */
+function placementsFrom<Id extends string>(stored: Record<string, unknown>): PlacementsByScope<Id> {
+  const placements: PlacementsByScope<Id> = Object.create(null) as PlacementsByScope<Id>
+
+  for (const [scope, layout] of Object.entries(stored)) {
+    if (!isRecord(layout) || !isRecord(layout.byId) || !Array.isArray(layout.order)) continue
+
+    const byId: PlacementLayout<Id>['byId'] = Object.create(null) as PlacementLayout<Id>['byId']
+    for (const [id, held] of Object.entries(layout.byId)) {
+      const placement = placementFrom(held)
+      if (placement) byId[id as Id] = placement
+    }
+    placements[scope] = {
+      byId,
+      order: layout.order.filter((id): id is Id => typeof id === 'string'),
+    }
+  }
+  return placements
+}
+
 /**
  * Reads a stored layout back, dropping anything this build cannot make sense of. Returns
  * `undefined` rather than a partial answer: a half-read layout is worse than none, since the
@@ -165,9 +210,12 @@ export function readLayout<Id extends string>(
     lengths: {
       sizes: sizesFrom(lengths.sizes),
       splits: sizesFrom(lengths.splits),
-      bandSplit:
-        typeof bandSplit === 'number' && Number.isFinite(bandSplit) ? bandSplit : undefined,
+      // Spread rather than written as `undefined`: an optional key holding `undefined` is not
+      // the same as an absent one under `exactOptionalPropertyTypes`, and it would not survive
+      // the JSON round trip either.
+      ...(typeof bandSplit === 'number' && Number.isFinite(bandSplit) ? { bandSplit } : {}),
     },
+    ...(isRecord(parsed.placements) ? { placements: placementsFrom<Id>(parsed.placements) } : {}),
   }
 }
 
@@ -180,6 +228,7 @@ export function writeLayout<Id extends string>(
     version: LAYOUT_VERSION,
     views: layout.views,
     lengths: layout.lengths,
+    placements: layout.placements,
   }
   storage.write(key, JSON.stringify(stored))
 }

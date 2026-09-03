@@ -140,17 +140,80 @@
   padding-block: var(--pnl-gutter);
 }
 
-.pnl-rail__group {
+/* One stack, whether it holds the icons, a drop target or a single button being dragged. */
+.pnl-rail__group,
+.pnl-rail__drop,
+.pnl-rail__button-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
 }
 
-.pnl-rail__button {
+/* The wrapper is what the pointer presses: without this a touch drag scrolls the page instead. */
+.pnl-rail__button-wrap {
+  touch-action: none;
+}
+
+/*
+ * The button being carried, while the ghost holds its place under the pointer. Out of the flow,
+ * so the placeholder that stands in for it costs the rail nothing: left in, the rail grew by one
+ * icon the instant a drag began, and every button below moved out from under the pointer.
+ *
+ * 🛑 Out of the FLOW, never out of the DOM. The pointer capture that drives the whole gesture
+ * lives on this element, and unmounting it releases the capture — the drag would end on the very
+ * frame it started.
+ */
+.pnl-rail__button-wrap--carried {
+  position: absolute;
+  visibility: hidden;
+}
+
+/*
+ * One geometry for everything the size of a rail icon — the button, what stands in for it while
+ * it is carried, and the ghost following the pointer. Written once, they cannot drift apart.
+ *
+ * 🛑 `.pnl-rail__button` twice, deliberately. `.pnl-icon-button` sizes EVERY icon button at 28px
+ * and is declared further down this file, so at equal specificity it won and `--pnl-rail-button`
+ * sized nothing at all — a token this repo documents as "the rail icon button". The drag is what
+ * made it visible: a drop marker honouring the token stood eight pixels taller than the button it
+ * stands in for, and the rail jumped by the difference on every pointer move.
+ */
+.pnl-rail__button.pnl-rail__button,
+.pnl-rail-drag__placeholder,
+.pnl-rail-drag__empty,
+.pnl-rail-drag__ghost {
   width: var(--pnl-rail-button);
   height: var(--pnl-rail-button);
   border-radius: var(--pnl-radius);
+}
+
+.pnl-rail-drag__placeholder,
+.pnl-rail-drag__empty {
+  flex-shrink: 0;
+  border: 1px dashed var(--pnl-accent);
+  background: color-mix(in srgb, var(--pnl-accent) 14%, transparent);
+}
+
+/* 🛑 A whole button, never a sliver. An empty half offering a shorter target than the placeholder
+   that replaces it made the rail jump by the difference the moment the pointer arrived — and the
+   half the reader was aiming at moved out from under them. Faded, so it reads as an offer rather
+   than as a panel already standing there. */
+.pnl-rail-drag__empty {
+  opacity: 0.4;
+}
+
+/* Position, lift and nothing else: what the ghost CARRIES is a rail button, drawn by the same
+   rules as every other — its ground and its colour come from `.pnl-icon-button--active`. Painted
+   here as well, the ghost drifted from the button the day either changed. */
+.pnl-rail-drag__ghost {
+  position: fixed;
+  z-index: 2147483647;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  will-change: transform;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 28%);
 }
 
 /* ---- zones ---- */

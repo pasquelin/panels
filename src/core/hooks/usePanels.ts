@@ -1,11 +1,18 @@
 import { useCallback, useMemo } from 'react'
 import { usePanelsActions, usePanelsState, usePanelsStore } from '../context'
-import { shownIn, specOf } from '../store'
+import { arrangedRegistry, shownIn, specOf } from '../store'
 import { useArrangement } from './useArrangement'
 import type { PanelSpec, Zone } from '../types'
 
 export type PanelsApi<Id extends string> = {
-  /** Every panel the project has declared, in declaration order. */
+  /**
+   * Every panel the project has declared, as the reader has arranged them: their order, and each
+   * one carrying the `zone` and `slot` it stands in rather than the ones it was declared with.
+   *
+   * 🛑 Arranged, like `isShown` and `close` beside it. Handed the declaration instead, a header
+   * or a rail of your own placed an icon in the zone a panel USED to be in while `isShown`
+   * answered about the one it had been moved to — three neighbouring answers, two of them true.
+   */
   panels: PanelSpec<Id>[]
   /** Brings a panel up in the half it declared, and focuses its zone. */
   reveal: (id: Id) => void
@@ -39,7 +46,9 @@ export function usePanels<Id extends string = string>(): PanelsApi<Id> {
 
   const isShown = useCallback(
     (id: Id) => {
-      const spec = specOf(arrangement.registry, id)
+      // Arranged: a panel the reader has dragged elsewhere is on screen in the half they put it
+      // in, and the declared spec still names the one the project chose.
+      const spec = specOf(arrangedRegistry(arrangement), id)
       return spec !== undefined && shownIn(arrangement, spec.zone)[spec.slot] === id
     },
     [arrangement],
@@ -47,7 +56,7 @@ export function usePanels<Id extends string = string>(): PanelsApi<Id> {
 
   const close = useCallback(
     (id: Id) => {
-      const spec = specOf(arrangement.registry, id)
+      const spec = specOf(arrangedRegistry(arrangement), id)
       // Asked about THIS panel: `close(zone, slot)` empties the half whatever stands in it, and
       // two panels share a half — closing the wrong one and reporting success.
       if (!spec || shownIn(arrangement, spec.zone)[spec.slot] !== id) return
@@ -59,7 +68,7 @@ export function usePanels<Id extends string = string>(): PanelsApi<Id> {
 
   return useMemo(
     () => ({
-      panels: arrangement.registry,
+      panels: arrangedRegistry(arrangement),
       reveal: actions.show,
       close,
       toggle: actions.toggle,

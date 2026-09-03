@@ -19,6 +19,7 @@ import { Center, type CenterProps } from './Center'
 import { ContentProvider, type PanelContent } from './content'
 import { DEFAULT_LABELS, type PanelsLabels } from './labels'
 import { Panel, type PanelProps } from './Panel'
+import { PanelDragProvider } from './PanelDrag'
 import { Rail } from './Rail'
 import { Surface } from './Surface'
 import { ZoneEdge } from './ZoneEdge'
@@ -42,6 +43,8 @@ export type PanelsProps<Id extends string = string> = Omit<PanelsProviderProps<I
    * what a project wants until it offers a switch of its own.
    */
   theme?: 'dark' | 'light'
+  /** Lets rail buttons be moved and persisted. Disabled for backward compatibility. */
+  draggablePanels?: boolean
   className?: string
   /** `<Panel>` and `<Center>` descriptors. Anything else is rendered where it stands. */
   children: ReactNode
@@ -109,6 +112,7 @@ export function Panels<Id extends string = string>({
   className,
   components,
   children,
+  draggablePanels = false,
   ...provider
 }: PanelsProps<Id>) {
   return (
@@ -121,6 +125,7 @@ export function Panels<Id extends string = string>({
         theme={theme}
         className={className}
         components={components}
+        draggablePanels={draggablePanels}
       >
         {children}
       </Frame>
@@ -131,7 +136,10 @@ export function Panels<Id extends string = string>({
 type FrameProps<Id extends string> = Pick<
   PanelsProps<Id>,
   'header' | 'footer' | 'railHeader' | 'labels' | 'theme' | 'className' | 'components' | 'children'
->
+> & {
+  /** Settled by `Panels`, so the frame reads a plain boolean rather than a third default. */
+  draggablePanels: boolean
+}
 
 /**
  * Inside the provider, so it may read the store the provider made.
@@ -148,6 +156,7 @@ function Frame<Id extends string>({
   className,
   components,
   children,
+  draggablePanels,
 }: FrameProps<Id>) {
   const store = usePanelsStore<Id>()
   // The COLUMNS box, not the chassis: the rails, the header and the footer are not room the
@@ -179,38 +188,40 @@ function Frame<Id extends string>({
         <div data-pnl-theme={theme} className={cx('pnl-root', className)}>
           {header}
 
-          <div className="pnl-middle">
-            <Rail side="left" header={railHeader} />
+          <PanelDragProvider enabled={draggablePanels}>
+            <div className="pnl-middle">
+              <Rail side="left" header={railHeader} />
 
-            {/* Handles occupy exactly the gutter: the space between two surfaces IS the resize
+              {/* Handles occupy exactly the gutter: the space between two surfaces IS the resize
               area, rather than decorative emptiness doubled by a handle. */}
-            <div ref={columns} className="pnl-columns">
-              <ZoneEdge<Id> zone="top" labels={words} />
+              <div ref={columns} className="pnl-columns">
+                <ZoneEdge<Id> zone="top" labels={words} />
 
-              {/* A column runs to the FOOT of the frame unless the band's half on its side is
+                {/* A column runs to the FOOT of the frame unless the band's half on its side is
                 drawing: the strip then starts where that column ends, and the opposite one
                 keeps its full height. */}
-              <div className="pnl-row">
-                {!band.left && <ZoneEdge<Id> zone="left" labels={words} />}
+                <div className="pnl-row">
+                  {!band.left && <ZoneEdge<Id> zone="left" labels={words} />}
 
-                <div className="pnl-stack">
-                  <div className="pnl-row">
-                    {band.left && <ZoneEdge<Id> zone="left" labels={words} />}
+                  <div className="pnl-stack">
+                    <div className="pnl-row">
+                      {band.left && <ZoneEdge<Id> zone="left" labels={words} />}
 
-                    <Surface className="pnl-centre">{centre?.props.children}</Surface>
+                      <Surface className="pnl-centre">{centre?.props.children}</Surface>
 
-                    {band.right && <ZoneEdge<Id> zone="right" labels={words} />}
+                      {band.right && <ZoneEdge<Id> zone="right" labels={words} />}
+                    </div>
+
+                    <Band<Id> left={band.left} right={band.right} labels={words} />
                   </div>
 
-                  <Band<Id> left={band.left} right={band.right} labels={words} />
+                  {!band.right && <ZoneEdge<Id> zone="right" labels={words} />}
                 </div>
-
-                {!band.right && <ZoneEdge<Id> zone="right" labels={words} />}
               </div>
-            </div>
 
-            <Rail side="right" />
-          </div>
+              <Rail side="right" />
+            </div>
+          </PanelDragProvider>
 
           {footer}
           {loose}

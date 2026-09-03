@@ -18,6 +18,30 @@ describe('readLayout', () => {
     expect(readLayout(storage, 'k')).toEqual(layout)
   })
 
+  it('reads back scoped panel placements and their order', () => {
+    const storage = memoryStorage()
+    const layout = {
+      views: { default: {} },
+      lengths: EMPTY,
+      placements: {
+        image: {
+          byId: { files: { zone: 'right' as const, slot: 'secondary' as const } },
+          order: ['files'],
+        },
+      },
+    }
+    writeLayout(storage, 'k', layout)
+
+    expect(readLayout(storage, 'k')).toEqual(layout)
+  })
+
+  it('keeps reading version 2 layouts without inventing placements', () => {
+    const storage = memoryStorage()
+    storage.write('k', stored({ default: {} }, EMPTY, 2))
+
+    expect(readLayout(storage, 'k')).toEqual({ views: { default: {} }, lengths: EMPTY })
+  })
+
   it('answers nothing when there is nothing', () => {
     expect(readLayout(memoryStorage(), 'k')).toBeUndefined()
   })

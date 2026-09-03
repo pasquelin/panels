@@ -30,6 +30,17 @@ no width, no handle, nothing.
 Each zone is cut in two: `primary` is the half nearest the window edge the zone hangs from — the
 top of a side column, the left of the bottom strip.
 
+## `top` has no rail
+
+A rail is an **edge** of the frame, and `top` is a band lying across the whole width — it has no
+edge of its own. Its panels therefore get **no rail icon**, and no drop can reach it: what a rail
+does not carry, a drag cannot offer. Declare a panel in `top` and the project opens and closes it
+itself, through `usePanels().toggle` or the store.
+
+It was carried by the left rail, and that is exactly what made it unreadable: its icons stood under
+the left column's own, so they read as more of that column — and a reader dropping a panel there
+watched it land across the top of the window instead.
+
 ## The band is one strip
 
 `bottomLeft` and `bottomRight` share **one height**. Whichever of them is alone runs under the
@@ -82,9 +93,11 @@ This is what lets it be adopted a piece at a time in an application that already
 
 ## Persistence
 
-What is stored: which half holds which panel, in each view, and the sizes. That is all — and
-only a real choice is written: a half nobody has touched is stored as open, naming nobody, so it
-follows your declarations rather than freezing an answer.
+What is stored: which half holds which panel, in each view, the sizes, and — where a reader has
+been allowed to move panels — the half each one was dragged into. That is all, and only a real
+choice is written: a half nobody has touched is stored as open, naming nobody, so it follows your
+declarations rather than freezing an answer, and a panel nobody has moved is stored nowhere at
+all.
 
 ```tsx
 <Panels

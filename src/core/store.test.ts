@@ -398,6 +398,141 @@ describe('views', () => {
   })
 })
 
+describe('panel placement', () => {
+  it('moves a shown panel atomically to another half', () => {
+    const store = made()
+    store.getState().settle()
+
+    store.getState().movePanel('files', { zone: 'right', slot: 'secondary' }, 0)
+
+    // 🛑 `search` is still declared for the half `files` left, so that half falls BACK to it. It
+    // once went dark instead, taking off screen a panel the reader had not touched.
+    expect(shownIn(store.getState(), 'left').primary).toBe('search')
+    expect(shownIn(store.getState(), 'right').secondary).toBe('files')
+    expect(store.getState().placements.default?.byId.files).toEqual({
+      zone: 'right',
+      slot: 'secondary',
+    })
+  })
+
+  it('moves a hidden panel without opening it', () => {
+    const store = made()
+    store.getState().settle()
+
+    store.getState().movePanel('search', { zone: 'right', slot: 'secondary' }, 0)
+
+    expect(shownIn(store.getState(), 'left').primary).toBe('files')
+    expect(openOf(store.getState()).right?.secondary).toBeNull()
+  })
+
+  it('opens the halves a scope change moves panels into', () => {
+    const store = made({
+      initial: {
+        views: {},
+        lengths: EMPTY_LENGTHS,
+        placements: {
+          image: { byId: { outline: { zone: 'top', slot: 'primary' } }, order: ['outline'] },
+        },
+      },
+    })
+    store.getState().settle()
+
+    store.getState().setPlacementScope('image')
+
+    // 🛑 The view was settled against the scope being left, and nothing else reopens a half: the
+    // panel this scope moves lands in a column that draws nothing until something else does.
+    expect(shownIn(store.getState(), 'top').primary).toBe('outline')
+  })
+
+  it('leaves a half the reader closed closed when the scope changes', () => {
+    const store = made()
+    store.getState().settle()
+    store.getState().close('left', 'primary')
+
+    store.getState().setPlacementScope('image')
+
+    // 🛑 A half the reader closed carries no key, exactly like one that never held anything —
+    // reopened on every mount of every project passing the prop, and then written to disk.
+    expect(openOf(store.getState()).left?.primary).toBeUndefined()
+  })
+
+  it('keeps what a half draws when an icon nobody was looking at is reordered above it', () => {
+    const store = made()
+    store.getState().settle()
+    // `files` is drawn because it comes first, and the half names nobody.
+    expect(shownIn(store.getState(), 'left').primary).toBe('files')
+
+    store.getState().movePanel('search', { zone: 'left', slot: 'primary' }, 0)
+
+    // 🛑 Moving a hidden icon must move nothing on screen. It changed which panel came first,
+    // and a half naming nobody draws whichever that is — so the drag swapped the panel.
+    expect(shownIn(store.getState(), 'left').primary).toBe('files')
+  })
+
+  it('keeps placements apart by scope and resets them', () => {
+    const store = made()
+    store.getState().settle()
+    store.getState().setPlacementScope('image')
+    store.getState().movePanel('search', { zone: 'right', slot: 'secondary' }, 0)
+    store.getState().setPlacementScope('video')
+
+    expect(store.getState().placements.video).toBeUndefined()
+    store.getState().reset()
+    expect(store.getState().placements).toEqual({})
+  })
+
+  it('closes the half a moved panel leaves only when nothing is left in it', () => {
+    const store = made()
+    store.getState().settle()
+
+    // `outline` is alone in the left column's second half: nothing remains to fall back on.
+    store.getState().movePanel('outline', { zone: 'top', slot: 'primary' }, 0)
+
+    expect(openOf(store.getState()).left?.secondary).toBeUndefined()
+    expect(shownIn(store.getState(), 'top').primary).toBe('outline')
+  })
+
+  it('opens the half a restored placement moved a panel into', () => {
+    const store = made({
+      initial: {
+        views: {},
+        lengths: EMPTY_LENGTHS,
+        placements: {
+          [DEFAULT_VIEW]: { byId: { files: { zone: 'top', slot: 'primary' } }, order: ['files'] },
+        },
+      },
+    })
+    store.getState().settle()
+
+    // Nothing is DECLARED for the top zone: settling against the declaration alone left the half
+    // the reader had dragged `files` into shut, and the panel invisible until they clicked it.
+    expect(shownIn(store.getState(), 'top').primary).toBe('files')
+  })
+
+  it('leaves the state untouched when a drop changes nothing', () => {
+    const store = made()
+    store.getState().settle()
+    store.getState().movePanel('search', { zone: 'left', slot: 'primary' }, 1)
+    const held = store.getState()
+
+    store.getState().movePanel('search', { zone: 'left', slot: 'primary' }, 1)
+
+    expect(store.getState()).toBe(held)
+  })
+
+  it('keeps solo panels in a primary half', () => {
+    const store = made()
+    store.getState().settle()
+
+    store.getState().movePanel('chat', { zone: 'left', slot: 'secondary' }, 0)
+
+    expect(store.getState().placements.default?.byId.chat).toEqual({
+      zone: 'left',
+      slot: 'primary',
+    })
+  })
+})
+
 describe('undraggedSizeOf', () => {
   it('gives the zone its own width when no panel asks for more', () => {
     const store = made()

@@ -5,6 +5,64 @@ All notable changes to `@pasquelin/panels`.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] — 2026-09-03
+
+### Added
+
+- **A reader can move a panel from one half to another.** Off by default — `draggablePanels` on
+  `<Panels>` turns it on. Dragging a rail icon lifts a ghost under the pointer and opens every
+  half a rail draws, empty ones included, to receive it; dropping it there moves the panel, and
+  the choice is stored with the rest of the layout. The declaration is never overwritten: it is
+  what the panel falls back to, so a panel dropped back where the project put it drops the
+  override rather than recording a coincidence. A panel that was on screen when it was picked up
+  is on screen where it lands; one that was not moves on paper alone, since opening a column
+  nobody asked for is a strange answer to a drag. `solo` panels always land in `primary` — one
+  sitting in `secondary` would silence the half it stands in.
+- **`placementScope`**, for two views that share one arrangement of the rails. Placement follows
+  `view` unless this names a scope of its own, so an application whose screens each keep their
+  own open panels can still let a reader arrange the rails once rather than once per screen.
+- **`movePanel(id, { zone, slot }, index)`** on the store and on `usePanelsActions`, for a menu,
+  a shortcut or a test. The index is the position inside the half being dropped into.
+- `arrangedRegistry(state)` is exported: the declared panels as the reader has arranged them,
+  each carrying the zone and half it stands in. `usePanels().panels` answers with the same list,
+  so it cannot disagree with the `isShown` and `close` beside it.
+
+### Fixed
+
+- **`--pnl-rail-button` sizes the rail's buttons, which it never did.** The token is documented as
+  "the rail icon button" and defaults to `36px`, but `.pnl-icon-button` sets `28px` and is
+  declared lower in the same stylesheet — at equal specificity it won, silently, and a project
+  widening its rail moved everything except the buttons. Found by the drag: a drop marker
+  honouring the token stood eight pixels taller than the button it stands in for, and the rail
+  jumped by the difference on every pointer move. Rail buttons are now the `36px` they were always
+  meant to be; a project that wants the old size sets `--pnl-rail-button: 28px`.
+
+### Changed
+
+- **`top` is carried by no rail.** A rail is an edge of the frame, and `top` is a band lying
+  across the whole width — it has no edge of its own. Given to the left rail for want of anywhere
+  else, its icons stood under the left column's own and read as more of that column: a reader
+  dropping a panel there watched it land across the top of the window. A panel declared in `top`
+  still draws; the project opens and closes it itself, through `usePanels().toggle` or the store.
+- **A zone holding nothing offers one place to land, not two.** `primary` and `secondary` are two
+  destinations only once something stands in the zone to be above or below; empty, they are the
+  same landing. Offered as two, a drag drew a pair of identical squares for one place, parted by a
+  separator cutting a zone that has nothing to cut.
+- **`useZonePanels` answers both halves, empty ones included.** What a rail draws for an empty
+  half is the rail's own question — nothing at rest, a place to land while a panel is carried —
+  and answering it in the hook left the caller rebuilding the half it had just dropped. Code that
+  took the result as "the halves worth drawing" now filters on `panels.length > 0` itself.
+- **The stored layout stays at version 2.** The placements a reader drags only ever GREW the
+  file: a build without them ignores the key, and this one reads a file that has none. Bumped, an
+  older bundle — a second tab, a rollback — would have found a version it does not know and
+  dropped the whole layout, sizes and arrangements included, to reject a key it never needed.
+- **`Arranged` now requires `placements` and `placementScope`.** Every reader built on it asks
+  where a panel *is*, and one handed a state without them is not asking a smaller question — it is
+  being told where panels were declared for a chassis whose reader has moved them. Left optional,
+  two call sites inside the library had already forgotten them. Code that builds an `Arranged` by
+  hand rather than taking it from `useArrangement` has two fields to add; `{}` and `null` are the
+  values for a chassis nobody has rearranged.
+
 ## [0.3.4] — 2026-09-02
 
 ### Changed
@@ -242,6 +300,7 @@ First release.
 - Optional `@pasquelin/panels/dockview` entry point for document tabs.
 - No runtime dependencies.
 
+[0.4.0]: https://github.com/pasquelin/panels/releases/tag/v0.4.0
 [0.3.4]: https://github.com/pasquelin/panels/releases/tag/v0.3.4
 [0.3.3]: https://github.com/pasquelin/panels/releases/tag/v0.3.3
 [0.3.2]: https://github.com/pasquelin/panels/releases/tag/v0.3.2

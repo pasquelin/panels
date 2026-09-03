@@ -8,6 +8,9 @@ import {
   type Lengths,
   type OpenByZone,
   type PanelSpec,
+  type PanelPlacement,
+  type PlacementLayout,
+  type PlacementsByScope,
   type LayoutState,
   type Slot,
   type Zone,
@@ -26,6 +29,9 @@ export type PanelsState<Id extends string = string> = {
    * clears: no second field can then disagree about which views have been opened.
    */
   views: Record<string, OpenByZone<Id>>
+  placements: PlacementsByScope<Id>
+  /** `null` follows `view`; a name lets placement vary independently from open panels. */
+  placementScope: string | null
   lengths: Lengths
   /**
    * Halves the project wants open whatever the panels say, as last passed to `settle`. Held so
@@ -63,10 +69,12 @@ export type PanelsState<Id extends string = string> = {
    * back untouched when it returns; the lengths are shared, so no column changes width.
    */
   setView: (view: string) => void
+  setPlacementScope: (scope: string | undefined) => void
 
   show: (id: Id) => void
   close: (zone: Zone, slot: Slot) => void
   toggle: (id: Id) => void
+  movePanel: (id: Id, placement: PanelPlacement, index: number) => void
   focus: (zone: Zone | null) => void
 
   /** `available`: the container's dimension along the zone's axis. */
@@ -112,6 +120,74 @@ export type Arranged<Id extends string = string> = {
    * hooks build it from the view on screen alone — would have read that promise and believed it.
    */
   views: Record<string, OpenByZone<Id>>
+  /**
+   * 🛑 Required, both of them, however empty: every reader below asks WHERE a panel is, and a
+   * caller that leaves these out is not asking a smaller question — it is getting the declared
+   * answer for a chassis whose reader has moved things. Optional, two call sites inside this
+   * very file had already forgotten them, and the mistake reads as ordinary code.
+   */
+  placements: PlacementsByScope<Id>
+  /** `null` follows `view`. See `PanelsState.placementScope`. */
+  placementScope: string | null
+}
+
+/** The name whose rail arrangement is in front. */
+function placementScopeOf<Id extends string>(state: Arranged<Id>): string {
+  return state.placementScope ?? state.view
+}
+
+/**
+ * The arrangement saved for the scope in front, if the reader has made one.
+ *
+ * 🛑 `hasOwn`, never `in`, for the same reason as `isSettled`: a scope named after anything on
+ * `Object.prototype` would otherwise come back holding a function.
+ */
+function layoutOf<Id extends string>(state: Arranged<Id>): PlacementLayout<Id> | undefined {
+  const scope = placementScopeOf(state)
+  return Object.hasOwn(state.placements, scope) ? state.placements[scope] : undefined
+}
+
+/**
+ * Arranged registries, held against the two objects that decide them: the declared list and the
+ * saved layout. Both are replaced rather than mutated — `declare` and `movePanel` — so their
+ * identity IS the cache key, and a `WeakMap` lets a registry the project has stopped rendering
+ * be collected with its entry.
+ *
+ * 🛑 Not an optimisation: `firstIn` asks for this list a dozen times per zone per render, and
+ * every answer costs a Map, two arrays and a sort. Uncached, one rail click sorted the whole
+ * registry some fifty times.
+ */
+const ARRANGED = new WeakMap<object, WeakMap<object, PanelSpec<string>[]>>()
+
+/**
+ * The declared panels as the reader has arranged them: their order, and each one carrying the
+ * `zone` and `slot` it was moved to rather than the ones it was declared with.
+ *
+ * Resolved HERE and once, rather than at each of the fifteen sites that read `spec.zone`: those
+ * sites go on reading a spec, and cannot forget to ask where the panel really is.
+ */
+export function arrangedRegistry<Id extends string>(state: Arranged<Id>): PanelSpec<Id>[] {
+  const layout = layoutOf(state)
+  if (!layout) return state.registry
+
+  const held = ARRANGED.get(state.registry)?.get(layout)
+  if (held) return held as PanelSpec<Id>[]
+
+  const rank = new Map(layout.order.map((id, index) => [id, index]))
+  // Panels the layout does not name sort AFTER the ones it does, in the order the project
+  // declares them — `sort` is stable, so declaration order needs no tiebreaker of its own.
+  const last = layout.order.length
+  const arranged = [...state.registry]
+    .sort((a, b) => (rank.get(a.id) ?? last) - (rank.get(b.id) ?? last))
+    .map(spec => {
+      const moved = layout.byId[spec.id]
+      return moved ? { ...spec, ...moved } : spec
+    })
+
+  const byLayout = ARRANGED.get(state.registry) ?? new WeakMap()
+  ARRANGED.set(state.registry, byLayout)
+  byLayout.set(layout, arranged)
+  return arranged
 }
 
 /** The arrangement of the view in front. Empty until that view has been settled. */
@@ -129,7 +205,7 @@ export function openOf<Id extends string>(state: Arranged<Id>): OpenByZone<Id> {
  * for an indeterminate time.
  */
 function opening<Id extends string>(
-  registry: PanelSpec<Id>[],
+  state: Arranged<Id>,
   defaults: OpenByZone<Id> | undefined,
 ): OpenByZone<Id> {
   const open: OpenByZone<Id> = { ...(defaults ?? {}) }
@@ -139,9 +215,11 @@ function opening<Id extends string>(
       // `!== undefined` and not `in`: a JSON round trip drops a key written as `undefined`, so
       // honouring it here would draw a half on the first launch and not on the next.
       if (open[zone]?.[slot] !== undefined) continue
-      // A half with nothing declared for it stays closed: an open one drawing nothing would
-      // still hold a size and a handle.
-      if (firstIn(registry, zone, slot) === undefined) continue
+      // A half nothing STANDS in stays closed: an open one drawing nothing would still hold a
+      // size and a handle. Asked of the arranged registry, not the declared one — a restored
+      // layout has panels somewhere other than where the project put them, and settling against
+      // the declaration left the half they were moved to shut on the very first paint.
+      if (firstIn(state, zone, slot) === undefined) continue
       // `null`, never an id: WHICH panel a half opens on is a question every view answers for
       // itself, and writing one view's answer down imposes it on all of them.
       open[zone] = { ...open[zone], [slot]: null }
@@ -183,13 +261,13 @@ function sameSpecs<Id extends string>(held: PanelSpec<Id>[], next: PanelSpec<Id>
   )
 }
 
-/** The panel a project declares first for that half — what an untouched half opens on. */
+/** The panel that comes first in that half — what an untouched half opens on. */
 function firstIn<Id extends string>(
-  registry: PanelSpec<Id>[],
+  state: Arranged<Id>,
   zone: Zone,
   slot: Slot,
 ): PanelSpec<Id> | undefined {
-  return registry.find(spec => spec.zone === zone && spec.slot === slot)
+  return arrangedRegistry(state).find(spec => spec.zone === zone && spec.slot === slot)
 }
 
 /**
@@ -225,8 +303,10 @@ function resolve<Id extends string>(
   // no key at all. The two look alike to every other operator.
   if (!slots || !(slot in slots)) return undefined
 
-  const named = specOf(state.registry, slots[slot])
-  return named?.zone === zone && named.slot === slot ? named : firstIn(state.registry, zone, slot)
+  const named = specOf(arrangedRegistry(state), slots[slot])
+  if (named?.zone === zone && named.slot === slot) return named
+
+  return firstIn(state, zone, slot)
 }
 
 /**
@@ -394,6 +474,8 @@ export function createPanelsStore<Id extends string = string>(
     registry: [],
     view: options.view ?? DEFAULT_VIEW,
     views: restored?.views ?? {},
+    placements: restored?.placements ?? {},
+    placementScope: null,
     lengths: restored?.lengths ?? EMPTY_LENGTHS,
     focusedZone: null,
     stashed: {},
@@ -417,7 +499,7 @@ export function createPanelsStore<Id extends string = string>(
           return held === state.defaults ? state : { defaults: held }
         }
 
-        return { views: arranged(state, opening(state.registry, held)), defaults: held }
+        return { views: arranged(state, opening(state, held)), defaults: held }
       }),
 
     // Settles the view it arrives at, rather than leaving that to the next render: a project
@@ -430,7 +512,7 @@ export function createPanelsStore<Id extends string = string>(
           view,
           views: isSettled(state, view)
             ? state.views
-            : { ...state.views, [view]: opening(state.registry, state.defaults) },
+            : { ...state.views, [view]: opening({ ...state, view }, state.defaults) },
           // Session state, and it belongs to the view being left: a zone accented on arrival is
           // a zone nobody clicked, and a stash given back in another view would reopen a half
           // there.
@@ -439,17 +521,56 @@ export function createPanelsStore<Id extends string = string>(
         }
       }),
 
+    setPlacementScope: scope =>
+      set(state => {
+        const next = scope ?? null
+        if (state.placementScope === next) return state
+        // Unsettled, `settle` is about to run against the new scope and would refuse to run twice
+        // if this wrote the entry first — the project's `defaultOpen` would be lost.
+        if (!isSettled(state, state.view)) return { placementScope: next }
+
+        // 🛑 The halves are reopened, not merely relabelled. The arrangement was settled against
+        // the scope being LEFT, so a panel this scope puts in a half that one kept shut arrived
+        // in a column drawing nothing — and `placementScope`, whose whole purpose is to let two
+        // views share one arrangement of the rails, did nothing a reader could see.
+        //
+        // 🛑 Only the halves that held NOTHING before and hold something now. A half the reader
+        // closed carries no key either, and `opening` — which fills every half without one — put
+        // every one of them back, on every mount of every project passing this prop, and the
+        // debounced write then saved that over the arrangement they had made.
+        const moved = { ...state, placementScope: next }
+        const open = { ...openOf(state) }
+        let opened = false
+
+        for (const zone of ZONES) {
+          for (const slot of SLOTS) {
+            if (open[zone]?.[slot] !== undefined) continue
+            if (firstIn(state, zone, slot) !== undefined) continue
+            if (firstIn(moved, zone, slot) === undefined) continue
+
+            open[zone] = { ...open[zone], [slot]: null }
+            opened = true
+          }
+        }
+
+        return opened
+          ? { placementScope: next, views: { ...state.views, [state.view]: open } }
+          : { placementScope: next }
+      }),
+
     show: id =>
       set(state => {
-        const spec = specOf(state.registry, id)
+        // Arranged, not declared: a panel the reader has moved lives in the half they put it
+        // in, and the spec carries that half — nothing downstream has to be told twice.
+        const spec = specOf(arrangedRegistry(state), id)
         if (!spec) return state
 
-        const { zone } = spec
+        const { zone, slot } = spec
         const shown = shownSpecsIn(state, zone)
         // Already on screen is only focused, never written down: the half may be showing this
         // panel because it is the one declared first, and naming it would settle for every
         // other view a question this click never asked.
-        if (shown[spec.slot]?.id === id) return { focusedZone: zone }
+        if (shown[slot]?.id === id) return { focusedZone: zone }
 
         const [slots, stashed] = slotsShowing(state, zone, spec, shown.primary)
         return {
@@ -463,7 +584,7 @@ export function createPanelsStore<Id extends string = string>(
       set(state => {
         const [slots, stashed] = slotsClosing(state, zone, slot)
         const views = arranged(state, { ...openOf(state), [zone]: slots })
-        const drawn = zoneDraws({ registry: state.registry, view: state.view, views }, zone)
+        const drawn = zoneDraws({ ...state, views }, zone)
 
         return {
           views,
@@ -474,12 +595,105 @@ export function createPanelsStore<Id extends string = string>(
 
     toggle: id => {
       const state = get()
-      const spec = specOf(state.registry, id)
+      const spec = specOf(arrangedRegistry(state), id)
       if (!spec) return
 
       if (shownIn(state, spec.zone)[spec.slot] === id) state.close(spec.zone, spec.slot)
       else state.show(id)
     },
+
+    movePanel: (id, requested, index) =>
+      set(state => {
+        const declared = specOf(state.registry, id)
+        const spec = specOf(arrangedRegistry(state), id)
+        if (!declared || !spec) return state
+
+        // `primary` only, as `PanelSpec.solo` says: dropped in a second half, a solo panel would
+        // silence the very half it was put in and draw nowhere.
+        const placement =
+          spec.solo === true ? { ...requested, slot: 'primary' as const } : requested
+        const scope = placementScopeOf(state)
+        const held = layoutOf(state)
+
+        const arrangement = arrangedRegistry(state)
+        const others = arrangement.filter(panel => panel.id !== id)
+        const landing = others.filter(
+          panel => panel.zone === placement.zone && panel.slot === placement.slot,
+        )
+        // The rail hands an index WITHIN the half; the order is the whole registry. The panel
+        // the drop lands before is what carries one to the other, and past the end there is no
+        // such panel — which is exactly what "put it last" means.
+        const before = landing[index]
+        const order = others.map(panel => panel.id)
+        order.splice(before ? order.indexOf(before.id) : order.length, 0, id)
+
+        const elsewhere = spec.zone !== placement.zone || spec.slot !== placement.slot
+        // 🛑 Against the order as it STANDS, by content. Against `held` it missed the first such
+        // drop of every scope, since there is no layout to compare to until one is written — so a
+        // six-pixel slip on a rail icon rebuilt `placements`, woke every zone and spent a write
+        // on disk to record that nothing had happened. And by content, never by identity: `order`
+        // is built three lines up, so an identity test is false every time.
+        if (!elsewhere && arrangement.every((panel, rank) => panel.id === order[rank])) return state
+
+        const byId: PlacementLayout<Id>['byId'] = { ...held?.byId }
+        // Back where the project put it: the override is DROPPED rather than written down, so
+        // the panel follows the declaration again the day the project moves it.
+        if (placement.zone === declared.zone && placement.slot === declared.slot) delete byId[id]
+        else byId[id] = placement
+        const placements = { ...state.placements, [scope]: { byId, order } }
+
+        // A panel nobody is looking at moves on paper alone: opening the half it landed in would
+        // be a column the reader never asked for.
+        //
+        // 🛑 But "on paper alone" has to be true, and it was not. A half that names NOBODY draws
+        // whichever panel comes first, so reordering an icon nobody was looking at above a
+        // visible one silently swapped what the half drew. The panel each affected half is
+        // drawing is written down before the order moves under it — which is what naming one
+        // means: a choice, made here on the reader's behalf so that nothing they see changes.
+        if (shownIn(state, spec.zone)[spec.slot] !== id) {
+          const next = { ...state, placements }
+          const open = { ...openOf(state) }
+          let pinned = false
+
+          for (const half of [
+            { zone: spec.zone, slot: spec.slot },
+            { zone: placement.zone, slot: placement.slot },
+          ]) {
+            const drawn = shownIn(state, half.zone)[half.slot]
+            if (open[half.zone]?.[half.slot] !== null || drawn === undefined) continue
+            if (shownIn(next, half.zone)[half.slot] === drawn) continue
+
+            open[half.zone] = { ...open[half.zone], [half.slot]: drawn }
+            pinned = true
+          }
+
+          return pinned ? { placements, views: arranged(state, open) } : { placements }
+        }
+
+        const [closed, sourceStash] = slotsClosing(state, spec.zone, spec.slot)
+        // 🛑 Left OPEN naming nobody, not emptied, whenever the half still holds panels. Emptied,
+        // `resolve` had nothing to fall back on and the half went dark — so dragging one of two
+        // panels out of a half took the OTHER one off screen with it, a panel the reader never
+        // touched. Naming nobody is exactly what an untouched half holds; the half falls back to
+        // whoever is still there.
+        const staying = others.some(panel => panel.zone === spec.zone && panel.slot === spec.slot)
+        const sourceSlots = staying ? { ...closed, [spec.slot]: null } : closed
+        const sourceViews = arranged(state, { ...openOf(state), [spec.zone]: sourceSlots })
+        const next = { ...state, placements, views: sourceViews, stashed: sourceStash }
+        const shown = shownSpecsIn(next, placement.zone)
+        const [targetSlots, stashed] = slotsShowing(
+          next,
+          placement.zone,
+          { ...spec, ...placement },
+          shown.primary,
+        )
+        return {
+          placements,
+          views: arranged(next, { ...openOf(next), [placement.zone]: targetSlots }),
+          stashed,
+          focusedZone: placement.zone,
+        }
+      }),
 
     focus: zone => set(state => (state.focusedZone === zone ? state : { focusedZone: zone })),
 
@@ -550,8 +764,9 @@ export function createPanelsStore<Id extends string = string>(
         views:
           state.registry.length === 0
             ? {}
-            : { [state.view]: opening(state.registry, state.defaults) },
+            : { [state.view]: opening({ ...state, placements: {} }, state.defaults) },
         lengths: EMPTY_LENGTHS,
+        placements: {},
         focusedZone: null,
         // Left behind, a solo panel closed after a reset would give back the zone the reset
         // had just cleared.

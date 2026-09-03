@@ -141,3 +141,54 @@ The prop is **controlled**: it is reconciled on every render, so `setView` calle
 is taken over on the next one. And views are never evicted — name the handful of screens that own
 an arrangement rather than every route, or `view={location.pathname}` grows one stored entry per
 URL, for ever.
+
+## Moving panels
+
+A reader may drag a rail icon into another half — the other half of the same column, the opposite
+column, either end of the band. Every half a rail draws will take a drop, and the empty ones show
+themselves for as long as a panel is being carried.
+
+A zone holding **nothing** offers one place to land rather than two: `primary` and `secondary` are
+only two destinations once something stands in the zone to be above or below.
+
+It is **off by default**: a chassis whose icons move under the pointer is not what every project
+wants.
+
+```tsx
+<Panels<PanelId> draggablePanels>
+```
+
+The panel keeps the zone and the half it was dropped in, and that choice is stored with the rest
+of the layout. Your declaration is not overwritten — it is what the panel falls **back** to. Drop
+a panel where the project already put it and the override is dropped rather than written down as
+a coincidence, so the panel follows the declaration again the day you move it.
+
+A panel that was on screen when it was picked up is on screen where it lands. One that was not
+moves on paper alone: opening a column the reader never asked for is a strange way to answer a
+drag.
+
+`solo` panels always land in `primary`, whichever half they are dropped in — a solo panel silences
+the other half, and one sitting in `secondary` would silence the half it stands in.
+
+## `placementScope`
+
+Where the panels sit follows `view`, unless you say otherwise:
+
+```tsx
+<Panels<PanelId> view={reviewing ? 'review' : 'edit'} placementScope="shared" draggablePanels>
+```
+
+The two views then keep their own **open panels** while sharing one **arrangement of the rails**:
+a reader who moves Search under Files does it once, not once per screen. Left out, each view
+arranges its own rails.
+
+## Moving a panel from your own code
+
+`movePanel` is on the store and on `usePanelsActions`, for a menu, a shortcut or a test:
+
+```tsx
+store.getState().movePanel('files', { zone: 'right', slot: 'secondary' }, 0)
+```
+
+The last argument is the position **inside that half**, counted among the panels already there —
+`0` puts it first, anything past the end puts it last.

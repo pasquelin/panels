@@ -1,7 +1,13 @@
 import { useMemo } from 'react'
 import { usePanelsState } from '../context'
 import { shownIn, shownSpecsIn, zoneDraws, zoneTakesRoom, type Arranged } from '../store'
-import { ZONES_BY_SIDE, type OpenByZone, type PanelSpec, type Zone } from '../types'
+import {
+  ZONES_BY_SIDE,
+  type OpenByZone,
+  type PanelSpec,
+  type PlacementsByScope,
+  type Zone,
+} from '../types'
 
 /**
  * What every reader of `shownIn` and `zoneDraws` needs: the declared panels, and the view whose
@@ -16,10 +22,18 @@ export function useArrangement<Id extends string = string>(): Arranged<Id> {
   // The view in front alone: subscribed to the whole map, every zone would wake on a write to
   // an arrangement that is not even on screen.
   const open = usePanelsState<Id, OpenByZone<Id> | undefined>(state => state.views[state.view])
+  const placements = usePanelsState<Id, PlacementsByScope<Id>>(state => state.placements)
+  const placementScope = usePanelsState<Id, string | null>(state => state.placementScope)
 
   return useMemo(
-    () => ({ registry, view, views: open === undefined ? {} : { [view]: open } }),
-    [registry, view, open],
+    () => ({
+      registry,
+      view,
+      views: open === undefined ? {} : { [view]: open },
+      placements,
+      placementScope,
+    }),
+    [registry, view, open, placements, placementScope],
   )
 }
 

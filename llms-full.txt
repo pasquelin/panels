@@ -21,7 +21,7 @@
 - **One store per chassis**, created not imported (`createPanelsStore`). No module singleton —
   two chassis can live in one application, and a test cannot leak into the next.
 - **What is stored is not what is shown, and only a CHOICE is stored.** Stored: which panel each
-  half was told to hold, per view, and the sizes. A half nobody touched is stored open, naming
+  half was told to hold, per view, the sizes, and the half a reader has dragged a panel into. A half nobody touched is stored open, naming
   nobody, and a view nobody has opened is simply absent — which is what tells the chassis to
   settle it. Resolved at render: which panel a half draws (the one named if it is still declared for
   that half, else the first one that is), whether the zone draws at all, the size it takes
@@ -33,6 +33,11 @@
 - **A panel that should not be offered is a panel you do not declare.** That replaces what a
   capability system would be for — and withdrawing one costs nothing: the half falls back, the
   choice is remembered, and declaring the panel again gives it its place back.
+- **Moving panels is opt-in too.** `<Panels draggablePanels>` lets a reader drag a rail icon into
+  any half a rail draws, and where they put it is stored. The declaration is never overwritten —
+  it is what the panel falls back to, and dropping a panel back where it was declared removes the
+  override rather than writing it down. `arrangedRegistry(state)` is the declared list re-ordered
+  and re-placed; every reader downstream goes on reading `spec.zone` and `spec.slot`.
 - **Views are named arrangements, and they are opt-in.** `<Panels view="review">`: each view
   keeps the panels it had open to itself, the lengths stay shared. Left out, everything lands in
   one view and nothing about this is visible. Not "surfaces": the library still knows nothing
@@ -70,6 +75,9 @@ usual missing piece.
 
 - Zones: `left` `right` `top` `bottomLeft` `bottomRight`. **An empty zone takes no room at all.**
 - Each zone has two halves: `primary` (nearest the window edge) and `secondary`.
+- Two rails, both vertical: the LEFT carries `left` + `bottomLeft`, the RIGHT `right` +
+  `bottomRight`. **`top` is carried by no rail** — a band across the width has no edge of its own —
+  so a panel declared there has no rail icon and cannot be dragged into: the project drives it.
 - Panels sharing a zone AND a slot **take turns** — the rail switches between them. Different
   slots show together, stacked.
 - `bottomLeft` + `bottomRight` share **one height**. Whichever is alone runs under the opposite
@@ -84,8 +92,8 @@ usual missing piece.
 `PanelHeader` `IconButton` `Separator` `ResizeHandle`
 
 ### `<Panels>` props
-`store` `storageKey` `storage` `defaultOpen` `view` `header` `footer` `railHeader` `labels`
-`components` `theme` `className`
+`store` `storageKey` `storage` `defaultOpen` `view` `placementScope` `draggablePanels` `header`
+`footer` `railHeader` `labels` `components` `theme` `className`
 
 ### `<Panel>` props
 `id` `zone` `slot?` `title` `icon?` `actions?` `opens?` `solo?` `fillActions?`
@@ -99,7 +107,7 @@ usual missing piece.
 
 ### Core
 `createPanelsStore` `shownIn` `shownSpecsIn` `openOf` `specOf` `zoneDraws` `zoneTakesRoom`
-`undraggedSizeOf`
+`undraggedSizeOf` `arrangedRegistry`
 `fitZoneSize` `fitSplit` `sharedSizes` `sizeKeyOf` `MIN_SIZE` `MIN_CENTER` `MIN_SPLIT`
 `DEFAULT_SIZES` · `browserStorage` `memoryStorage` `readLayout` `writeLayout` `LAYOUT_VERSION`
 · `ZONES` `SLOTS` `BOTTOM_ZONES` `ZONES_BY_SIDE` `DEFAULT_VIEW` `isBottom` `isHorizontal`
@@ -118,6 +126,10 @@ window.electron?.onMenu(id => store.getState().show(id))
 
 <Panels<PanelId> store={store}>…</Panels>
 ```
+
+Actions: `show` `close` `toggle` `movePanel(id, { zone, slot }, index)` `focus` `resize` `resplit`
+`resplitBand` `fit` `reset` — plus `declare` `settle` `setView` `setPlacementScope`, which the
+chassis drives itself.
 
 ## Theming
 
@@ -218,12 +230,15 @@ already there.
 ## What you get
 
 - **Five zones** — `left`, `right`, `top`, `bottomLeft`, `bottomRight`. A zone nobody fills takes
-  no room at all.
+  no room at all. `top` is a band across the width and has no rail of its own: the project opens
+  and closes it.
 - **Two halves per zone** — `primary` and `secondary`, parted by a handle. Panels sharing a half
   take turns; the rail switches between them.
 - **Icon rails** that stay put when a zone closes, so a closed panel is always one click away.
 - **Resize** by pointer or keyboard, clamped so the centre never disappears.
 - **Persistence** to `localStorage` out of the box, or wherever you say.
+- **Draggable rail icons**, opt-in: `draggablePanels` lets a reader move a panel into another
+  half, and where they put it is remembered.
 - **Typed ids** — `reveal('chatt')` does not compile.
 - **No dependencies** beyond React. No icon set, no CSS framework, no i18n.
 
@@ -498,6 +513,57 @@ is taken over on the next one. And views are never evicted — name the handful 
 an arrangement rather than every route, or `view={location.pathname}` grows one stored entry per
 URL, for ever.
 
+## Moving panels
+
+A reader may drag a rail icon into another half — the other half of the same column, the opposite
+column, either end of the band. Every half a rail draws will take a drop, and the empty ones show
+themselves for as long as a panel is being carried.
+
+A zone holding **nothing** offers one place to land rather than two: `primary` and `secondary` are
+only two destinations once something stands in the zone to be above or below.
+
+It is **off by default**: a chassis whose icons move under the pointer is not what every project
+wants.
+
+```tsx
+<Panels<PanelId> draggablePanels>
+```
+
+The panel keeps the zone and the half it was dropped in, and that choice is stored with the rest
+of the layout. Your declaration is not overwritten — it is what the panel falls **back** to. Drop
+a panel where the project already put it and the override is dropped rather than written down as
+a coincidence, so the panel follows the declaration again the day you move it.
+
+A panel that was on screen when it was picked up is on screen where it lands. One that was not
+moves on paper alone: opening a column the reader never asked for is a strange way to answer a
+drag.
+
+`solo` panels always land in `primary`, whichever half they are dropped in — a solo panel silences
+the other half, and one sitting in `secondary` would silence the half it stands in.
+
+## `placementScope`
+
+Where the panels sit follows `view`, unless you say otherwise:
+
+```tsx
+<Panels<PanelId> view={reviewing ? 'review' : 'edit'} placementScope="shared" draggablePanels>
+```
+
+The two views then keep their own **open panels** while sharing one **arrangement of the rails**:
+a reader who moves Search under Files does it once, not once per screen. Left out, each view
+arranges its own rails.
+
+## Moving a panel from your own code
+
+`movePanel` is on the store and on `usePanelsActions`, for a menu, a shortcut or a test:
+
+```tsx
+store.getState().movePanel('files', { zone: 'right', slot: 'secondary' }, 0)
+```
+
+The last argument is the position **inside that half**, counted among the panels already there —
+`0` puts it first, anything past the end puts it last.
+
 ==============================================================================
 Layout
 ==============================================================================
@@ -531,6 +597,17 @@ no width, no handle, nothing.
 
 Each zone is cut in two: `primary` is the half nearest the window edge the zone hangs from — the
 top of a side column, the left of the bottom strip.
+
+## `top` has no rail
+
+A rail is an **edge** of the frame, and `top` is a band lying across the whole width — it has no
+edge of its own. Its panels therefore get **no rail icon**, and no drop can reach it: what a rail
+does not carry, a drag cannot offer. Declare a panel in `top` and the project opens and closes it
+itself, through `usePanels().toggle` or the store.
+
+It was carried by the left rail, and that is exactly what made it unreadable: its icons stood under
+the left column's own, so they read as more of that column — and a reader dropping a panel there
+watched it land across the top of the window instead.
 
 ## The band is one strip
 
@@ -584,9 +661,11 @@ This is what lets it be adopted a piece at a time in an application that already
 
 ## Persistence
 
-What is stored: which half holds which panel, in each view, and the sizes. That is all — and
-only a real choice is written: a half nobody has touched is stored as open, naming nobody, so it
-follows your declarations rather than freezing an answer.
+What is stored: which half holds which panel, in each view, the sizes, and — where a reader has
+been allowed to move panels — the half each one was dragged into. That is all, and only a real
+choice is written: a half nobody has touched is stored as open, naming nobody, so it follows your
+declarations rather than freezing an answer, and a panel nobody has moved is stored nowhere at
+all.
 
 ```tsx
 <Panels
@@ -635,7 +714,7 @@ const { panels, reveal, close, toggle, isShown, focusedZone, reset } = usePanels
 
 | | |
 | --- | --- |
-| `panels` | Every declared panel, in declaration order |
+| `panels` | Every declared panel, **as the reader arranged them** — order, zone and half |
 | `reveal(id)` | Brings it up in the half it declared, and focuses its zone |
 | `close(id)` | Closes **that** panel, or nothing |
 | `toggle(id)` | What a rail icon does |
@@ -713,8 +792,8 @@ window.electron?.onMenu(id => store.getState().show(id))
 <Panels<PanelId> store={store}>…</Panels>
 ```
 
-`store.getState()` gives the same actions the hooks call: `show`, `close`, `toggle`, `focus`,
-`resize`, `resplit`, `resplitBand`, `fit`, `reset` — plus `declare` and `setView`, which the
+`store.getState()` gives the same actions the hooks call: `show`, `close`, `toggle`, `movePanel`,
+`focus`, `resize`, `resplit`, `resplitBand`, `fit`, `reset` — plus `declare` and `setView`, which the
 chassis drives itself.
 
 Inside React, the `view` prop is the only way to change views: it is controlled and reconciled on
@@ -905,7 +984,8 @@ target them in tests:
 
 ```
 pnl-root · pnl-middle · pnl-columns · pnl-row · pnl-stack · pnl-centre
-pnl-rail · pnl-rail__group · pnl-rail__button
+pnl-rail · pnl-rail__group · pnl-rail__button · pnl-rail__drop · pnl-rail__button-wrap
+pnl-rail-drag__placeholder · pnl-rail-drag__empty · pnl-rail-drag__ghost
 pnl-zone · pnl-band · pnl-surface · pnl-body
 pnl-header · pnl-header__title · pnl-header__actions · pnl-header__trailing
 pnl-icon-button · pnl-separator · pnl-handle
@@ -1200,16 +1280,24 @@ the same constraint `<Route>` has, and it is understood.
 
 ## What is stored, and what is resolved
 
-Stored: which panel each half was **told** to hold, per view, and the sizes. Nothing else — and
-only a real choice: a half nobody has touched is stored open, naming nobody.
+Stored: which panel each half was **told** to hold, per view, the sizes, and — where the reader
+has moved panels — where they were dragged to. Nothing else, and only a real choice: a half nobody
+has touched is stored open, naming nobody.
 
 Everything else is **resolved at render**:
 
+- where a panel *is* is not where it was *declared* — a reader may have dragged it into another
+  half, and `arrangedRegistry` hands back the declared list re-ordered and re-placed
 - which panel a half *draws* is not what it *holds* — the one it names if that panel is still
   declared for that half, else the first one that is
 - what a zone *draws* is not what its halves hold either — a `solo` panel silences the other
 - the size a zone *takes* is bounded against the opposite zone and the measured room
 - whether a zone *takes room* is not whether it *draws* — the band's two halves share one height
+
+The first of those is resolved **once per state**, not per reader: `firstIn` alone asks for it a
+dozen times per zone per render, and the answer is held against the two objects that decide it —
+the declared list and the saved layout, both replaced rather than mutated. Every site downstream
+goes on reading `spec.zone`, and none of them can forget to ask where the panel really is.
 
 Each of those was a bug before it was a function. They are `shownIn`, `sharedSizes` and
 `zoneTakesRoom`, and each has a test that starts from the arrangement that broke it.
@@ -1257,8 +1345,10 @@ not something a repaint should reach.
 - **tooltips** — and everything else a design system puts on a button. The two buttons the
   chassis draws itself are replaceable (`components`), which is what keeps `tooltip`, `shortcut`
   and `badge` from becoming props here one after the other.
-- **floating and dragging panels between zones** — planned, and the state model already allows an
-  override of the declared zone. Not in v1.
+- **floating panels** — a panel torn off into a window of its own. Dragging one from one half to
+  another is in (`draggablePanels`); a panel that leaves the frame is not.
+- **a drag that reorders the zones themselves** — the five zones are the frame, and a reader who
+  could move them would be redrawing the application rather than arranging it.
 
 ==============================================================================
 Licences

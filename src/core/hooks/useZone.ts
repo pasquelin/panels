@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 import { usePanelsState } from '../context'
-import { shownSpecsIn, undraggedSizeOf, zoneTakesRoom } from '../store'
+import { arrangedRegistry, shownSpecsIn, undraggedSizeOf, zoneTakesRoom } from '../store'
 import { OPPOSITE, sharedSizes, sizeKeyOf } from '../clamps'
-import { isHorizontal, type PanelSpec, type Slot, type Zone } from '../types'
+import { isHorizontal, SLOTS, type PanelSpec, type Slot, type Zone } from '../types'
 import { useArrangement } from './useArrangement'
 
 export type ZoneView<Id extends string> = {
@@ -91,16 +91,23 @@ export function useZone<Id extends string = string>(zone: Zone): ZoneView<Id> {
   }, [arrangement, stored, storedFacing, room, split, focused, zone])
 }
 
-/** The panels a rail draws for that zone, cut the way the zone itself is cut. */
+/**
+ * The panels of that zone, half by half, cut the way the zone itself is cut.
+ *
+ * BOTH halves, empty ones included: what a rail draws for an empty half is the rail's own
+ * question — nothing while it is at rest, a place to land while a panel is being carried — and
+ * answering it here left the caller rebuilding the half this had just dropped.
+ *
+ * 🛑 Keyed on the ARRANGED registry, not on the arrangement. That object is replaced by every
+ * show, close and focus, and which panels a rail holds depends on none of them: keyed on it, five
+ * rails filtered the whole registry twice over on every panel a reader opened.
+ */
 export function useZonePanels<Id extends string = string>(zone: Zone): [Slot, PanelSpec<Id>[]][] {
-  const registry = usePanelsState<Id, PanelSpec<Id>[]>(state => state.registry)
+  const registry = arrangedRegistry(useArrangement<Id>())
 
-  return useMemo(() => {
-    const slots: [Slot, PanelSpec<Id>[]][] = [
-      ['primary', registry.filter(spec => spec.zone === zone && spec.slot === 'primary')],
-      ['secondary', registry.filter(spec => spec.zone === zone && spec.slot === 'secondary')],
-    ]
-    // An empty flex child still eats one of the rail's gaps — a hole where icons never were.
-    return slots.filter(([, panels]) => panels.length > 0)
-  }, [registry, zone])
+  return useMemo(
+    () =>
+      SLOTS.map(slot => [slot, registry.filter(spec => spec.zone === zone && spec.slot === slot)]),
+    [registry, zone],
+  )
 }

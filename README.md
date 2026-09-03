@@ -43,12 +43,15 @@ already there.
 ## What you get
 
 - **Five zones** — `left`, `right`, `top`, `bottomLeft`, `bottomRight`. A zone nobody fills takes
-  no room at all.
+  no room at all. `top` is a band across the width and has no rail of its own: the project opens
+  and closes it.
 - **Two halves per zone** — `primary` and `secondary`, parted by a handle. Panels sharing a half
   take turns; the rail switches between them.
 - **Icon rails** that stay put when a zone closes, so a closed panel is always one click away.
 - **Resize** by pointer or keyboard, clamped so the centre never disappears.
 - **Persistence** to `localStorage` out of the box, or wherever you say.
+- **Draggable rail icons**, opt-in: `draggablePanels` lets a reader move a panel into another
+  half, and where they put it is remembered.
 - **Typed ids** — `reveal('chatt')` does not compile.
 - **No dependencies** beyond React. No icon set, no CSS framework, no i18n.
 

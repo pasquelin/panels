@@ -53,9 +53,15 @@ export type Side = 'left' | 'right'
  * Stated here rather than inside the rail, because the frame lays itself out on the same
  * knowledge — which column runs to the foot, which half of the band sits under it. Written in
  * both places, the two could disagree about who is on the left with nothing to catch it.
+ *
+ * 🛑 `top` is carried by NO rail, and that is deliberate. A rail is an edge of the frame, and
+ * `top` is a band lying across the whole width — it has no edge of its own. Given to the left
+ * rail for want of anywhere else, its icons sat under the left column's own and read as more of
+ * that column: a reader dropping a panel there watched it land across the top of the window.
+ * A zone the rails do not carry is a zone the project drives itself — `usePanels().toggle`.
  */
 export const ZONES_BY_SIDE: Record<Side, { column: Zone[]; band: Zone }> = {
-  left: { column: ['left', 'top'], band: 'bottomLeft' },
+  left: { column: ['left'], band: 'bottomLeft' },
   right: { column: ['right'], band: 'bottomRight' },
 }
 
@@ -110,6 +116,17 @@ export type ZoneSlots<Id extends string = string> = Partial<Record<Slot, Id | nu
 
 export type OpenByZone<Id extends string = string> = Partial<Record<Zone, ZoneSlots<Id>>>
 
+/** A reader's override of the zone and half a panel declared. */
+export type PanelPlacement = { zone: Zone; slot: Slot }
+
+/** The rail arrangement saved for one placement scope. */
+export type PlacementLayout<Id extends string = string> = {
+  byId: Partial<Record<Id, PanelPlacement>>
+  order: Id[]
+}
+
+export type PlacementsByScope<Id extends string = string> = Record<string, PlacementLayout<Id>>
+
 export type SizesByZone = Partial<Record<Zone, number>>
 
 /**
@@ -133,4 +150,6 @@ export type Lengths = {
 export type LayoutState<Id extends string = string> = {
   views: Record<string, OpenByZone<Id>>
   lengths: Lengths
+  /** Optional for source compatibility with layouts built by existing consumers. */
+  placements?: PlacementsByScope<Id>
 }

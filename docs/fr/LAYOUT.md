@@ -30,6 +30,17 @@ aucune place** — ni largeur, ni poignée, rien.
 Chaque zone est coupée en deux : `primary` est la moitié la plus proche du bord de fenêtre dont la
 zone dépend — le haut d'une colonne, la gauche de la bande basse.
 
+## `top` n'a pas de rail
+
+Un rail est un **bord** du châssis, et `top` est une bande couchée sur toute la largeur — elle n'a
+pas de bord à elle. Ses panneaux n'ont donc **pas d'icône de rail**, et aucun dépôt ne l'atteint :
+ce qu'un rail ne porte pas, un glissement ne peut pas le proposer. Déclarez un panneau dans `top`
+et c'est le projet qui l'ouvre et le ferme, par `usePanels().toggle` ou par le store.
+
+C'est le rail gauche qui la portait, et c'est précisément ce qui la rendait illisible : ses icônes
+se tenaient sous celles de la colonne gauche, donc se lisaient comme la suite de cette colonne — et
+un lecteur qui y déposait un panneau le voyait atterrir en travers du haut de la fenêtre.
+
 ## La bande est une seule bande
 
 `bottomLeft` et `bottomRight` partagent **une hauteur**. Celle des deux qui est seule court sous
@@ -84,9 +95,11 @@ C'est ce qui permet de l'adopter pièce par pièce dans une application qui exis
 
 ## Persistance
 
-Ce qui est stocké : quelle moitié tient quel panneau, dans chaque vue, et les tailles. C'est tout
-— et seul un vrai choix s'écrit : une moitié que personne n'a touchée est stockée ouverte sans
-nommer personne, donc elle suit vos déclarations au lieu de figer une réponse.
+Ce qui est stocké : quelle moitié tient quel panneau, dans chaque vue, les tailles, et — là où un
+lecteur a le droit de déplacer les panneaux — la moitié dans laquelle chacun a été glissé. C'est
+tout, et seul un vrai choix s'écrit : une moitié que personne n'a touchée est stockée ouverte sans
+nommer personne, donc elle suit vos déclarations au lieu de figer une réponse, et un panneau que
+personne n'a déplacé n'est stocké nulle part.
 
 ```tsx
 <Panels

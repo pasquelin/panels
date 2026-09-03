@@ -21,6 +21,7 @@ function Chassis() {
     <Panels<PanelId>
       storageKey="panels-example:minimal"
       theme={theme}
+      draggablePanels
       railHeader={<IconButton label="New" icon={<PlusIcon />} acts className="pnl-rail__button" />}
       header={<Header theme={theme} onTheme={setTheme} />}
       footer={<Footer />}
@@ -31,7 +32,8 @@ function Chassis() {
 
       <Panel<PanelId> id="search" zone="left" slot="primary" title="Search" icon={<SearchIcon />}>
         <p style={{ padding: 12, color: 'var(--pnl-muted)' }}>
-          Two panels share this half — the rail switches between them.
+          Two panels share this half — the rail switches between them. Drag either icon into another
+          half to move the panel there.
         </p>
       </Panel>
 
@@ -75,8 +77,8 @@ function Chassis() {
             <h1 style={{ color: 'var(--pnl-text)', fontSize: 20 }}>The centre is yours</h1>
             <p>
               A router outlet, a canvas, a map, document tabs. Drag the gutters between the surfaces
-              to resize, click a rail icon to open or close a panel, and reload — the layout comes
-              back.
+              to resize, click a rail icon to open or close a panel, drag one into another half to
+              move it, and reload — the layout comes back.
             </p>
           </div>
         </div>

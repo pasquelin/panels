@@ -15,7 +15,7 @@ const { panels, reveal, close, toggle, isShown, focusedZone, reset } = usePanels
 
 | | |
 | --- | --- |
-| `panels` | Every declared panel, in declaration order |
+| `panels` | Every declared panel, **as the reader arranged them** — order, zone and half |
 | `reveal(id)` | Brings it up in the half it declared, and focuses its zone |
 | `close(id)` | Closes **that** panel, or nothing |
 | `toggle(id)` | What a rail icon does |
@@ -93,8 +93,8 @@ window.electron?.onMenu(id => store.getState().show(id))
 <Panels<PanelId> store={store}>…</Panels>
 ```
 
-`store.getState()` gives the same actions the hooks call: `show`, `close`, `toggle`, `focus`,
-`resize`, `resplit`, `resplitBand`, `fit`, `reset` — plus `declare` and `setView`, which the
+`store.getState()` gives the same actions the hooks call: `show`, `close`, `toggle`, `movePanel`,
+`focus`, `resize`, `resplit`, `resplitBand`, `fit`, `reset` — plus `declare` and `setView`, which the
 chassis drives itself.
 
 Inside React, the `view` prop is the only way to change views: it is controlled and reconciled on

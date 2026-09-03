@@ -1,4 +1,5 @@
-import { act, render, screen, within } from '@testing-library/react'
+import { useEffect } from 'react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { memoryStorage } from '../core/persistence'
@@ -32,7 +33,40 @@ function Chassis({ storage = memoryStorage() }: { storage?: ReturnType<typeof me
   )
 }
 
+/**
+ * jsdom implements no `elementFromPoint`, so a drag has to be told what it is over.
+ *
+ * 🛑 Removed again after every test: defined and left behind, it answered the same rail half for
+ * every later drag in the file, whatever the pointer was actually on.
+ */
+function pointingAt(selector: string): void {
+  Object.defineProperty(document, 'elementFromPoint', {
+    configurable: true,
+    value: () => document.querySelector(selector),
+  })
+}
+
+/** A chassis with moving panels on, and its own store so a test can read the placements. */
+function Draggable({
+  store = createPanelsStore<Id>(),
+}: {
+  store?: ReturnType<typeof createPanelsStore<Id>>
+}) {
+  return (
+    <Panels<Id> store={store} storage={null} draggablePanels>
+      <Panel<Id> id="files" zone="left" title="Files">
+        <p>file list</p>
+      </Panel>
+      <Panel<Id> id="chat" zone="right" title="Chat">
+        <p>conversation</p>
+      </Panel>
+    </Panels>
+  )
+}
+
 describe('Panels', () => {
+  afterEach(() => void Reflect.deleteProperty(document, 'elementFromPoint'))
+
   it('draws the centre and each half’s first panel', () => {
     render(<Chassis />)
 
@@ -53,6 +87,129 @@ describe('Panels', () => {
     for (const title of ['Files', 'Search', 'Outline', 'Chat']) {
       expect(screen.getByRole('button', { name: title })).toBeInTheDocument()
     }
+  })
+
+  it('does not add drag wrappers until moving panels is enabled', () => {
+    render(<Chassis />)
+
+    expect(screen.getByRole('button', { name: 'Files' }).closest('[data-pnl-panel]')).toBeNull()
+  })
+
+  it('moves a rail button to an empty half with a pointer ghost', () => {
+    const store = createPanelsStore<Id>()
+    render(<Draggable store={store} />)
+    const wrapper = screen
+      .getByRole('button', { name: 'Files' })
+      .closest<HTMLElement>('[data-pnl-panel]')
+    expect(wrapper).not.toBeNull()
+    pointingAt('[data-pnl-zone="right"][data-pnl-slot="secondary"]')
+
+    fireEvent.pointerDown(wrapper!, {
+      pointerId: 1,
+      button: 0,
+      isPrimary: true,
+      clientX: 10,
+      clientY: 10,
+    })
+    fireEvent.pointerMove(wrapper!, { pointerId: 1, clientX: 80, clientY: 80 })
+    fireEvent.pointerMove(wrapper!, { pointerId: 1, clientX: 81, clientY: 81 })
+    expect(document.querySelector('.pnl-rail-drag__ghost')).toBeInTheDocument()
+    expect(document.querySelector('.pnl-rail-drag__placeholder')).toBeInTheDocument()
+    fireEvent.pointerUp(wrapper!, { pointerId: 1, clientX: 80, clientY: 80 })
+
+    expect(store.getState().placements.default?.byId.files).toEqual({
+      zone: 'right',
+      slot: 'secondary',
+    })
+  })
+
+  it('keeps the panels mounted when moving them is turned on', () => {
+    // 🛑 The defect this exists for: the drag provider was two components — one on, the bare
+    // children off — so the element type changed with the prop and React unmounted the whole
+    // middle. A project with an "arrange the layout" button lost every panel's scroll and focus.
+    let mounted = 0
+    function Counted() {
+      useEffect(() => {
+        mounted += 1
+      }, [])
+      return <p>file list</p>
+    }
+    const chassis = (draggable: boolean) => (
+      <Panels<Id> storage={null} draggablePanels={draggable}>
+        <Panel<Id> id="files" zone="left" title="Files">
+          <Counted />
+        </Panel>
+      </Panels>
+    )
+
+    const { rerender } = render(chassis(false))
+    expect(mounted).toBe(1)
+
+    rerender(chassis(true))
+    expect(mounted).toBe(1)
+  })
+
+  it('leaves the pointer uncaptured until a press becomes a drag', () => {
+    // 🛑 The defect this exists for: captured on `pointerdown`, the wrapper had `pointerup`
+    // retargeted onto it, so the browser fired `click` at the common ancestor of down and up —
+    // the wrapper, never the button inside it. Every rail click was swallowed, and a closed panel
+    // could not be opened at all. jsdom dispatches `click` regardless, so WHEN the capture is
+    // taken is the only part of this a test can see.
+    const captured = vi.spyOn(Element.prototype, 'setPointerCapture').mockImplementation(() => {})
+    render(<Draggable />)
+    const wrapper = screen
+      .getByRole('button', { name: 'Files' })
+      .closest<HTMLElement>('[data-pnl-panel]')!
+    pointingAt('[data-pnl-zone="right"][data-pnl-slot="secondary"]')
+
+    fireEvent.pointerDown(wrapper, {
+      pointerId: 1,
+      button: 0,
+      isPrimary: true,
+      clientX: 10,
+      clientY: 10,
+    })
+    expect(captured).not.toHaveBeenCalled()
+
+    fireEvent.pointerMove(wrapper, { pointerId: 1, clientX: 80, clientY: 80 })
+    expect(captured).toHaveBeenCalledWith(1)
+    captured.mockRestore()
+  })
+
+  it('still toggles a panel on a plain click when panels can be dragged', async () => {
+    const user = userEvent.setup()
+    render(<Draggable />)
+
+    await user.click(screen.getByRole('button', { name: 'Chat' }))
+
+    expect(screen.queryByText('conversation')).not.toBeInTheDocument()
+  })
+
+  it('offers one place to land in a zone that holds nothing, and two where it holds something', () => {
+    render(<Draggable />)
+    const wrapper = screen
+      .getByRole('button', { name: 'Files' })
+      .closest<HTMLElement>('[data-pnl-panel]')!
+    pointingAt('[data-pnl-zone="right"][data-pnl-slot="secondary"]')
+
+    fireEvent.pointerDown(wrapper, {
+      pointerId: 1,
+      button: 0,
+      isPrimary: true,
+      clientX: 10,
+      clientY: 10,
+    })
+    fireEvent.pointerMove(wrapper, { pointerId: 1, clientX: 80, clientY: 80 })
+
+    // 🛑 `bottomLeft` holds nothing: above and below are the same landing there, and two squares
+    // for one place — under a separator cutting a zone with nothing to cut — reads as neither.
+    expect(document.querySelectorAll('[data-pnl-drop][data-pnl-zone="bottomLeft"]')).toHaveLength(1)
+    // `right` holds a panel, so its second half is a destination of its own.
+    expect(document.querySelectorAll('[data-pnl-drop][data-pnl-zone="right"]')).toHaveLength(2)
+    // 🛑 And `top` is carried by no rail at all: a band lying across the width has no edge, and
+    // put in the left rail its squares read as more of the left column — a drop there sent the
+    // panel across the top of the window.
+    expect(document.querySelectorAll('[data-pnl-drop][data-pnl-zone="top"]')).toHaveLength(0)
   })
 
   it('swaps panels within a half when the rail is clicked', async () => {

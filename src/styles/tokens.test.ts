@@ -47,6 +47,23 @@ describe('the default palette', () => {
     expect(SHEET).toContain('prefers-color-scheme: light')
   })
 
+  it('lets the rail button keep the size its own token gives it', () => {
+    // 🛑 `.pnl-icon-button` sizes every icon button at 28px and is declared LOWER in this file, so
+    // at equal specificity it won: `--pnl-rail-button` — a token the docs describe as "the rail
+    // icon button" — sized nothing at all, and a project widening its rail moved everything
+    // EXCEPT the buttons.
+    const geometry = [...CODE.matchAll(/([^{}]+)\{([^{}]*)\}/g)].find(([, , body = '']) =>
+      body.includes('width: var(--pnl-rail-button)'),
+    )
+    const rail = geometry?.[1]
+      ?.split(',')
+      .map(one => one.trim())
+      .find(one => one.includes('pnl-rail__button'))
+
+    expect(rail).toBeDefined()
+    expect((rail?.match(/\./g) ?? []).length).toBeGreaterThan(1)
+  })
+
   it('keeps the layout out of the token blocks, where a repaint must not reach it', () => {
     // `display` and `height` are not something a project overrides by choosing a palette.
     expect(SHEET).toMatch(/\n\.pnl-root \{\n\s*display: flex;/)

@@ -15,7 +15,7 @@ const { panels, reveal, close, toggle, isShown, focusedZone, reset } = usePanels
 
 | | |
 | --- | --- |
-| `panels` | Tous les panneaux déclarés, dans l'ordre de déclaration |
+| `panels` | Tous les panneaux déclarés, **tels que le lecteur les a arrangés** — ordre, zone et moitié |
 | `reveal(id)` | Le lève dans la moitié qu'il a déclarée, et focalise sa zone |
 | `close(id)` | Ferme **ce** panneau, ou rien |
 | `toggle(id)` | Ce que fait une icône du rail |
@@ -98,7 +98,8 @@ window.electron?.onMenu(id => store.getState().show(id))
 ```
 
 `store.getState()` donne les mêmes actions que celles qu'appellent les hooks : `show`, `close`,
-`toggle`, `focus`, `resize`, `resplit`, `resplitBand`, `fit`, `reset` — plus `declare` et
+`toggle`, `movePanel`, `focus`, `resize`, `resplit`, `resplitBand`, `fit`, `reset` — plus
+`declare` et
 `setView`, que le châssis pilote lui-même.
 
 Dans React, la prop `view` est le seul chemin pour changer de vue : elle est contrôlée et

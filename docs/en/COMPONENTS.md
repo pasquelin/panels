@@ -72,7 +72,8 @@ target them in tests:
 
 ```
 pnl-root · pnl-middle · pnl-columns · pnl-row · pnl-stack · pnl-centre
-pnl-rail · pnl-rail__group · pnl-rail__button
+pnl-rail · pnl-rail__group · pnl-rail__button · pnl-rail__drop · pnl-rail__button-wrap
+pnl-rail-drag__placeholder · pnl-rail-drag__empty · pnl-rail-drag__ghost
 pnl-zone · pnl-band · pnl-surface · pnl-body
 pnl-header · pnl-header__title · pnl-header__actions · pnl-header__trailing
 pnl-icon-button · pnl-separator · pnl-handle

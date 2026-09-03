@@ -51,16 +51,24 @@ the same constraint `<Route>` has, and it is understood.
 
 ## What is stored, and what is resolved
 
-Stored: which panel each half was **told** to hold, per view, and the sizes. Nothing else — and
-only a real choice: a half nobody has touched is stored open, naming nobody.
+Stored: which panel each half was **told** to hold, per view, the sizes, and — where the reader
+has moved panels — where they were dragged to. Nothing else, and only a real choice: a half nobody
+has touched is stored open, naming nobody.
 
 Everything else is **resolved at render**:
 
+- where a panel *is* is not where it was *declared* — a reader may have dragged it into another
+  half, and `arrangedRegistry` hands back the declared list re-ordered and re-placed
 - which panel a half *draws* is not what it *holds* — the one it names if that panel is still
   declared for that half, else the first one that is
 - what a zone *draws* is not what its halves hold either — a `solo` panel silences the other
 - the size a zone *takes* is bounded against the opposite zone and the measured room
 - whether a zone *takes room* is not whether it *draws* — the band's two halves share one height
+
+The first of those is resolved **once per state**, not per reader: `firstIn` alone asks for it a
+dozen times per zone per render, and the answer is held against the two objects that decide it —
+the declared list and the saved layout, both replaced rather than mutated. Every site downstream
+goes on reading `spec.zone`, and none of them can forget to ask where the panel really is.
 
 Each of those was a bug before it was a function. They are `shownIn`, `sharedSizes` and
 `zoneTakesRoom`, and each has a test that starts from the arrangement that broke it.
@@ -108,5 +116,7 @@ not something a repaint should reach.
 - **tooltips** — and everything else a design system puts on a button. The two buttons the
   chassis draws itself are replaceable (`components`), which is what keeps `tooltip`, `shortcut`
   and `badge` from becoming props here one after the other.
-- **floating and dragging panels between zones** — planned, and the state model already allows an
-  override of the declared zone. Not in v1.
+- **floating panels** — a panel torn off into a window of its own. Dragging one from one half to
+  another is in (`draggablePanels`); a panel that leaves the frame is not.
+- **a drag that reorders the zones themselves** — the five zones are the frame, and a reader who
+  could move them would be redrawing the application rather than arranging it.

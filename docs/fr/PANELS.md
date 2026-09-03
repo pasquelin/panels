@@ -144,3 +144,55 @@ La prop est **contrôlée** : elle est réconciliée à chaque rendu, donc un `s
 dos est repris au suivant. Et les vues ne sont jamais purgées — nommez la poignée d'écrans qui
 possèdent une disposition plutôt que chaque route, sans quoi `view={location.pathname}` fait
 croître une entrée stockée par URL, pour toujours.
+
+## Déplacer les panneaux
+
+Un lecteur peut faire glisser une icône de rail vers une autre moitié — l'autre moitié de la même
+colonne, la colonne d'en face, l'un ou l'autre bout du bandeau. Toute moitié qu'un rail dessine
+accepte un dépôt, et les vides se montrent le temps qu'un panneau est porté.
+
+Une zone qui ne tient **rien** offre une seule place et non deux : `primary` et `secondary` ne sont
+deux destinations qu'une fois qu'il y a quelque chose dans la zone à surmonter ou à suivre.
+
+C'est **désactivé par défaut** : un châssis dont les icônes bougent sous le pointeur n'est pas ce
+que tout projet veut.
+
+```tsx
+<Panels<PanelId> draggablePanels>
+```
+
+Le panneau garde la zone et la moitié où il a été lâché, et ce choix est stocké avec le reste de
+la disposition. Votre déclaration n'est pas écrasée — elle est ce vers quoi le panneau **retombe**.
+Lâchez un panneau là où le projet l'avait déjà mis et la dérogation est retirée plutôt qu'écrite
+comme une coïncidence : le panneau suit de nouveau la déclaration le jour où vous la changez.
+
+Un panneau qui était à l'écran quand on l'a saisi est à l'écran là où il atterrit. Un panneau qui
+ne l'était pas ne bouge que sur le papier : ouvrir une colonne que le lecteur n'a pas demandée
+serait une drôle de réponse à un glissement.
+
+Les panneaux `solo` atterrissent toujours en `primary`, quelle que soit la moitié visée — un
+panneau solo fait taire l'autre moitié, et un solo posé en `secondary` ferait taire celle où il se
+tient.
+
+## `placementScope`
+
+L'endroit où les panneaux se tiennent suit `view`, sauf mention contraire :
+
+```tsx
+<Panels<PanelId> view={enRevue ? 'review' : 'edit'} placementScope="shared" draggablePanels>
+```
+
+Les deux vues gardent alors leurs propres **panneaux ouverts** tout en partageant une seule
+**disposition des rails** : un lecteur qui place Recherche sous Fichiers le fait une fois, et non
+une fois par écran. Omise, chaque vue arrange ses rails pour elle seule.
+
+## Déplacer un panneau depuis votre code
+
+`movePanel` est sur le store et sur `usePanelsActions`, pour un menu, un raccourci ou un test :
+
+```tsx
+store.getState().movePanel('files', { zone: 'right', slot: 'secondary' }, 0)
+```
+
+Le dernier argument est la position **dans cette moitié**, comptée parmi les panneaux qui s'y
+trouvent déjà — `0` le met en tête, au-delà de la fin le met en queue.

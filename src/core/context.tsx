@@ -36,6 +36,8 @@ export type PanelsProviderProps<Id extends string> = {
    * Left out, everything lands in one view and nothing about this is visible.
    */
   view?: string
+  /** Saved rail arrangement to use. Left out, placement follows `view`. */
+  placementScope?: string
   children: ReactNode
 }
 
@@ -45,6 +47,7 @@ export function PanelsProvider<Id extends string = string>({
   storage,
   defaultOpen,
   view,
+  placementScope,
   children,
 }: PanelsProviderProps<Id>) {
   // Settled on the first render and never again: swapping the storage under a live chassis would
@@ -80,6 +83,11 @@ export function PanelsProvider<Id extends string = string>({
     // Written by `settle` alone, those were still empty on the first render: the view a project
     // lands on opened whatever happened to be declared, and a view settles once.
     if (defaultOpen !== state.defaults) made.setState({ defaults: defaultOpen })
+    // 🛑 Before `setView` too, for the same reason: `setView` settles the view it arrives at, and
+    // WHERE the panels stand decides which halves that opening opens. Set after, a view was
+    // settled against the scope being left — and a view settles once, so the wrong arrangement
+    // was the permanent one.
+    state.setPlacementScope(placementScope)
     // Only when the project names one. Defaulted, this claimed the view on every render — so a
     // `setView` made from a native menu or a socket was undone at the next unrelated render of
     // some ancestor, which is the worst way to fail: correct, then silently not.
@@ -99,7 +107,7 @@ export function PanelsProvider<Id extends string = string>({
     //
     // The two references alone: holding the whole state would pin the registry, and with it
     // every panel's content, for as long as the chassis lives.
-    type Written = Pick<PanelsState<Id>, 'views' | 'lengths'>
+    type Written = Pick<PanelsState<Id>, 'views' | 'lengths' | 'placements'>
     let written: Written | undefined
     let pending: Written | undefined
     let timer: ReturnType<typeof setTimeout> | undefined
@@ -119,12 +127,17 @@ export function PanelsProvider<Id extends string = string>({
       // would be written over a layout the reader spent time arranging.
       if (!isSettled(state, state.view)) return
       const last = pending ?? written
-      if (last?.views === state.views && last.lengths === state.lengths) return
+      if (
+        last?.views === state.views &&
+        last.lengths === state.lengths &&
+        last.placements === state.placements
+      )
+        return
 
       // 🛑 Held, not written: a drag writes on every `pointermove`, and `localStorage` is
       // synchronous — sixty serialisations a second, on the thread that draws the drag. One
       // write per `WRITE_EVERY` carries the latest state, and the pointer never waits on disk.
-      pending = { views: state.views, lengths: state.lengths }
+      pending = { views: state.views, lengths: state.lengths, placements: state.placements }
       timer ??= setTimeout(flush, WRITE_EVERY)
     })
 
@@ -166,8 +179,8 @@ export function usePanelsActions<Id extends string = string>() {
   const store = usePanelsStore<Id>()
 
   return useMemo(() => {
-    const { show, close, toggle, focus, resize, resplit, resplitBand, fit, reset } =
+    const { show, close, toggle, movePanel, focus, resize, resplit, resplitBand, fit, reset } =
       store.getState()
-    return { show, close, toggle, focus, resize, resplit, resplitBand, fit, reset }
+    return { show, close, toggle, movePanel, focus, resize, resplit, resplitBand, fit, reset }
   }, [store])
 }
