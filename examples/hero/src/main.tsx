@@ -68,6 +68,9 @@ function LiveChassis() {
   return (
     <Panels<DemoId>
       storageKey="panels-showcase:hero"
+      // La page annonce que les panneaux se déplacent, juste sous ce cadre : une démo vivante
+      // où le geste ne marche pas dément la section qu'elle illustre.
+      draggablePanels
       // Forcé, et repeint dans la palette de la page : le chassis prend l'accent de son
       // hôte au lieu d'en imposer un, et cette page EST un hôte.
       theme="dark"

@@ -28,8 +28,8 @@
     "copy": "Copy",
     "copied": "Copied",
     "seeExamples": "See the examples",
-    "caption": "Live. Drag the gutters between the surfaces, click a rail icon, resize the window.",
-    "frameTitle": "Live. Drag the gutters between the surfaces, click a rail icon, resize the window."
+    "caption": "Live. Drag the gutters between the surfaces, click a rail icon or move it into another half, resize the window.",
+    "frameTitle": "Live. Drag the gutters between the surfaces, click a rail icon or move it into another half, resize the window."
   },
   "demo": {
     "centre": "Your centre",
