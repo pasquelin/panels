@@ -59,7 +59,7 @@
   },
   "api": {
     "title": "Die gesamte Oberfläche",
-    "lead": "Es ist wenig, und genau das ist der Punkt. Fünf Dinge, die man wissen muss."
+    "lead": "Es ist wenig, und genau das ist der Punkt. Sechs Dinge, die man wissen muss."
   },
   "foot": {
     "docs": "Docs",
@@ -72,7 +72,7 @@
   "cards": {
     "title0": "Minimal",
     "what0": "Das kleinste Gerüst, das funktioniert. Zwei Spalten, ein Band, eine Mitte — und eine eigene Kopfzeile, die es steuert.",
-    "tip0": "Panels, die sich Zone und Hälfte teilen, wechseln sich ab; die Leiste schaltet zwischen ihnen um. Geben Sie einem die zweite Hälfte, damit es unter dem ersten steht.",
+    "tip0": "Panels, die sich Zone und Hälfte teilen, wechseln sich ab; die Leiste schaltet zwischen ihnen um. Geben Sie einem die zweite Hälfte, damit es unter dem ersten steht. Hier lassen sich die Leistensymbole zudem von einer Hälfte in die andere ziehen.",
     "title1": "React Router",
     "what1": "Die Mitte ist ein Outlet. Navigation ändert nur die Mitte — Spalten behalten ihre Breite, offene Panels bleiben offen.",
     "tip1": "Deklarieren Sie die Panels in der Layout-Route, oberhalb des Outlets. Pro Seite deklariert, würden sie bei jeder Navigation ausgehängt und verlören ihren Inhalt.",
@@ -88,11 +88,13 @@
     "body0": "Ein Panel ist ein Deskriptor: wo es hängt, wie es heißt, was es zeichnet.",
     "name1": "Steuern",
     "body1": "Ein Hook für jede Kopfzeile, jedes Tastenkürzel und jedes Menü, das auf die Panels wirken soll.",
-    "name2": "Von außerhalb React steuern",
-    "body2": "Erzeugen Sie den Store selbst, dann können ein Socket, ein natives Menü oder ein Worker ein Panel öffnen.",
-    "name3": "Umfärben",
-    "body3": "Jeder Wert ist eine Custom Property. Setzen Sie den Akzent, und die Leisten folgen Ihrer Marke.",
-    "name4": "Oder nur die Logik nehmen",
-    "body4": "Die Komponenten stehen auf Hooks, die nichts zeichnen. Zeichnen Sie Ihren eigenen Rahmen darauf."
+    "name2": "Umordnen",
+    "body2": "Eine Prop, und ein Leistensymbol lässt sich in eine andere Hälfte ziehen. Wo es landet, wird mit dem übrigen Layout gemerkt.",
+    "name3": "Von außerhalb React steuern",
+    "body3": "Erzeugen Sie den Store selbst, dann können ein Socket, ein natives Menü oder ein Worker ein Panel öffnen.",
+    "name4": "Umfärben",
+    "body4": "Jeder Wert ist eine Custom Property. Setzen Sie den Akzent, und die Leisten folgen Ihrer Marke.",
+    "name5": "Oder nur die Logik nehmen",
+    "body5": "Die Komponenten stehen auf Hooks, die nichts zeichnen. Zeichnen Sie Ihren eigenen Rahmen darauf."
   }
 }

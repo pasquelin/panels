@@ -59,7 +59,7 @@
   },
   "api": {
     "title": "Tüm yüzey",
-    "lead": "Çok fazla değil, mesele de bu zaten. Bilinmesi gereken beş şey."
+    "lead": "Çok fazla değil, mesele de bu zaten. Bilinmesi gereken altı şey."
   },
   "foot": {
     "docs": "Belgeler",
@@ -72,7 +72,7 @@
   "cards": {
     "title0": "En küçük",
     "what0": "Gerçekten çalışan en küçük iskelet. İki sütun, bir alt şerit, bir merkez — ve onu yöneten kendi başlığınız.",
-    "tip0": "Aynı bölgeyi ve aynı yarıyı paylaşan paneller sırayla görünür; ray aralarında geçiş yapar. İkincisine secondary yarıyı verirseniz ilkinin altına yerleşir.",
+    "tip0": "Aynı bölgeyi ve aynı yarıyı paylaşan paneller sırayla görünür; ray aralarında geçiş yapar. İkincisine secondary yarıyı verirseniz ilkinin altına yerleşir. Burada ray simgeleri bir yarıdan diğerine sürüklenebilir de.",
     "title1": "React Router",
     "what1": "Merkez bir çıkıştır. Gezinmek yalnızca ortayı değiştirir — sütunlar genişliğini korur, açık paneller açık kalır.",
     "tip1": "Panelleri yerleşim rotasında, çıkışın üstünde tanımlayın. Sayfa başına tanımlanırsa her gezinmede sökülür ve içindekileri kaybederler.",
@@ -88,11 +88,13 @@
     "body0": "Panel bir tanımlayıcıdır: nereye asıldığı, adının ne olduğu ve ne çizdiği.",
     "name1": "Yönetin",
     "body1": "Panellere etki etmesi gereken her başlık, kısayol ve menü için tek bir hook.",
-    "name2": "React'in dışından yönetin",
-    "body2": "Store'u kendiniz oluşturun; ardından bir soket, yerel menü ya da worker bir paneli açabilir.",
-    "name3": "Yeniden boyayın",
-    "body3": "Her değer bir özel özelliktir. Vurguyu belirleyin, raylar markanızı izlesin.",
-    "name4": "Ya da yalnızca mantığı alın",
-    "body4": "Bileşenler hiçbir şey çizmeyen hookların üzerine kuruludur. Kendi çerçevenizi onların üstüne çizin."
+    "name2": "Yeniden düzenleyin",
+    "body2": "Tek bir prop, ve okuyan kişi bir ray simgesini başka bir yarıya sürükler. Bıraktığı yer, düzenin geri kalanıyla birlikte hatırlanır.",
+    "name3": "React'in dışından yönetin",
+    "body3": "Store'u kendiniz oluşturun; ardından bir soket, yerel menü ya da worker bir paneli açabilir.",
+    "name4": "Yeniden boyayın",
+    "body4": "Her değer bir özel özelliktir. Vurguyu belirleyin, raylar markanızı izlesin.",
+    "name5": "Ya da yalnızca mantığı alın",
+    "body5": "Bileşenler hiçbir şey çizmeyen hookların üzerine kuruludur. Kendi çerçevenizi onların üstüne çizin."
   }
 }

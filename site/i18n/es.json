@@ -59,7 +59,7 @@
   },
   "api": {
     "title": "Toda la superficie",
-    "lead": "No hay mucha, y esa es la idea. Cinco cosas que saber."
+    "lead": "No hay mucha, y esa es la idea. Seis cosas que saber."
   },
   "foot": {
     "docs": "Docs",
@@ -72,7 +72,7 @@
   "cards": {
     "title0": "Mínimo",
     "what0": "El chasis más pequeño que funciona. Dos columnas, una banda, un centro — y una cabecera tuya que lo gobierna.",
-    "tip0": "Los paneles que comparten zona y mitad se turnan; el raíl alterna entre ellos. Dale a uno la mitad secundaria para apilarlo bajo el primero.",
+    "tip0": "Los paneles que comparten zona y mitad se turnan; el raíl alterna entre ellos. Dale a uno la mitad secundaria para apilarlo bajo el primero. Aquí, además, los iconos del raíl se arrastran de una mitad a otra.",
     "title1": "React Router",
     "what1": "El centro es una salida de ruta. Navegar cambia el medio y nada más: las columnas mantienen su ancho y los paneles abiertos siguen abiertos.",
     "tip1": "Declara los paneles en la ruta de layout, por encima de la salida. Declarados por página, se desmontarían en cada navegación y perderían lo que contenían.",
@@ -88,11 +88,13 @@
     "body0": "Un panel es un descriptor: dónde se cuelga, cómo se llama y qué dibuja.",
     "name1": "Gobernar",
     "body1": "Un único hook para cualquier cabecera, atajo o menú que deba actuar sobre los paneles.",
-    "name2": "Gobernar fuera de React",
-    "body2": "Crea tú el store y un socket, un menú nativo o un worker podrán abrir un panel.",
-    "name3": "Repintar",
-    "body3": "Cada valor es una propiedad personalizada. Define el acento y los raíles seguirán tu marca.",
-    "name4": "O quedarte solo con la lógica",
-    "body4": "Los componentes se apoyan en hooks que no dibujan nada. Dibuja tu propio marco sobre ellos."
+    "name2": "Reordenar",
+    "body2": "Una prop, y quien lee arrastra un icono del raíl a otra mitad. El sitio que elige se recuerda con el resto de la disposición.",
+    "name3": "Gobernar fuera de React",
+    "body3": "Crea tú el store y un socket, un menú nativo o un worker podrán abrir un panel.",
+    "name4": "Repintar",
+    "body4": "Cada valor es una propiedad personalizada. Define el acento y los raíles seguirán tu marca.",
+    "name5": "O quedarte solo con la lógica",
+    "body5": "Los componentes se apoyan en hooks que no dibujan nada. Dibuja tu propio marco sobre ellos."
   }
 }

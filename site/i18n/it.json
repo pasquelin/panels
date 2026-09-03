@@ -59,7 +59,7 @@
   },
   "api": {
     "title": "Tutta la superficie",
-    "lead": "Non è molta, ed è proprio questo il punto. Cinque cose da sapere."
+    "lead": "Non è molta, ed è proprio questo il punto. Sei cose da sapere."
   },
   "foot": {
     "docs": "Docs",
@@ -72,7 +72,7 @@
   "cards": {
     "title0": "Minimo",
     "what0": "Il telaio più piccolo che funzioni. Due colonne, una fascia, un centro — e un’intestazione tua che lo governa.",
-    "tip0": "I pannelli che condividono zona e metà si alternano; la barra passa dall’uno all’altro. Dai al secondo la metà secondary e si sistemerà sotto il primo.",
+    "tip0": "I pannelli che condividono zona e metà si alternano; la barra passa dall’uno all’altro. Dai al secondo la metà secondary e si sistemerà sotto il primo. Qui le icone della barra si trascinano anche da una metà all’altra.",
     "title1": "React Router",
     "what1": "Il centro è un outlet. Navigare cambia solo la parte centrale: le colonne mantengono la larghezza e i pannelli aperti restano aperti.",
     "tip1": "Dichiara i pannelli nella rotta di layout, sopra l’outlet. Dichiarati per pagina verrebbero smontati a ogni navigazione, perdendo quello che tenevano.",
@@ -88,11 +88,13 @@
     "body0": "Un pannello è un descrittore: dove si aggancia, come si chiama, cosa disegna.",
     "name1": "Governare",
     "body1": "Un solo hook per ogni intestazione, scorciatoia o menu che debba agire sui pannelli.",
-    "name2": "Governare da fuori React",
-    "body2": "Crea tu lo store e un socket, un menu nativo o un worker potranno aprire un pannello.",
-    "name3": "Ridipingere",
-    "body3": "Ogni valore è una proprietà personalizzata. Imposta l’accento e le barre seguiranno la tua identità.",
-    "name4": "Oppure prendere solo la logica",
-    "body4": "I componenti poggiano su hook che non disegnano nulla. Disegnaci sopra il tuo telaio."
+    "name2": "Riordinare",
+    "body2": "Una prop, e chi legge trascina un’icona della barra in un’altra metà. Il posto scelto viene ricordato con il resto della disposizione.",
+    "name3": "Governare da fuori React",
+    "body3": "Crea tu lo store e un socket, un menu nativo o un worker potranno aprire un pannello.",
+    "name4": "Ridipingere",
+    "body4": "Ogni valore è una proprietà personalizzata. Imposta l’accento e le barre seguiranno la tua identità.",
+    "name5": "Oppure prendere solo la logica",
+    "body5": "I componenti poggiano su hook che non disegnano nulla. Disegnaci sopra il tuo telaio."
   }
 }

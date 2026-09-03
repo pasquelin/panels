@@ -59,7 +59,7 @@
   },
   "api": {
     "title": "Toda a superfície",
-    "lead": "Não é muita, e é esse o ponto. Cinco coisas para saber."
+    "lead": "Não é muita, e é esse o ponto. Seis coisas para saber."
   },
   "foot": {
     "docs": "Docs",
@@ -72,7 +72,7 @@
   "cards": {
     "title0": "Mínimo",
     "what0": "O menor chassi que funciona. Duas colunas, uma faixa, um centro — e um cabeçalho seu comandando tudo.",
-    "tip0": "Painéis que dividem a mesma zona e a mesma metade se revezam; o trilho alterna entre eles. Dê a metade secundária a um deles para empilhá-lo sob o primeiro.",
+    "tip0": "Painéis que dividem a mesma zona e a mesma metade se revezam; o trilho alterna entre eles. Dê a metade secundária a um deles para empilhá-lo sob o primeiro. Aqui os ícones do trilho também se arrastam de uma metade para a outra.",
     "title1": "React Router",
     "what1": "O centro é uma saída de rota. Navegar muda o meio e nada mais: as colunas mantêm a largura e os painéis abertos continuam abertos.",
     "tip1": "Declare os painéis na rota de layout, acima da saída. Declarados por página, seriam desmontados a cada navegação e perderiam o que guardavam.",
@@ -88,11 +88,13 @@
     "body0": "Um painel é um descritor: onde ele fica, como se chama e o que desenha.",
     "name1": "Comandar",
     "body1": "Um único hook para qualquer cabeçalho, atalho ou menu que precise agir sobre os painéis.",
-    "name2": "Comandar fora do React",
-    "body2": "Crie você mesmo o store e um socket, um menu nativo ou um worker poderá abrir um painel.",
-    "name3": "Repintar",
-    "body3": "Cada valor é uma propriedade personalizada. Defina o destaque e os trilhos seguem a sua marca.",
-    "name4": "Ou ficar só com a lógica",
-    "body4": "Os componentes são construídos sobre hooks que não desenham nada. Desenhe o seu próprio quadro sobre eles."
+    "name2": "Reordenar",
+    "body2": "Uma prop, e quem lê arrasta um ícone do trilho para outra metade. O lugar escolhido fica guardado com o resto da disposição.",
+    "name3": "Comandar fora do React",
+    "body3": "Crie você mesmo o store e um socket, um menu nativo ou um worker poderá abrir um painel.",
+    "name4": "Repintar",
+    "body4": "Cada valor é uma propriedade personalizada. Defina o destaque e os trilhos seguem a sua marca.",
+    "name5": "Ou ficar só com a lógica",
+    "body5": "Os componentes são construídos sobre hooks que não desenham nada. Desenhe o seu próprio quadro sobre eles."
   }
 }

@@ -59,7 +59,7 @@
   },
   "api": {
     "title": "Toàn bộ API",
-    "lead": "Không nhiều, và đó chính là chủ đích. Chỉ có năm điều cần biết."
+    "lead": "Không nhiều, và đó chính là chủ đích. Chỉ có sáu điều cần biết."
   },
   "foot": {
     "docs": "Tài liệu",
@@ -72,7 +72,7 @@
   "cards": {
     "title0": "Tối giản",
     "what0": "Bộ khung nhỏ nhất mà vẫn chạy được. Hai cột, một dải dưới, một khu trung tâm — và phần đầu trang của riêng bạn điều khiển tất cả.",
-    "tip0": "Các bảng cùng vùng và cùng nửa sẽ hiện luân phiên; thanh bên chuyển giữa chúng. Cho bảng thứ hai nửa secondary thì nó sẽ xếp bên dưới bảng đầu tiên.",
+    "tip0": "Các bảng cùng vùng và cùng nửa sẽ hiện luân phiên; thanh bên chuyển giữa chúng. Cho bảng thứ hai nửa secondary thì nó sẽ xếp bên dưới bảng đầu tiên. Ở đây các biểu tượng trên thanh còn có thể kéo từ nửa này sang nửa kia.",
     "title1": "React Router",
     "what1": "Trung tâm là một outlet. Điều hướng chỉ thay đổi phần giữa — các cột giữ nguyên bề rộng và bảng đang mở vẫn mở.",
     "tip1": "Hãy khai báo các bảng ở route bố cục, phía trên outlet. Nếu khai báo theo từng trang, chúng sẽ bị gỡ bỏ sau mỗi lần điều hướng và mất hết những gì đang giữ.",
@@ -88,11 +88,13 @@
     "body0": "Một bảng là bản mô tả: nó treo ở đâu, tên là gì, và vẽ ra cái gì.",
     "name1": "Điều khiển",
     "body1": "Một hook duy nhất cho mọi đầu trang, phím tắt hay trình đơn cần tác động lên các bảng.",
-    "name2": "Điều khiển từ ngoài React",
-    "body2": "Tự tạo store, rồi socket, trình đơn hệ thống hay worker đều có thể mở một bảng.",
-    "name3": "Sơn lại",
-    "body3": "Mọi giá trị đều là thuộc tính tùy biến. Đặt màu nhấn và các thanh sẽ theo bản sắc của bạn.",
-    "name4": "Hoặc chỉ lấy phần logic",
-    "body4": "Các thành phần dựng trên những hook không vẽ gì cả. Hãy vẽ khung của riêng bạn lên trên."
+    "name2": "Sắp xếp lại",
+    "body2": "Một prop, và người đọc kéo một biểu tượng trên thanh sang nửa khác. Chỗ họ đặt được ghi nhớ cùng phần bố cục còn lại.",
+    "name3": "Điều khiển từ ngoài React",
+    "body3": "Tự tạo store, rồi socket, trình đơn hệ thống hay worker đều có thể mở một bảng.",
+    "name4": "Sơn lại",
+    "body4": "Mọi giá trị đều là thuộc tính tùy biến. Đặt màu nhấn và các thanh sẽ theo bản sắc của bạn.",
+    "name5": "Hoặc chỉ lấy phần logic",
+    "body5": "Các thành phần dựng trên những hook không vẽ gì cả. Hãy vẽ khung của riêng bạn lên trên."
   }
 }

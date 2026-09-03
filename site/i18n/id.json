@@ -59,7 +59,7 @@
   },
   "api": {
     "title": "Seluruh permukaan",
-    "lead": "Tidak banyak, dan memang itu maksudnya. Lima hal yang perlu diketahui."
+    "lead": "Tidak banyak, dan memang itu maksudnya. Enam hal yang perlu diketahui."
   },
   "foot": {
     "docs": "Dokumen",
@@ -72,7 +72,7 @@
   "cards": {
     "title0": "Minimal",
     "what0": "Rangka terkecil yang benar-benar bekerja. Dua kolom, satu bilah bawah, satu pusat — dan header milik Anda yang mengendalikannya.",
-    "tip0": "Panel yang berbagi zona dan separuh yang sama tampil bergantian; rel yang mengganti. Beri panel kedua separuh secondary agar ia tersusun di bawah yang pertama.",
+    "tip0": "Panel yang berbagi zona dan separuh yang sama tampil bergantian; rel yang mengganti. Beri panel kedua separuh secondary agar ia tersusun di bawah yang pertama. Di sini ikon rel juga bisa diseret dari satu paruh ke paruh lain.",
     "title1": "React Router",
     "what1": "Pusatnya adalah outlet. Berpindah halaman hanya mengubah bagian tengah — kolom tetap selebar semula dan panel yang terbuka tetap terbuka.",
     "tip1": "Deklarasikan panel di rute layout, di atas outlet. Jika dideklarasikan per halaman, panel akan dilepas setiap kali berpindah dan kehilangan isinya.",
@@ -88,11 +88,13 @@
     "body0": "Panel adalah deskriptor: di mana ia menggantung, apa namanya, dan apa yang digambarnya.",
     "name1": "Kendalikan",
     "body1": "Satu hook untuk setiap header, pintasan, atau menu yang perlu memengaruhi panel.",
-    "name2": "Kendalikan dari luar React",
-    "body2": "Buat sendiri store-nya, lalu socket, menu native, atau worker pun bisa membuka panel.",
-    "name3": "Cat ulang",
-    "body3": "Setiap nilai adalah properti kustom. Setel aksennya, dan rel akan mengikuti identitas Anda.",
-    "name4": "Atau ambil logikanya saja",
-    "body4": "Komponen dibangun di atas hook yang tidak menggambar apa pun. Gambarlah rangka Anda sendiri di atasnya."
+    "name2": "Susun ulang",
+    "body2": "Satu prop, dan pembaca menyeret ikon rel ke paruh lain. Tempat yang dipilihnya diingat bersama sisa tata letaknya.",
+    "name3": "Kendalikan dari luar React",
+    "body3": "Buat sendiri store-nya, lalu socket, menu native, atau worker pun bisa membuka panel.",
+    "name4": "Cat ulang",
+    "body4": "Setiap nilai adalah properti kustom. Setel aksennya, dan rel akan mengikuti identitas Anda.",
+    "name5": "Atau ambil logikanya saja",
+    "body5": "Komponen dibangun di atas hook yang tidak menggambar apa pun. Gambarlah rangka Anda sendiri di atasnya."
   }
 }

@@ -59,7 +59,7 @@
   },
   "api": {
     "title": "The whole surface",
-    "lead": "There is not much of it, and that is the point. Five things to know."
+    "lead": "There is not much of it, and that is the point. Six things to know."
   },
   "foot": {
     "docs": "Docs",
@@ -72,7 +72,7 @@
   "cards": {
     "title0": "Minimal",
     "what0": "The smallest chassis that works. Two columns, a band, a centre — and a header of your own driving it.",
-    "tip0": "Panels sharing a zone and a slot take turns; the rail switches between them. Give a panel the secondary slot to stack it under the first instead.",
+    "tip0": "Panels sharing a zone and a slot take turns; the rail switches between them. Give a panel the secondary slot to stack it under the first instead. Here the rail icons can also be dragged from one half to another.",
     "title1": "React Router",
     "what1": "The centre is an outlet. Navigating changes the middle and nothing else — columns keep their width, open panels stay open.",
     "tip1": "Declare the panels in the layout route, above the outlet. Declared per page, they would unmount on every navigation and lose whatever they held.",
@@ -88,11 +88,13 @@
     "body0": "A panel is a descriptor. Where it hangs, what it is called, what it draws.",
     "name1": "Drive",
     "body1": "One hook for every header, shortcut or menu that needs to act on the panels.",
-    "name2": "Drive from outside React",
-    "body2": "Build the store yourself and a socket, a native menu or a worker can open a panel.",
-    "name3": "Repaint",
-    "body3": "Every value is a custom property. Set the accent and the rails follow your brand.",
-    "name4": "Or take the logic only",
-    "body4": "The components are built on hooks that render nothing. Draw your own frame on them."
+    "name2": "Rearrange",
+    "body2": "One prop, and a reader drags a rail icon into another half. Where they put it is remembered with the rest of the layout.",
+    "name3": "Drive from outside React",
+    "body3": "Build the store yourself and a socket, a native menu or a worker can open a panel.",
+    "name4": "Repaint",
+    "body4": "Every value is a custom property. Set the accent and the rails follow your brand.",
+    "name5": "Or take the logic only",
+    "body5": "The components are built on hooks that render nothing. Draw your own frame on them."
   }
 }

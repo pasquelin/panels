@@ -59,7 +59,7 @@
   },
   "api": {
     "title": "Toute la surface",
-    "lead": "Il n’y en a pas beaucoup, et c’est le but. Cinq choses à savoir."
+    "lead": "Il n’y en a pas beaucoup, et c’est le but. Six choses à savoir."
   },
   "foot": {
     "docs": "Docs",
@@ -72,7 +72,7 @@
   "cards": {
     "title0": "Minimal",
     "what0": "Le plus petit châssis qui fonctionne. Deux colonnes, une bande, un centre — et un en-tête à vous qui le pilote.",
-    "tip0": "Deux panneaux qui partagent une zone et une moitié prennent leur tour ; le rail bascule entre eux. Donnez-lui la moitié secondaire pour l’empiler sous le premier.",
+    "tip0": "Deux panneaux qui partagent une zone et une moitié prennent leur tour ; le rail bascule entre eux. Donnez-lui la moitié secondaire pour l’empiler sous le premier. Ici, les icônes du rail se déplacent aussi d’une moitié à l’autre.",
     "title1": "React Router",
     "what1": "Le centre est une route. Naviguer change le milieu et rien d’autre — les colonnes gardent leur largeur, les panneaux ouverts le restent.",
     "tip1": "Déclarez les panneaux dans la route de mise en page, au-dessus de la route enfant. Déclarés par page, ils seraient démontés à chaque navigation et perdraient ce qu’ils tenaient.",
@@ -88,11 +88,13 @@
     "body0": "Un panneau est un descripteur. Où il s’accroche, comment il s’appelle, ce qu’il dessine.",
     "name1": "Piloter",
     "body1": "Un seul hook pour tout en-tête, raccourci ou menu qui doit agir sur les panneaux.",
-    "name2": "Piloter hors de React",
-    "body2": "Construisez le store vous-même et un socket, un menu natif ou un worker ouvre un panneau.",
-    "name3": "Repeindre",
-    "body3": "Chaque valeur est une propriété personnalisée. Posez l’accent et les rails suivent votre identité.",
-    "name4": "Ou ne prendre que la logique",
-    "body4": "Les composants sont bâtis sur des hooks qui ne dessinent rien. Dessinez votre propre cadre dessus."
+    "name2": "Réarranger",
+    "body2": "Une prop, et le lecteur fait glisser une icône de rail vers une autre moitié. L’endroit qu’il choisit est retenu avec le reste de la disposition.",
+    "name3": "Piloter hors de React",
+    "body3": "Construisez le store vous-même et un socket, un menu natif ou un worker ouvre un panneau.",
+    "name4": "Repeindre",
+    "body4": "Chaque valeur est une propriété personnalisée. Posez l’accent et les rails suivent votre identité.",
+    "name5": "Ou ne prendre que la logique",
+    "body5": "Les composants sont bâtis sur des hooks qui ne dessinent rien. Dessinez votre propre cadre dessus."
   }
 }

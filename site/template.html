@@ -262,8 +262,7 @@
             <dd class="api__body">
               <p>{{api5.body2}}</p>
               <figure class="code">
-            <pre class="code__pre"><code><span class="k">const</span> store = createPanelsStore&lt;<span class="t">PanelId</span>&gt;()
-socket.on(<span class="s">'alert'</span>, () =&gt; store.getState().show(<span class="s">'alerts'</span>))</code></pre>
+            <pre class="code__pre"><code>&lt;<span class="t">Panels</span>&lt;<span class="t">PanelId</span>&gt; draggablePanels&gt;</code></pre>
           </figure>
             </dd>
           </div>
@@ -272,6 +271,17 @@ socket.on(<span class="s">'alert'</span>, () =&gt; store.getState().show(<span c
             <dt class="api__name">{{api5.name3}}</dt>
             <dd class="api__body">
               <p>{{api5.body3}}</p>
+              <figure class="code">
+            <pre class="code__pre"><code><span class="k">const</span> store = createPanelsStore&lt;<span class="t">PanelId</span>&gt;()
+socket.on(<span class="s">'alert'</span>, () =&gt; store.getState().show(<span class="s">'alerts'</span>))</code></pre>
+          </figure>
+            </dd>
+          </div>
+
+          <div class="api__row">
+            <dt class="api__name">{{api5.name4}}</dt>
+            <dd class="api__body">
+              <p>{{api5.body4}}</p>
               <figure class="code">
             <pre class="code__pre"><code>.pnl-root {
   <span class="t">--pnl-panel</span>: #101418;
@@ -283,9 +293,9 @@ socket.on(<span class="s">'alert'</span>, () =&gt; store.getState().show(<span c
           </div>
 
           <div class="api__row">
-            <dt class="api__name">{{api5.name4}}</dt>
+            <dt class="api__name">{{api5.name5}}</dt>
             <dd class="api__body">
-              <p>{{api5.body4}}</p>
+              <p>{{api5.body5}}</p>
               <figure class="code">
             <pre class="code__pre"><code><span class="k">const</span> zone = useZone(<span class="s">'left'</span>)
 useContainerFit(ref)</code></pre>
