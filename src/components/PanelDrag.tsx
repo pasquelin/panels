@@ -108,21 +108,40 @@ export function PanelDragProvider({
   }
 
   /**
-   * The half under the pointer, and the position the panel would take in it.
+   * The half a drop would land in, and the position it would take there.
+   *
+   * The RAIL is the target, and the half is whichever of its own is nearest the pointer.
+   *
+   * 🛑 Nearest, not underneath. A half's drop zone is exactly as tall as the icons standing in
+   * it, so the rail's empty space — most of it, under the last icon — belonged to no half at
+   * all: a reader aiming below a button was offered nothing and dropped onto nothing, and the
+   * only way to reach the place under an icon was to hover the icon itself.
    *
    * Measured on every move rather than once at the start: the placeholder this answer puts on
    * screen SHIFTS the buttons it was measured against, so a cached list is wrong by exactly the
    * height of one icon.
    */
   const targetAt = (x: number, y: number, held: Held): DropTarget | null => {
-    const drop = document.elementFromPoint(x, y)?.closest<HTMLElement>('[data-pnl-drop]')
-    const zone = drop?.dataset.pnlZone as Zone | undefined
-    const slot = drop?.dataset.pnlSlot as Slot | undefined
-    if (!drop || !zone || !slot) return null
+    const under = document.elementFromPoint(x, y)
+    const rail = under?.closest<HTMLElement>('.pnl-rail')
     // 🛑 The chassis the gesture began in, and no other. `elementFromPoint` reads the whole
     // document: two chassis side by side, a drag started in one found the other's rail and wrote
     // the placement into the store of the first.
-    if (held.root && !held.root.contains(drop)) return null
+    if (!rail || (held.root && !held.root.contains(rail))) return null
+
+    const drop =
+      under?.closest<HTMLElement>('[data-pnl-drop]') ??
+      [...rail.querySelectorAll<HTMLElement>('[data-pnl-drop]')].reduce<
+        [HTMLElement, number] | undefined
+      >((best, half) => {
+        const box = half.getBoundingClientRect()
+        const gap = y < box.top ? box.top - y : Math.max(0, y - box.bottom)
+        return best && best[1] <= gap ? best : [half, gap]
+      }, undefined)?.[0]
+
+    const zone = drop?.dataset.pnlZone as Zone | undefined
+    const slot = drop?.dataset.pnlSlot as Slot | undefined
+    if (!drop || !zone || !slot) return null
 
     const buttons = [...drop.querySelectorAll<HTMLElement>('[data-pnl-panel]')].filter(
       button => button.dataset.pnlPanel !== held.panel.id,

@@ -148,6 +148,10 @@ A reader may drag a rail icon into another half — the other half of the same c
 column, either end of the band. Every half a rail draws will take a drop, and the empty ones show
 themselves for as long as a panel is being carried.
 
+Anywhere in a rail is a drop: the half a panel lands in is whichever of that rail's own is
+**nearest** the pointer, not the one it happens to be over. A half is only as tall as the icons
+standing in it, and a reader aiming at the space below the last one is aiming at that half.
+
 A zone holding **nothing** offers one place to land rather than two: `primary` and `secondary` are
 only two destinations once something stands in the zone to be above or below.
 

@@ -34,7 +34,9 @@
   capability system would be for — and withdrawing one costs nothing: the half falls back, the
   choice is remembered, and declaring the panel again gives it its place back.
 - **Moving panels is opt-in too.** `<Panels draggablePanels>` lets a reader drag a rail icon into
-  any half a rail draws, and where they put it is stored. The declaration is never overwritten —
+  any half a rail draws, and where they put it is stored. Anywhere in a rail is a drop: the half
+  is whichever of that rail's own is NEAREST the pointer, since a half is only as tall as its
+  icons and most of a rail is empty space. The declaration is never overwritten —
   it is what the panel falls back to, and dropping a panel back where it was declared removes the
   override rather than writing it down. `arrangedRegistry(state)` is the declared list re-ordered
   and re-placed; every reader downstream goes on reading `spec.zone` and `spec.slot`.
@@ -518,6 +520,10 @@ URL, for ever.
 A reader may drag a rail icon into another half — the other half of the same column, the opposite
 column, either end of the band. Every half a rail draws will take a drop, and the empty ones show
 themselves for as long as a panel is being carried.
+
+Anywhere in a rail is a drop: the half a panel lands in is whichever of that rail's own is
+**nearest** the pointer, not the one it happens to be over. A half is only as tall as the icons
+standing in it, and a reader aiming at the space below the last one is aiming at that half.
 
 A zone holding **nothing** offers one place to land rather than two: `primary` and `secondary` are
 only two destinations once something stands in the zone to be above or below.

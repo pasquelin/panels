@@ -34,7 +34,9 @@
   capability system would be for — and withdrawing one costs nothing: the half falls back, the
   choice is remembered, and declaring the panel again gives it its place back.
 - **Moving panels is opt-in too.** `<Panels draggablePanels>` lets a reader drag a rail icon into
-  any half a rail draws, and where they put it is stored. The declaration is never overwritten —
+  any half a rail draws, and where they put it is stored. Anywhere in a rail is a drop: the half
+  is whichever of that rail's own is NEAREST the pointer, since a half is only as tall as its
+  icons and most of a rail is empty space. The declaration is never overwritten —
   it is what the panel falls back to, and dropping a panel back where it was declared removes the
   override rather than writing it down. `arrangedRegistry(state)` is the declared list re-ordered
   and re-placed; every reader downstream goes on reading `spec.zone` and `spec.slot`.

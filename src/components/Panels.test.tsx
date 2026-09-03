@@ -185,6 +185,34 @@ describe('Panels', () => {
     expect(screen.queryByText('conversation')).not.toBeInTheDocument()
   })
 
+  it('finds the nearest half when the pointer is in the rail’s empty space', () => {
+    const store = createPanelsStore<Id>()
+    render(<Draggable store={store} />)
+    const wrapper = screen
+      .getByRole('button', { name: 'Files' })
+      .closest<HTMLElement>('[data-pnl-panel]')!
+    // 🛑 The RAIL, not a drop zone. A half is exactly as tall as the icons standing in it, so
+    // most of a rail belongs to none of them: aiming below the last icon offered nothing, and
+    // the only way to reach the place under a button was to hover the button itself.
+    pointingAt('.pnl-rail--right')
+
+    fireEvent.pointerDown(wrapper, {
+      pointerId: 1,
+      button: 0,
+      isPrimary: true,
+      clientX: 10,
+      clientY: 10,
+    })
+    fireEvent.pointerMove(wrapper, { pointerId: 1, clientX: 80, clientY: 80 })
+    fireEvent.pointerMove(wrapper, { pointerId: 1, clientX: 81, clientY: 81 })
+    fireEvent.pointerUp(wrapper, { pointerId: 1, clientX: 81, clientY: 81 })
+
+    expect(store.getState().placements.default?.byId.files).toEqual({
+      zone: 'right',
+      slot: 'primary',
+    })
+  })
+
   it('offers one place to land in a zone that holds nothing, and two where it holds something', () => {
     render(<Draggable />)
     const wrapper = screen

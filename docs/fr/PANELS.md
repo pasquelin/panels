@@ -151,6 +151,10 @@ Un lecteur peut faire glisser une icône de rail vers une autre moitié — l'au
 colonne, la colonne d'en face, l'un ou l'autre bout du bandeau. Toute moitié qu'un rail dessine
 accepte un dépôt, et les vides se montrent le temps qu'un panneau est porté.
 
+N'importe où dans un rail est un dépôt : la moitié d'arrivée est celle de ce rail la plus
+**proche** du pointeur, et non celle qu'il survole. Une moitié n'est haute que de ses icônes, et un
+lecteur qui vise l'espace sous la dernière vise bien cette moitié.
+
 Une zone qui ne tient **rien** offre une seule place et non deux : `primary` et `secondary` ne sont
 deux destinations qu'une fois qu'il y a quelque chose dans la zone à surmonter ou à suivre.
 

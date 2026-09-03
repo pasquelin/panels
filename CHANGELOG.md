@@ -5,6 +5,17 @@ All notable changes to `@pasquelin/panels`.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] — 2026-09-03
+
+### Fixed
+
+- **A drop lands in the half nearest the pointer, not the one it happens to be over.** A half's
+  drop zone is exactly as tall as the icons standing in it, so the rail's empty space — most of
+  it, under the last icon — belonged to no half at all. A reader aiming below a button was offered
+  no indicator and dropped onto nothing; the only way to reach the place under an icon was to
+  hover that icon. Anywhere in a rail is now a drop, and the half is whichever of that rail's own
+  is closest.
+
 ## [0.4.0] — 2026-09-03
 
 ### Added
@@ -300,6 +311,7 @@ First release.
 - Optional `@pasquelin/panels/dockview` entry point for document tabs.
 - No runtime dependencies.
 
+[0.4.1]: https://github.com/pasquelin/panels/releases/tag/v0.4.1
 [0.4.0]: https://github.com/pasquelin/panels/releases/tag/v0.4.0
 [0.3.4]: https://github.com/pasquelin/panels/releases/tag/v0.3.4
 [0.3.3]: https://github.com/pasquelin/panels/releases/tag/v0.3.3
