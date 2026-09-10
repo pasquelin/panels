@@ -1,5 +1,11 @@
 # @pasquelin/panels
 
+[![npm](https://img.shields.io/npm/v/@pasquelin/panels?logo=npm&color=cb3837)](https://www.npmjs.com/package/@pasquelin/panels)
+[![npm downloads](https://img.shields.io/npm/dm/@pasquelin/panels?logo=npm&color=cb3837)](https://www.npmjs.com/package/@pasquelin/panels)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/@pasquelin/panels?label=gzip)](https://bundlephobia.com/package/@pasquelin/panels)
+[![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![License: MIT](https://img.shields.io/badge/license-MIT-1e6fbf)](LICENSE)
+
 **[Live demo ↗](https://pasquelin.github.io/panels/)** · **[Documentation 🇫🇷](docs/fr/README.md)** · **[Documentation 🇬🇧](docs/en/README.md)** · MIT
 
 A React panel chassis: icon rails on the edges, resizable zones around a free centre, and a
